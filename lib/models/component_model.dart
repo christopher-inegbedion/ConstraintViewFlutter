@@ -1,11 +1,22 @@
 import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/models/margin_model.dart';
 
-class ComponentModel {
+///A type of widget in an [Entry] that can be interacted with.
+abstract class Component {
   String ID;
   ComponentType type;
   Margin margin;
   dynamic value;
 
-  ComponentModel(this.ID, this.margin, this.type);
+  Component(this.ID, this.margin, this.type);
+
+  Component.forStatic() {}
+
+  buildComponentView();
+
+  buildComponent(List componentParams);
+
+  setValue(dynamic value);
+
+  getValue();
 }

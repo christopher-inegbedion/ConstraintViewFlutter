@@ -2,5 +2,7 @@ enum ComponentType {
   Text,
   Input,
   Image,
-  Button
+  Button,
+  ColorBlock,
+  LiveModel
 }

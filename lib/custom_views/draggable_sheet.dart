@@ -1,54 +1,52 @@
-import 'package:constraint_view/components/text_component.dart';
-import 'package:constraint_view/enums/component_align.dart';
-import 'package:constraint_view/models/entry_model.dart';
-import 'package:constraint_view/models/margin_model.dart';
+import 'package:constraint_view/models/section_data.dart';
 import 'package:constraint_view/view_controller.dart';
 import 'package:flutter/material.dart';
 
 class ConstraintDraggableSheet extends StatefulWidget {
-  bool canOpen;
+  final bool canOpen;
+  final bool fullyExpanded;
+  SectionData sectionData;
 
-  ConstraintDraggableSheet(this.canOpen);
+  ConstraintDraggableSheet(this.canOpen, this.fullyExpanded, this.sectionData);
 
   @override
   _ConstraintDraggableSheetState createState() =>
-      _ConstraintDraggableSheetState(this.canOpen);
+      _ConstraintDraggableSheetState(
+          this.canOpen, this.fullyExpanded, this.sectionData);
 }
 
 class _ConstraintDraggableSheetState extends State<ConstraintDraggableSheet> {
   bool canOpen;
-  final double maxExpandHeight = 0.6;
-  final double minExpandHeight = 0.05;
-  final double initialExpansionHeight = 0.3;
-  _ConstraintDraggableSheetState(this.canOpen);
+  bool fullyExpanded;
+  SectionData sectionData;
 
-  List<ConfigEntry> entries = [
-    ConfigEntry([
-      TextComponent(
-          "1", Margin(0, 0, 0, 0), "placeholder1", ComponentAlign.right, 10),
-      TextComponent(
-          "1", Margin(0, 0, 0, 0), "placeholder", ComponentAlign.left, 10),
-      // TextComponent("1", Margin(0, 0, 0, 0), "placeholder"),
-      // TextComponent("1", Margin(0, 0, 0, 0), "placeholder"),
-    ], Margin(20.0, 20.0, 0, 0)),
-    ConfigEntry([
-      TextComponent(
-          "1", Margin(0, 0, 0, 0), "placeholder", ComponentAlign.center, 10)
-    ], Margin(0, 0, 0, 0)),
-    ConfigEntry([
-      TextComponent(
-          "1", Margin(0, 0, 0, 0), "placeholder", ComponentAlign.center, 10)
-    ], Margin(0, 0, 0, 0)),
-    ConfigEntry([
-      TextComponent(
-          "1", Margin(0, 0, 0, 0), "placeholder", ComponentAlign.center, 10)
-    ], Margin(0, 0, 0, 0)),
-  ];
+  double maxExpandHeight;
+  double minExpandHeight;
+  double initialExpansionHeight;
+
+  Widget view;
+
+  _ConstraintDraggableSheetState(
+      bool canOpen, bool fullyExpanded, SectionData sectionData) {
+    this.canOpen = canOpen;
+    this.fullyExpanded = fullyExpanded;
+    this.sectionData = sectionData;
+
+    maxExpandHeight = sectionData.state.draggableSheetMaxHeight;
+    minExpandHeight = 0.04;
+    initialExpansionHeight = 0.3;
+
+    view = sectionData.state.buildBottomView();
+  }
 
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-        initialChildSize: canOpen ? initialExpansionHeight : minExpandHeight,
+        initialChildSize: canOpen
+            ? this.fullyExpanded
+                ? maxExpandHeight
+                : initialExpansionHeight
+            : minExpandHeight,
         minChildSize: minExpandHeight,
         maxChildSize: maxExpandHeight,
         builder: (BuildContext context, ScrollController scrollController) {
@@ -65,14 +63,16 @@ class _ConstraintDraggableSheetState extends State<ConstraintDraggableSheet> {
                 children: [
                   Container(
                     margin: EdgeInsets.only(top: 10),
-                    height: 6,
-                    width: 40,
+                    height: 5,
+                    width: 30,
                     decoration: BoxDecoration(
-                        color: Colors.grey,
+                        color: Colors.grey[300],
                         borderRadius: BorderRadius.all(Radius.circular(10))),
                   ),
-                  Container(
-                    child: ViewController(entries),
+                  SingleChildScrollView(
+                    child: Container(
+                      child: view,
+                    ),
                   )
                 ],
               ),

@@ -1,8 +1,70 @@
 import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/models/component_model.dart';
 import 'package:constraint_view/models/margin_model.dart';
+import 'package:flutter/material.dart';
 
-class InputFieldComponent extends ComponentModel {
-  InputFieldComponent(String ID, Margin margin, String hintText)
-      : super(ID, margin, ComponentType.Input);
+class InputFieldComponent extends Component {
+  String ID;
+  Margin margin;
+  String hintText;
+  String errorText;
+  bool isFormGood = true;
+  Form form;
+
+  InputFieldComponent(
+      String ID, Margin margin, String hintText, String errorText)
+      : super(ID, margin, ComponentType.Input) {
+    this.ID = ID;
+    this.margin = margin;
+    this.hintText = hintText;
+    this.errorText = errorText;
+  }
+
+  InputFieldComponent.forStatic() : super.forStatic();
+
+  @override
+  Widget buildComponentView() {
+    TextEditingController controller = TextEditingController();
+
+    form = Form(
+      key: GlobalKey<FormState>(),
+      child: TextFormField(
+        controller: controller,
+        validator: (String value) {
+          return (value == null || value.isEmpty) ? this.errorText : null;
+        },
+        decoration: InputDecoration(
+            hintText: this.hintText, errorText: isFormGood ? null : "Error"),
+      ),
+    );
+
+    return form;
+  }
+
+  @override
+  InputFieldComponent buildComponent(List componentParams) {
+    String ID = componentParams[0];
+    Margin margin = componentParams[1];
+    String hintText = componentParams[2];
+    String errorText = componentParams[3];
+
+    return InputFieldComponent(ID, margin, hintText, errorText);
+  }
+
+  void setValue(dynamic value) {
+    TextFormField textFormField = form.child;
+    textFormField.controller.text = value;
+  }
+
+  @override
+  String getValue() {
+    GlobalKey<FormState> key = form.key;
+    TextFormField textFormField = form.child;
+
+    if (key.currentState.validate()) {
+      return textFormField.controller.text;
+    }
+
+    return null;
+  }
 }
