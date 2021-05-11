@@ -77,8 +77,8 @@ class ConfigurationModel {
     return null;
   }
 
-  void addConfigEntry(int prevConfigEntryIndex, String section, Margin margin,
-      ComponentType componentType, List componentParams) {
+  void addConfigEntryWithComponent(int configEntryIndex, String section,
+      Margin margin, ComponentType componentType, List componentParams) {
     ConfigEntry defaultConfigEntry = ConfigEntry([], margin);
 
     Component builtComponent = addComponent(componentType, componentParams);
@@ -90,7 +90,7 @@ class ConfigurationModel {
           "Error building component with params: componentType: $componentType, componentParams: $componentParams");
     }
 
-    if (prevConfigEntryIndex == -1) {
+    if (configEntryIndex == -1) {
       if (section == "top") {
         topSection.insert(topSection.length, defaultConfigEntry);
       } else if (section == "bottom") {
@@ -98,10 +98,61 @@ class ConfigurationModel {
       }
     } else {
       if (section == "top") {
-        topSection.insert(prevConfigEntryIndex + 1, defaultConfigEntry);
+        topSection.insert(configEntryIndex, defaultConfigEntry);
       } else if (section == "bottom") {
-        bottomSection.insert(prevConfigEntryIndex + 1, defaultConfigEntry);
+        bottomSection.insert(configEntryIndex, defaultConfigEntry);
       }
+    }
+  }
+
+  void addComponentToConfigEntry(int configEntryIndex, int componentIndex,
+      String section, ComponentType componentType, List componentParams) {
+    ConfigEntry configEntry;
+
+    if (section == "top") {
+      if (configEntryIndex > this.topSection.length) {
+        throw Exception(
+            "ConfigEntry index: $configEntryIndex is greater than topSection length");
+      }
+      configEntry = this.topSection.elementAt(configEntryIndex);
+    } else if (section == "bottom") {
+      if (configEntryIndex > this.bottomSection.length) {
+        throw Exception(
+            "ConfigEntry index: $configEntryIndex is greater than bottomSection length");
+      }
+      configEntry = this.bottomSection.elementAt(configEntryIndex);
+    }
+
+    Component builtComponent = addComponent(componentType, componentParams);
+    configEntry.components.add(builtComponent);
+  }
+
+  void removeComponentFromConfigEntry(
+      int componentIndex, int configEntryIndex, String section) {
+    ConfigEntry configEntry;
+
+    if (section == "top") {
+      if (configEntryIndex > this.topSection.length) {
+        throw Exception(
+            "ConfigEntry index: $configEntryIndex is greater than topSection length");
+      }
+      configEntry = this.topSection.elementAt(configEntryIndex);
+      configEntry.components.removeAt(componentIndex);
+    } else if (section == "bottom") {
+      if (configEntryIndex > this.bottomSection.length) {
+        throw Exception(
+            "ConfigEntry index: $configEntryIndex is greater than bottomSection length");
+      }
+      configEntry = this.bottomSection.elementAt(configEntryIndex);
+      configEntry.components.removeAt(componentIndex);
+    }
+  }
+
+  void removeConfigEntry(int configIndex, String section) {
+    if (section == "top") {
+      topSection.removeAt(configIndex);
+    } else if (section == "bottom") {
+      bottomSection.removeAt(configIndex);
     }
   }
 

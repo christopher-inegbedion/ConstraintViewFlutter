@@ -79,11 +79,18 @@ class MyApp extends StatelessWidget {
         false,
         [
           ConfigEntry([
-            TextComponent("ID", Margin(0, 0, 0, 0), "Customize your \ncharacter",
-                ComponentAlign.left, 30.0, "#000000")
+            TextComponent(
+                "ID",
+                Margin(0, 0, 0, 0),
+                "Customize your \ncharacter",
+                ComponentAlign.left,
+                30.0,
+                "#000000")
           ], Margin(40, 0, 30, 0)),
-          ConfigEntry([LiveModelComponent("ID", Margin(0, 0, 0, 0))],
-              Margin(20, 0, 0, 0))
+          ConfigEntry([
+            LiveModelComponent(
+                "ID", 'assets/wraith.glb', false, Margin(0, 0, 0, 0))
+          ], Margin(20, 0, 0, 0))
         ],
         [],
         draggableSheetMaxHeight: 0.1)

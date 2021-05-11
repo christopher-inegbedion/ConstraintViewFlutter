@@ -33,19 +33,31 @@ class _ConstraintViewState extends State<ConstraintView> {
     });
   }
 
-  void addComponent() {
-    List componentParams = [
-      "text",
-      Margin(0, 0, 0, 0),
-      "new text",
-      ComponentAlign.center,
-      20.0,
-      "#000000"
-    ];
+  void addConfigEntryWithComponent(int configEntryIndex, String section,
+      Margin margin, ComponentType componentType, List componentParams) {
+    sectionData.state.addConfigEntryWithComponent(
+        configEntryIndex, section, margin, componentType, componentParams);
 
-    sectionData.state.addConfigEntry(
-        -1, "top", Margin(0, 0, 0, 0), ComponentType.Text, componentParams);
+    setState(() {});
+  }
 
+  void addComponentToConfigEntry(int configEntryIndex, int componentIndex,
+      String section, ComponentType componentType, List componentParams) {
+    sectionData.state.addComponentToConfigEntry(configEntryIndex,
+        componentIndex, section, componentType, componentParams);
+
+    setState(() {});
+  }
+
+  void removeComponentFromConfigEntry(
+      int componentIndex, int configEntryIndex, String section) {
+    sectionData.state.removeComponentFromConfigEntry(
+        componentIndex, configEntryIndex, section);
+    setState(() {});
+  }
+
+  void removeConfigEntry(int configIndex, String section) {
+    sectionData.state.removeConfigEntry(configIndex, section);
     setState(() {});
   }
 
@@ -56,11 +68,34 @@ class _ConstraintViewState extends State<ConstraintView> {
       child: Stack(
         children: [
           Container(key: UniqueKey(), child: sectionData.state.buildTopView()),
-          // TextButton(
-          //     onPressed: () {
-          //       addComponent();
-          //     },
-          //     child: Text("item")),
+          TextButton(
+              onPressed: () {
+                addComponentToConfigEntry(0, 0, "top", ComponentType.Text, [
+                  "text",
+                  Margin(0, 0, 0, 0),
+                  "placeholder" + DateTime.now().toString(),
+                  ComponentAlign.center,
+                  20.0,
+                  "#000000"
+                ]);
+              },
+              child: Text("add")),
+          Container(
+            margin: EdgeInsets.only(left: 50),
+            child: TextButton(
+                onPressed: () {
+                  removeConfigEntry(0, "top");
+                },
+                child: Text("remove")),
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 110),
+            child: TextButton(
+                onPressed: () {
+                  changeCurrentState("3");
+                },
+                child: Text("refresh")),
+          ),
           Container(
               key: UniqueKey(),
               child: ConstraintDraggableSheet(

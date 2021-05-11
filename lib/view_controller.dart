@@ -37,6 +37,7 @@ class _ViewControllerState extends State<ViewController> {
   Map builtComponents = {};
   Map<String, dynamic> savedValues = {};
   List<ConfigEntry> sectionToUse;
+  bool ignoreScoll = false;
 
   _ViewControllerState(this.configurationModel, this.section);
 
@@ -122,11 +123,16 @@ class _ViewControllerState extends State<ViewController> {
       entries.add(entryWidget);
     }
 
-    return Column(
-      mainAxisAlignment: configurationModel.centerTopSectionData
-          ? MainAxisAlignment.center
-          : MainAxisAlignment.start,
-      children: entries,
+    return SingleChildScrollView(
+      physics: ignoreScoll
+          ? NeverScrollableScrollPhysics()
+          : AlwaysScrollableScrollPhysics(),
+      child: Column(
+        mainAxisAlignment: configurationModel.centerTopSectionData
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.start,
+        children: entries,
+      ),
     );
   }
 
@@ -221,15 +227,27 @@ class _ViewControllerState extends State<ViewController> {
 
     builtComponents[liveModelComponent.ID] = liveModel;
 
-    return Container(
-      height: MediaQuery.of(context).size.width,
-      width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(
-          top: componentMargin.top,
-          bottom: componentMargin.bottom,
-          left: componentMargin.left,
-          right: componentMargin.right),
-      child: liveModel,
+    return Listener(
+      onPointerDown: (d) {
+        ignoreScoll = true;
+        notifyChange();
+      },
+      onPointerUp: (d) {
+        ignoreScoll = false;
+        notifyChange();
+      },
+      child: SizedBox(
+        height: MediaQuery.of(context).size.width,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          child: liveModel,
+          margin: EdgeInsets.only(
+              top: componentMargin.top,
+              bottom: componentMargin.bottom,
+              left: componentMargin.left,
+              right: componentMargin.right),
+        ),
+      ),
     );
   }
 

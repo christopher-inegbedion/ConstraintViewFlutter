@@ -6,26 +6,36 @@ import 'package:model_viewer/model_viewer.dart';
 
 class LiveModelComponent extends Component {
   String ID;
+  String url;
+  bool arEnabled;
   Margin margin;
 
-  LiveModelComponent(String ID, Margin margin)
+  LiveModelComponent(String ID, String url, bool arEnabled, Margin margin)
       : super(ID, margin, ComponentType.LiveModel) {
     this.ID = ID;
+    this.url = url;
+    this.arEnabled = arEnabled;
     this.margin = margin;
   }
 
+  LiveModelComponent.forStatic() : super.forStatic();
+
   @override
-  buildComponent(List componentParams) {
-    // TODO: implement buildComponent
-    throw UnimplementedError();
+  LiveModelComponent buildComponent(List componentParams) {
+    String ID = componentParams[0];
+    String url = componentParams[1];
+    bool arEnabled = componentParams[2];
+    margin = componentParams[3];
+
+    return LiveModelComponent(ID, url, arEnabled, margin);
   }
 
   @override
   buildComponentView() {
     Widget view = ModelViewer(
-      src: 'assets/wraith.glb',
+      src: this.url,
       alt: "A 3D model of an astronaut",
-      ar: true,
+      ar: arEnabled,
       autoRotate: true,
       cameraControls: true,
     );
