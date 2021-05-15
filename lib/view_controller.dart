@@ -10,6 +10,7 @@ import 'package:constraint_view/models/config_entry.dart';
 import 'package:constraint_view/models/configuration_model.dart';
 import 'package:constraint_view/models/margin_model.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:model_viewer/model_viewer.dart';
 
 import 'models/section_data.dart';
@@ -67,6 +68,7 @@ class _ViewControllerState extends State<ViewController> {
     }
 
     List<Widget> entries = [];
+
     for (ConfigEntry entry in this.sectionToUse) {
       Margin entryMargin = entry.margin;
       List<Widget> components = [];
@@ -127,12 +129,23 @@ class _ViewControllerState extends State<ViewController> {
       physics: ignoreScoll
           ? NeverScrollableScrollPhysics()
           : AlwaysScrollableScrollPhysics(),
-      child: Column(
-        mainAxisAlignment: configurationModel.centerTopSectionData
-            ? MainAxisAlignment.center
-            : MainAxisAlignment.start,
-        children: entries,
-      ),
+      child: section == "top"
+          ? Container(
+              color: HexColor(configurationModel.bgColor),
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                mainAxisAlignment: configurationModel.centerTopSectionData
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
+                children: entries,
+              ),
+            )
+          : Column(
+              mainAxisAlignment: configurationModel.centerTopSectionData
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.start,
+              children: entries,
+            ),
     );
   }
 

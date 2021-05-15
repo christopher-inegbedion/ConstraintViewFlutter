@@ -52,14 +52,29 @@ class TextComponent extends Component {
   @override
   TextComponent buildComponent(List componentParams) {
     String ID = componentParams[0];
-    Margin margin = componentParams[1];
+    Margin margin = Margin(componentParams[1][0], componentParams[1][1],
+        componentParams[1][2], componentParams[1][3]);
     String placeholder = componentParams[2];
-    ComponentAlign componentAlign = componentParams[3];
+    ComponentAlign componentAlign =
+        getComponentAlignFromString(componentParams[3]);
     double textSize = componentParams[4];
     String textColor = componentParams[5];
 
     return TextComponent(
         ID, margin, placeholder, componentAlign, textSize, textColor);
+  }
+
+  ComponentAlign getComponentAlignFromString(String componentAlign) {
+    switch (componentAlign) {
+      case "center":
+        return ComponentAlign.center;
+      case "left":
+        return ComponentAlign.left;
+      case "right":
+        return ComponentAlign.right;
+      default:
+        return null;
+    }
   }
 
   void setValue(dynamic value) {

@@ -1,4 +1,5 @@
 import 'package:constraint_view/components/live_model_component.dart';
+import 'package:constraint_view/custom_views/task_view.dart';
 import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/models/section_data.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'components/button_component.dart';
 import 'components/input_field_component.dart';
 import 'components/text_component.dart';
-import 'constraint_view.dart';
+import 'custom_views/constraint_view.dart';
 import 'enums/component_align.dart';
 import 'models/config_entry.dart';
 import 'models/configuration_model.dart';
@@ -57,6 +58,8 @@ class MyApp extends StatelessWidget {
                 ]),
           ], Margin(10, 0, 0, 0)),
         ],
+        true,
+        true,
         draggableSheetMaxHeight: 0.32),
     ConfigurationModel(
         "2",
@@ -73,42 +76,40 @@ class MyApp extends StatelessWidget {
                 "Enter exchange rate data", ComponentAlign.left, 20, "#000000")
           ], Margin(20, 0, 20, 0))
         ],
+        true,
+        true,
         draggableSheetMaxHeight: 0.32),
     ConfigurationModel(
         "3",
         false,
         [
           ConfigEntry([
-            TextComponent(
-                "ID",
-                Margin(0, 0, 0, 0),
-                "Customize your \ncharacter",
-                ComponentAlign.left,
-                30.0,
-                "#000000")
+            TextComponent("view_chair", Margin(0, 0, 0, 0), "View your chair",
+                ComponentAlign.left, 30.0, "#000000")
           ], Margin(40, 0, 30, 0)),
           ConfigEntry([
             LiveModelComponent(
-                "ID", 'assets/wraith.glb', false, Margin(0, 0, 0, 0))
+                "ID", 'assets/chair.gltf', false, Margin(0, 0, 0, 0))
           ], Margin(20, 0, 0, 0))
         ],
         [],
+        true,
+        true,
         draggableSheetMaxHeight: 0.1)
   ];
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SectionData sectionData = SectionData(configModels);
-    sectionData.setCurrentConfig("3");
+    SectionData sectionData = SectionData(configModels, true);
+    sectionData.setInitialState("3");
 
     return MaterialApp(
       title: 'ConstraintViewDemo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SafeArea(
-          child: Scaffold(body: ConstraintView(true, true, sectionData))),
+      home: SafeArea(child: Scaffold(body: TaskView())),
     );
   }
 }

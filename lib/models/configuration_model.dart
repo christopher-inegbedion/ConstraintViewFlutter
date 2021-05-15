@@ -11,6 +11,10 @@ import 'margin_model.dart';
 class ConfigurationModel {
   String ID;
   SectionData sectionData;
+  String bgColor;
+  String bottomSheetColor;
+  bool bottomSectionCanOpen;
+  bool bottomSectionCanExpand;
   bool centerTopSectionData;
   double draggableSheetMaxHeight;
   List<ConfigEntry> topSection;
@@ -19,8 +23,15 @@ class ConfigurationModel {
   ViewController bottomViewController;
 
   ConfigurationModel(
-      this.ID, this.centerTopSectionData, this.topSection, this.bottomSection,
-      {this.draggableSheetMaxHeight = 0.7});
+      this.ID,
+      this.centerTopSectionData,
+      this.topSection,
+      this.bottomSection,
+      this.bottomSectionCanOpen,
+      this.bottomSectionCanExpand,
+      {this.draggableSheetMaxHeight = 0.7,
+      this.bgColor = "#ffffff",
+      this.bottomSheetColor = "#ffffff"});
 
   ViewController buildTopView() {
     topViewController = ViewController(this, "top");
@@ -114,13 +125,21 @@ class ConfigurationModel {
         throw Exception(
             "ConfigEntry index: $configEntryIndex is greater than topSection length");
       }
+
       configEntry = this.topSection.elementAt(configEntryIndex);
+      if (configEntry == null) {
+        throw Exception("ConfigEntry with index $configEntryIndex not found");
+      }
     } else if (section == "bottom") {
       if (configEntryIndex > this.bottomSection.length) {
         throw Exception(
             "ConfigEntry index: $configEntryIndex is greater than bottomSection length");
       }
+
       configEntry = this.bottomSection.elementAt(configEntryIndex);
+      if (configEntry == null) {
+        throw Exception("ConfigEntry with index $configEntryIndex not found");
+      }
     }
 
     Component builtComponent = addComponent(componentType, componentParams);
@@ -148,11 +167,11 @@ class ConfigurationModel {
     }
   }
 
-  void removeConfigEntry(int configIndex, String section) {
+  void removeConfigEntry(int configEntryIndex, String section) {
     if (section == "top") {
-      topSection.removeAt(configIndex);
+      topSection.removeAt(configEntryIndex);
     } else if (section == "bottom") {
-      bottomSection.removeAt(configIndex);
+      bottomSection.removeAt(configEntryIndex);
     }
   }
 

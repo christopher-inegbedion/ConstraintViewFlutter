@@ -1,23 +1,19 @@
 import 'package:constraint_view/models/section_data.dart';
 import 'package:constraint_view/view_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 
 class ConstraintDraggableSheet extends StatefulWidget {
-  final bool canOpen;
-  final bool fullyExpanded;
   SectionData sectionData;
 
-  ConstraintDraggableSheet(this.canOpen, this.fullyExpanded, this.sectionData);
+  ConstraintDraggableSheet(this.sectionData);
 
   @override
   _ConstraintDraggableSheetState createState() =>
-      _ConstraintDraggableSheetState(
-          this.canOpen, this.fullyExpanded, this.sectionData);
+      _ConstraintDraggableSheetState(this.sectionData);
 }
 
 class _ConstraintDraggableSheetState extends State<ConstraintDraggableSheet> {
-  bool canOpen;
-  bool fullyExpanded;
   SectionData sectionData;
 
   double maxExpandHeight;
@@ -26,10 +22,7 @@ class _ConstraintDraggableSheetState extends State<ConstraintDraggableSheet> {
 
   Widget view;
 
-  _ConstraintDraggableSheetState(
-      bool canOpen, bool fullyExpanded, SectionData sectionData) {
-    this.canOpen = canOpen;
-    this.fullyExpanded = fullyExpanded;
+  _ConstraintDraggableSheetState(SectionData sectionData) {
     this.sectionData = sectionData;
 
     maxExpandHeight = sectionData.state.draggableSheetMaxHeight;
@@ -42,8 +35,8 @@ class _ConstraintDraggableSheetState extends State<ConstraintDraggableSheet> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-        initialChildSize: canOpen
-            ? this.fullyExpanded
+        initialChildSize: sectionData.state.bottomSectionCanOpen
+            ? sectionData.state.bottomSectionCanExpand
                 ? maxExpandHeight
                 : initialExpansionHeight
             : minExpandHeight,
@@ -51,11 +44,13 @@ class _ConstraintDraggableSheetState extends State<ConstraintDraggableSheet> {
         maxChildSize: maxExpandHeight,
         builder: (BuildContext context, ScrollController scrollController) {
           return Card(
-            color: canOpen ? Colors.white : Colors.grey[300],
+            color: sectionData.state.bottomSectionCanOpen
+                ? HexColor(sectionData.state.bottomSheetColor)
+                : Colors.grey[850],
             elevation: 10,
             margin: EdgeInsets.zero,
             child: SingleChildScrollView(
-              physics: canOpen
+              physics: sectionData.state.bottomSectionCanOpen
                   ? BouncingScrollPhysics()
                   : NeverScrollableScrollPhysics(),
               controller: scrollController,
@@ -69,10 +64,8 @@ class _ConstraintDraggableSheetState extends State<ConstraintDraggableSheet> {
                         color: Colors.grey[300],
                         borderRadius: BorderRadius.all(Radius.circular(10))),
                   ),
-                  SingleChildScrollView(
-                    child: Container(
-                      child: view,
-                    ),
+                  Container(
+                    child: view,
                   )
                 ],
               ),

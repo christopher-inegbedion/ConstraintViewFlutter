@@ -45,13 +45,11 @@ class LiveModelComponent extends Component {
 
   @override
   getValue() {
-    // TODO: implement getValue
-    throw UnimplementedError();
+    return url;
   }
 
   @override
   setValue(value) {
-    // TODO: implement setValue
-    throw UnimplementedError();
+    this.url = value;
   }
 }
