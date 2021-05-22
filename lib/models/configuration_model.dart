@@ -4,10 +4,14 @@ import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/models/component_model.dart';
 import 'package:constraint_view/models/config_entry.dart';
 import 'package:constraint_view/models/section_data.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../view_controller.dart';
 import 'margin_model.dart';
 
+// part "configuration_model.g.dart";
+
+@JsonSerializable()
 class ConfigurationModel {
   String ID;
   SectionData sectionData;
@@ -32,6 +36,11 @@ class ConfigurationModel {
       {this.draggableSheetMaxHeight = 0.7,
       this.bgColor = "#ffffff",
       this.bottomSheetColor = "#ffffff"});
+
+  // factory ConfigurationModel.fromJson(Map<String, dynamic> json) =>
+  //     _$ConfigurationModelFromJson(json);
+
+  // Map<String, dynamic> toJson() => _$ConfigurationModelToJson(this);
 
   ViewController buildTopView() {
     topViewController = ViewController(this, "top");

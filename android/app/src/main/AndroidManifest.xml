@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.constraint_view">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="constraint_view"
         android:icon="@mipmap/ic_launcher"

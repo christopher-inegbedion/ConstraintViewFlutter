@@ -1,23 +1,28 @@
-import 'package:constraint_view/components/live_model_component.dart';
-import 'package:constraint_view/custom_views/task_view.dart';
-import 'package:constraint_view/enums/component_type.dart';
+import 'package:constraint_view/custom_views/constraint_view.dart';
 import 'package:constraint_view/models/section_data.dart';
 import 'package:flutter/material.dart';
 
 import 'components/button_component.dart';
 import 'components/input_field_component.dart';
+import 'components/live_model_component.dart';
 import 'components/text_component.dart';
-import 'custom_views/constraint_view.dart';
 import 'enums/component_align.dart';
 import 'models/config_entry.dart';
 import 'models/configuration_model.dart';
 import 'models/margin_model.dart';
 
-void main() {
-  runApp(MyApp());
+class ConstraintViewPage extends StatefulWidget {
+  String constraintName;
+
+  ConstraintViewPage(this.constraintName);
+
+  @override
+  _ConstraintViewPageState createState() =>
+      _ConstraintViewPageState(constraintName);
 }
 
-class MyApp extends StatelessWidget {
+class _ConstraintViewPageState extends State<ConstraintViewPage> {
+  String constraintName;
   List<ConfigurationModel> configModels = [
     ConfigurationModel(
         "1",
@@ -98,21 +103,13 @@ class MyApp extends StatelessWidget {
         draggableSheetMaxHeight: 0.1)
   ];
 
-  // This widget is the root of your application.
+  _ConstraintViewPageState(this.constraintName);
+
   @override
   Widget build(BuildContext context) {
     SectionData sectionData = SectionData(configModels, true);
-    sectionData.setInitialState("3");
-    String taskID = "8cfdd3d1-f4fd-4869-8f64-58c7a3115816";
+    sectionData.setInitialState("2");
 
-    TaskView taskView = TaskView(taskID);
-
-    return MaterialApp(
-      title: 'ConstraintViewDemo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: SafeArea(child: Scaffold(body: taskView)),
-    );
+    return SafeArea(child: Scaffold(body: ConstraintView(sectionData)));
   }
 }
