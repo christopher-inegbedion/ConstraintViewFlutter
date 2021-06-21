@@ -5,16 +5,13 @@ import 'package:constraint_view/models/component_model.dart';
 import 'package:constraint_view/models/config_entry.dart';
 import 'package:constraint_view/models/section_data.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:web_socket_channel/io.dart';
 
 import '../view_controller.dart';
 import 'margin_model.dart';
 
-// part "configuration_model.g.dart";
-
-@JsonSerializable()
 class ConfigurationModel {
   String ID;
-  SectionData sectionData;
   String bgColor;
   String bottomSheetColor;
   bool bottomSectionCanOpen;
@@ -23,8 +20,15 @@ class ConfigurationModel {
   double draggableSheetMaxHeight;
   List<ConfigEntry> topSection;
   List<ConfigEntry> bottomSection;
+
   ViewController topViewController;
   ViewController bottomViewController;
+
+  String stageName;
+  String constraintName;
+  String taskID;
+  String userID;
+  Map<String, dynamic> configurationInputs;
 
   ConfigurationModel(
       this.ID,
@@ -35,12 +39,12 @@ class ConfigurationModel {
       this.bottomSectionCanExpand,
       {this.draggableSheetMaxHeight = 0.7,
       this.bgColor = "#ffffff",
-      this.bottomSheetColor = "#ffffff"});
-
-  // factory ConfigurationModel.fromJson(Map<String, dynamic> json) =>
-  //     _$ConfigurationModelFromJson(json);
-
-  // Map<String, dynamic> toJson() => _$ConfigurationModelToJson(this);
+      this.bottomSheetColor = "#ffffff",
+      this.stageName,
+      this.constraintName,
+      this.taskID,
+      this.userID,
+      this.configurationInputs});
 
   ViewController buildTopView() {
     topViewController = ViewController(this, "top");
@@ -98,7 +102,7 @@ class ConfigurationModel {
   }
 
   void addConfigEntryWithComponent(int configEntryIndex, String section,
-      Margin margin, ComponentType componentType, List componentParams) {
+      ViewMargin margin, ComponentType componentType, List componentParams) {
     ConfigEntry defaultConfigEntry = ConfigEntry([], margin);
 
     Component builtComponent = addComponent(componentType, componentParams);
@@ -201,7 +205,8 @@ class ConfigurationModel {
         component = null;
         break;
       case ComponentType.Text:
-        component = TextComponent.forStatic().buildComponent(componentParams);
+        component =
+            TextComponent.forStatic().buildComponent(componentParams, true);
         break;
       default:
     }

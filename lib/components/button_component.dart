@@ -15,7 +15,7 @@ class ButtonComponent extends Component {
 
   ButtonComponent(
       String ID,
-      Margin margin,
+      ViewMargin margin,
       String text,
       ComponentAlign alignment,
       String requirementFunction,
@@ -54,20 +54,37 @@ class ButtonComponent extends Component {
   }
 
   @override
-  ButtonComponent buildComponent(List componentParams) {
+  ButtonComponent buildComponent(List componentParams, bool fromConstraint) {
     String ID = componentParams[0];
-    Margin margin = componentParams[1];
+    ViewMargin margin = fromConstraint
+        ? ViewMargin.fromString(componentParams[1])
+        : componentParams[1];
     String text = componentParams[2];
-    ComponentAlign alignment = componentParams[3];
-    String requirementFunction = "";
-    List requirementFunctionArgs = [];
-    String actionFunction = "";
-    List actionFunctionArgs = [];
+    ComponentAlign alignment = getComponentAlignFromString(componentParams[3]);
+    String requirementFunction = componentParams[4];
+    List requirementFunctionArgs =
+        fromConstraint ? componentParams[5].split(",") : componentParams[5];
+    String actionFunction = componentParams[6];
+    List actionFunctionArgs =
+        fromConstraint ? componentParams[7].split(",") : componentParams[7];
     String color = componentParams[8];
 
     return ButtonComponent(ID, margin, text, alignment, requirementFunction,
         requirementFunctionArgs, actionFunction, actionFunctionArgs,
         color: color);
+  }
+
+  ComponentAlign getComponentAlignFromString(String componentAlign) {
+    switch (componentAlign) {
+      case "center":
+        return ComponentAlign.center;
+      case "left":
+        return ComponentAlign.left;
+      case "right":
+        return ComponentAlign.right;
+      default:
+        return null;
+    }
   }
 
   @override

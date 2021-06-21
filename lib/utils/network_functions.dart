@@ -9,9 +9,9 @@ class NetworkUtils {
     http.Response response;
 
     if (method == "get") {
-      response = await http.get(Uri.http(addr, path));
+      response = await http.Client().get(Uri.http(addr, path));
     } else if (method == "post") {
-      response = await http.post(Uri.http(addr, path), body: data);
+      response = await http.Client().post(Uri.http(addr, path), body: data);
     }
 
     if (response.statusCode == 200) {

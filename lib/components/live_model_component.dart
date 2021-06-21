@@ -8,9 +8,9 @@ class LiveModelComponent extends Component {
   String ID;
   String url;
   bool arEnabled;
-  Margin margin;
+  ViewMargin margin;
 
-  LiveModelComponent(String ID, String url, bool arEnabled, Margin margin)
+  LiveModelComponent(String ID, String url, bool arEnabled, ViewMargin margin)
       : super(ID, margin, ComponentType.LiveModel) {
     this.ID = ID;
     this.url = url;
@@ -21,11 +21,11 @@ class LiveModelComponent extends Component {
   LiveModelComponent.forStatic() : super.forStatic();
 
   @override
-  LiveModelComponent buildComponent(List componentParams) {
+  LiveModelComponent buildComponent(List componentParams, bool fromConstraint) {
     String ID = componentParams[0];
-    String url = componentParams[1];
-    bool arEnabled = componentParams[2];
-    margin = componentParams[3];
+    ViewMargin margin = fromConstraint ? ViewMargin.fromString(componentParams[1]) : componentParams[1];
+    String url = componentParams[2];
+    bool arEnabled = componentParams[3];
 
     return LiveModelComponent(ID, url, arEnabled, margin);
   }

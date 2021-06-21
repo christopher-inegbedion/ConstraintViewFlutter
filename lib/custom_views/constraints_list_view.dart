@@ -1,32 +1,57 @@
 import 'dart:convert';
 
-import 'package:constraint_view/constraint_view_page.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:web_socket_channel/io.dart';
 
+import 'constraint_view.dart';
+
 class ConstraintsListView extends StatefulWidget {
   String viewMode;
   String stageGroupID;
   String taskID;
+  String userID;
   String currentStage;
+  bool stageStarted;
+  _ConstraintsListState state;
 
-  ConstraintsListView(
-      this.viewMode, this.taskID, this.stageGroupID, this.currentStage);
+  ConstraintsListView(this.viewMode, this.taskID, this.userID,
+      this.stageGroupID, this.currentStage, this.stageStarted) {
+    state = _ConstraintsListState(
+        viewMode, taskID, userID, stageGroupID, currentStage, stageStarted);
+  }
+
+  void setStageStarted(bool val) {
+    state.setStageStarted(val);
+  }
+
+  void setCurrentStage(String stageName) {
+    state.setCurrentStage(stageName);
+  }
+
+  void setTaskId(String id) {
+    state.setTaskId(id);
+  }
+
+  void setStageGroupId(String id) {
+    state.setStageGroupId(id);
+  }
+
   @override
-  _ConstraintsListState createState() =>
-      _ConstraintsListState(viewMode, taskID, stageGroupID, currentStage);
+  _ConstraintsListState createState() => state;
 }
 
 class _ConstraintsListState extends State<ConstraintsListView> {
   String viewMode;
   String currentStage;
   String taskID;
+  String userID;
   String stageGroupID;
+  bool stageStarted;
 
-  _ConstraintsListState(
-      this.viewMode, this.taskID, this.stageGroupID, this.currentStage);
+  _ConstraintsListState(this.viewMode, this.taskID, this.userID,
+      this.stageGroupID, this.currentStage, this.stageStarted);
 
   Future getStageGroupData(String stageGroupId) {
     return NetworkUtils.performNetworkAction(
@@ -35,109 +60,57 @@ class _ConstraintsListState extends State<ConstraintsListView> {
         "get");
   }
 
-  void startConstraint(String constraintName) {
-    final channel = IOWebSocketChannel.connect("ws://192.168.1.129:4321");
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => ConstraintViewPage(constraintName)));
-
-    // channel.sink.add(jsonEncode({
-    //   "task_id": taskID,
-    //   "constraint_name": constraintName,
-    //   "stage_name": "PENDIGN"
-    // }));
-
-    // channel.stream.listen((event) {
-    //   // the first response from the websocket server is an input request
-    //   Map<String, dynamic> recvData = jsonDecode(event);
-    //   String eventData = recvData["event"];
-
-    //   // the required inputs are sent to the constraint if required
-    //   if (eventData == "INPUT_REQUIRED") {
-    //     int inputCount = recvData["value"]["input_count"];
-    //     showRequiredInputsDialog(constraintName, inputCount, channel);
-    //   } else if (eventData == "INPUT_NOT_REQUIRED") {
-    //     Map<String, dynamic> returnVal = {"response": "INPUT_NOT_REQUIRED"};
-    //     channel.sink.add(jsonEncode(returnVal));
-
-    //     // listen for other events
-    //   } else if (eventData == "STAGE_CONSTRAINT_COMPLETED") {
-    //     String constraintMsg = recvData["msg"];
-    //     showConstraintCompleteDialog(constraintMsg);
-    //   }
-    // });
+  void setStageStarted(bool val) {
+    stageStarted = val;
   }
 
-  void showRequiredInputsDialog(
-      String constraintName, int inputCount, IOWebSocketChannel channel) {
-    List<TextEditingController> inputControllers = [];
-    List<GlobalKey<FormState>> formKeys = [];
-    for (int i = 0; i < inputCount; i++) {
-      inputControllers.add(TextEditingController());
-      formKeys.add(GlobalKey<FormState>());
+  void setCurrentStage(String stageName) {
+    setState(() {
+      currentStage = stageName;
+    });
+  }
+
+  void setTaskId(String id) {
+    taskID = id;
+  }
+
+  void setStageGroupId(String id) {
+    stageGroupID = id;
+  }
+
+  void startConstraint(String constraintName) {
+    if (stageStarted) {
+      final channel = IOWebSocketChannel.connect(
+          "ws://192.168.1.129:4321/start_constraint1");
+
+      channel.sink.add(jsonEncode({
+        "user_id": userID,
+        "task_id": taskID,
+        "constraint_name": constraintName,
+        "stage_name": currentStage
+      }));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$constraintName has started. Loading')));
+
+      channel.stream.first.then((event) {
+        // the first response from the websocket server is an input request
+        Map<String, dynamic> recvData = jsonDecode(event);
+        String eventData = recvData["event"];
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return ConstraintView(
+              constraintName, currentStage, stageGroupID, taskID, userID);
+        }));
+        // else if (eventData == "STAGE_CONSTRAINT_COMPLETED") {
+        //   String constraintMsg = recvData["msg"];
+        //   showConstraintCompleteDialog(constraintMsg);
+        // }
+      });
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('stage has not started')));
     }
-    showDialog<void>(
-      context: context,
-      barrierDismissible: true, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Enter inputs"),
-          content: Container(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: inputCount,
-              itemBuilder: (context, index) {
-                return Form(
-                  key: formKeys.elementAt(index),
-                  child: TextFormField(
-                    controller: inputControllers.elementAt(index),
-                    decoration: InputDecoration(hintText: "Input ${index + 1}"),
-                    validator: (String value) {
-                      return (value != null && value.isEmpty)
-                          ? 'Constraint input required.'
-                          : null;
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Approve'),
-              onPressed: () {
-                bool allInputsComplete = true;
-                List values = [];
-
-                for (int i = 0; i < inputCount; i++) {
-                  GlobalKey<FormState> key = formKeys.elementAt(i);
-                  if (key.currentState.validate()) {
-                    dynamic value = inputControllers.elementAt(i).text;
-                    values.add({"type": "string", "data": value});
-                  } else {
-                    allInputsComplete = false;
-                  }
-                }
-
-                if (allInputsComplete) {
-                  Map<String, dynamic> returnVal = {
-                    "response": "INPUT_REQUIRED",
-                    "data": values
-                  };
-                  channel.sink.add(jsonEncode(returnVal));
-
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                          '$constraintName is now running. Wait for completion')));
-
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void showConstraintCompleteDialog(String msg) {
@@ -217,15 +190,12 @@ class _ConstraintsListState extends State<ConstraintsListView> {
     }
 
     Widget buildConstraintNormalView(
-        String constraintName, String constraintDesc) {
-      return GestureDetector(
+        String constraintName, String constraintDesc, bool isRequired) {
+      return InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content:
-                  Text('$constraintName has started. Wait for input dialog')));
           startConstraint(constraintName);
-          // showRequiredInputsDialog(2);
         },
+        splashColor: Colors.black,
         child: Container(
           width: 300,
           margin: EdgeInsets.only(left: 20, right: 10),
@@ -248,7 +218,10 @@ class _ConstraintsListState extends State<ConstraintsListView> {
                       margin: EdgeInsets.only(right: 20),
                       child: Text(
                         constraintName,
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "JetBrainMono",
+                            fontSize: 20),
                       ),
                     ),
                     Container(
@@ -261,7 +234,7 @@ class _ConstraintsListState extends State<ConstraintsListView> {
                   ],
                 ),
               ),
-              Align(
+              isRequired ? Align(
                 alignment: Alignment.bottomRight,
                 child: Container(
                   decoration: BoxDecoration(
@@ -281,6 +254,26 @@ class _ConstraintsListState extends State<ConstraintsListView> {
                     textAlign: TextAlign.center,
                   )),
                 ),
+              ) : Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey[400], width: 1),
+                    color: Colors.white,
+                  ),
+                  height: 23,
+                  width: 78,
+                  margin: EdgeInsets.only(right: 10, bottom: 10),
+                  child: Align(
+                      child: Text(
+                    "VIEW ONLY",
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red),
+                    textAlign: TextAlign.center,
+                  )),
+                ),
               )
             ],
           ),
@@ -293,40 +286,56 @@ class _ConstraintsListState extends State<ConstraintsListView> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           Map<String, dynamic> data = jsonDecode(snapshot.data);
-          String stageName = data["stage_name"];
-          List constraints = data["constraints"];
-          if (viewMode == "mini") {
+          if (data != null) {
+            String stageName = data["stage_name"];
+            List constraints = data["constraints"];
+            if (viewMode == "mini") {
+              return Expanded(
+                child: SingleChildScrollView(
+                  child: GridView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: constraints.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, mainAxisExtent: 250),
+                      // Generate 100 widgets that display their index in the List.
+                      itemBuilder: (context, index) {
+                        return buildConstraintThumbnailView(stageName);
+                      }),
+                ),
+              );
+            } else if (viewMode == "normal") {
+              return Expanded(
+                child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ListView.builder(
+                        itemCount: constraints.length,
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          Map<String, dynamic> constraint = constraints[index];
+                          return buildConstraintNormalView(
+                              constraint["constraint_name"],
+                              constraint["constraint_desc"],
+                              constraint["required"]);
+                        })),
+              );
+            } else {
+              return Center(
+                  child: Text(
+                "No data",
+                style:
+                    TextStyle(color: Colors.white, fontFamily: "JetBrainMono"),
+              ));
+            }
+          } else {
             return Expanded(
-              child: SingleChildScrollView(
-                child: GridView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: constraints.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, mainAxisExtent: 250),
-                    // Generate 100 widgets that display their index in the List.
-                    itemBuilder: (context, index) {
-                      return buildConstraintThumbnailView(stageName);
-                    }),
+              child: Center(
+                child: Text("There are no constraints for this stage",
+                    style: TextStyle(
+                        color: Colors.white, fontFamily: "JetBrainMono")),
               ),
             );
-          } else if (viewMode == "normal") {
-            return Expanded(
-              child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: ListView.builder(
-                      itemCount: constraints.length,
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) {
-                        Map<String, dynamic> constraint = constraints[index];
-                        return buildConstraintNormalView(
-                            constraint["constraint_name"],
-                            constraint["constraint_desc"]);
-                      })),
-            );
-          } else {
-            return Center(child: Text("No data"));
           }
         } else if (snapshot.hasError) {
           return Center(

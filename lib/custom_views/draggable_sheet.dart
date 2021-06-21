@@ -2,6 +2,7 @@ import 'package:constraint_view/models/section_data.dart';
 import 'package:constraint_view/view_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:web_socket_channel/io.dart';
 
 class ConstraintDraggableSheet extends StatefulWidget {
   SectionData sectionData;

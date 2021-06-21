@@ -5,7 +5,7 @@ import 'package:constraint_view/models/margin_model.dart';
 abstract class Component {
   String ID;
   ComponentType type;
-  Margin margin;
+  ViewMargin margin;
   dynamic value;
 
   Component(this.ID, this.margin, this.type);
@@ -14,7 +14,7 @@ abstract class Component {
 
   buildComponentView();
 
-  buildComponent(List componentParams);
+  buildComponent(List componentParams, bool fromConstraint);
 
   setValue(dynamic value);
 

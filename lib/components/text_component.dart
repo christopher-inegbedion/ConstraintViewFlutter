@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 
 class TextComponent extends Component {
   String ID;
-  Margin margin;
+  ViewMargin margin;
   String placeholder;
   ComponentAlign textComponentAlign;
   double textSize;
   String textColor;
 
-  TextComponent(String ID, Margin margin, String placeholder,
+  TextComponent(String ID, ViewMargin margin, String placeholder,
       ComponentAlign textComponentAlign, double textSize, String textColor)
       : super(ID, margin, ComponentType.Text) {
     this.ID = ID;
@@ -44,20 +44,31 @@ class TextComponent extends Component {
     return Text(
       this.placeholder,
       style: TextStyle(
-          fontSize: this.textSize, color: this.getColorFromTextColor()),
+          fontSize: this.textSize,
+          fontFamily: "JetBrainMono",
+          color: this.getColorFromTextColor()),
       textAlign: TextComponent.getTextAlignment(this.textComponentAlign),
     );
   }
 
   @override
-  TextComponent buildComponent(List componentParams) {
+  TextComponent buildComponent(List componentParams, bool fromConstraint) {
     String ID = componentParams[0];
-    Margin margin = Margin(componentParams[1][0], componentParams[1][1],
-        componentParams[1][2], componentParams[1][3]);
+    ViewMargin margin;
+    if (fromConstraint) {
+      margin = ViewMargin.fromString(componentParams[1]);
+    } else {
+      margin = ViewMargin(
+          double.parse("${componentParams[1][0]}"),
+          double.parse("${componentParams[1][1]}"),
+          double.parse("${componentParams[1][2]}"),
+          double.parse("${componentParams[1][3]}"));
+    }
+
     String placeholder = componentParams[2];
     ComponentAlign componentAlign =
         getComponentAlignFromString(componentParams[3]);
-    double textSize = componentParams[4];
+    double textSize = double.parse("${componentParams[4]}");
     String textColor = componentParams[5];
 
     return TextComponent(

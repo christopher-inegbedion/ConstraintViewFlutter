@@ -9,7 +9,7 @@ class ImageComponent extends Component {
   double width;
 
   ImageComponent(
-      String ID, Margin margin, String imageUrl, double height, double width)
+      String ID, ViewMargin margin, String imageUrl, double height, double width)
       : super(ID, margin, ComponentType.Image) {
     this.imageUrl = imageUrl;
     this.height = height;
@@ -26,9 +26,9 @@ class ImageComponent extends Component {
   }
 
   @override
-  ImageComponent buildComponent(List componentParams) {
+  ImageComponent buildComponent(List componentParams, bool fromConstraint) {
     String ID = componentParams[0];
-    Margin margin = componentParams[1];
+    ViewMargin margin = fromConstraint ? ViewMargin.fromString(componentParams[1]) : componentParams[1];
     String imageUrl = componentParams[2];
     double height = componentParams[3];
     double width = componentParams[4];

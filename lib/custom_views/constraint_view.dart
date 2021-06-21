@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:constraint_view/components/text_component.dart';
 import 'package:constraint_view/custom_views/draggable_sheet.dart';
+import 'package:constraint_view/custom_views/task_view.dart';
 import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/models/config_entry.dart';
 import 'package:constraint_view/models/configuration_model.dart';
 import 'package:constraint_view/models/section_data.dart';
+import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:web_socket_channel/io.dart';
@@ -14,11 +16,18 @@ import '../enums/component_align.dart';
 import '../models/margin_model.dart';
 
 class ConstraintView extends StatefulWidget {
-  SectionData sectionData;
   _ConstraintViewState state;
+  String constraintName;
+  String stageName;
+  String stageGroupID;
+  String taskID;
+  String userID;
+  static const routeName = '/constraint_detail';
 
-  ConstraintView(this.sectionData) {
-    state = _ConstraintViewState(sectionData);
+  ConstraintView(this.constraintName, this.stageName, this.stageGroupID,
+      this.taskID, this.userID) {
+    state = _ConstraintViewState(
+        constraintName, stageName, stageGroupID, taskID, userID);
   }
 
   @override
@@ -26,340 +35,401 @@ class ConstraintView extends StatefulWidget {
 }
 
 class _ConstraintViewState extends State<ConstraintView> {
-  bool isConnected = false;
   bool isConstraintComplete = false;
-  SectionData sectionData;
-  IOWebSocketChannel channel;
+  bool canSkip = false;
+  Future<dynamic> constraintData;
+  String constraintName;
+  String nextConstraintName;
+  String stageName;
+  String nextStageName;
+  String stageGroupID;
+  String taskID;
+  String userID;
+  Map<String, dynamic> configurationInputs = {"data": "data", "data2": "data4"};
 
-  _ConstraintViewState(this.sectionData);
+  IOWebSocketChannel channel = IOWebSocketChannel.connect(
+      "ws://192.168.1.129:4321/on_constraint_complete");
 
-  void changeCurrentState(String state) {
-    setState(() {
-      sectionData.setCurrentConfig(state);
-    });
-  }
+  _ConstraintViewState(this.constraintName, this.stageName, this.stageGroupID,
+      this.taskID, this.userID);
 
-  void addConfigEntryWithComponent(int configEntryIndex, String section,
-      Margin margin, ComponentType componentType, List componentParams) {
-    sectionData.state.addConfigEntryWithComponent(
-        configEntryIndex, section, margin, componentType, componentParams);
+  // void changeCurrentState(String state) {
+  //   setState(() {
+  //     sectionData.setCurrentConfig(state);
+  //   });
+  // }
 
-    setState(() {});
-  }
+  // void addConfigEntryWithComponent(int configEntryIndex, String section,
+  //     ViewMargin margin, ComponentType componentType, List componentParams) {
+  //   sectionData.state.addConfigEntryWithComponent(
+  //       configEntryIndex, section, margin, componentType, componentParams);
 
-  void addComponentToConfigEntry(int configEntryIndex, int componentIndex,
-      String section, ComponentType componentType, List componentParams) {
-    sectionData.state.addComponentToConfigEntry(configEntryIndex,
-        componentIndex, section, componentType, componentParams);
+  //   setState(() {});
+  // }
 
-    setState(() {});
-  }
+  // void addComponentToConfigEntry(int configEntryIndex, int componentIndex,
+  //     String section, ComponentType componentType, List componentParams) {
+  //   sectionData.state.addComponentToConfigEntry(configEntryIndex,
+  //       componentIndex, section, componentType, componentParams);
 
-  void modifyComponent(
-      String componentID, dynamic valueToChange, String section) {
-    sectionData.state.modifyComponent(componentID, valueToChange, section);
-    setState(() {});
-  }
+  //   setState(() {});
+  // }
 
-  void removeComponentFromConfigEntry(
-      int componentIndex, int configEntryIndex, String section) {
-    sectionData.state.removeComponentFromConfigEntry(
-        componentIndex, configEntryIndex, section);
-    setState(() {});
-  }
+  // void modifyComponent(
+  //     String componentID, dynamic valueToChange, String section) {
+  //   sectionData.state.modifyComponent(componentID, valueToChange, section);
+  //   setState(() {});
+  // }
 
-  void removeConfigEntry(int configIndex, String section) {
-    sectionData.state.removeConfigEntry(configIndex, section);
-    setState(() {});
-  }
+  // void removeComponentFromConfigEntry(
+  //     int componentIndex, int configEntryIndex, String section) {
+  //   sectionData.state.removeComponentFromConfigEntry(
+  //       componentIndex, configEntryIndex, section);
+  //   setState(() {});
+  // }
 
-  void initConnection() {
-    channel = IOWebSocketChannel.connect("ws://echo.websocket.org");
-    Stream messageStream = channel.stream;
-    channel.sink.add(jsonEncode({"complete_constraint": "value"}));
-  }
+  // void removeConfigEntry(int configIndex, String section) {
+  //   sectionData.state.removeConfigEntry(configIndex, section);
+  //   setState(() {});
+  // }
 
-  void listenForMessages() {
-    Stream messageStream = channel.stream;
+  Future getConstraintConfigurationInputs() async {
+    Future<dynamic> data = NetworkUtils.performNetworkAction(
+        NetworkUtils.serverAddr + NetworkUtils.portNum,
+        "/stage_group/" + stageGroupID + "/" + stageName,
+        "get");
 
-    messageStream.listen(
-        (data) {
-          setState(() {
-            isConnected = true;
-          });
-          Map<String, dynamic> jsonData = jsonDecode(data);
-
-          switch (jsonData["command"]) {
-            case "complete_constraint":
-              handleConstraintCompleteCommand(jsonData);
-              break;
-            default:
-              print(data);
-          }
-        },
-        cancelOnError: true,
-        onError: (e) {
-          isConnected = false;
-          errorHandler();
+    Map<String, dynamic> parsedData = jsonDecode(await data);
+    for (Map constraint in parsedData["constraints"]) {
+      if (constraint["constraint_name"] == constraintName) {
+        setState(() {
+          configurationInputs = constraint["config_inputs"];
         });
-  }
-
-  void handleConstraintCompleteCommand(Map<String, dynamic> data) {
-    isConstraintComplete = true;
-
-    //check if a state change is required
-    if (data["state_change"]) {
-      String state = data["state"];
-      changeCurrentState(state);
-    }
-
-    //check if any components need changing
-    if (data["component_change"]) {
-      List componentChanges = data["components"];
-      for (Map<String, dynamic> changeCommandJSON in componentChanges) {
-        //perform a command depending on the type specified in [change_type]
-        //param
-        switch (changeCommandJSON["change_type"]) {
-          //add command
-          case "add_w_entry":
-            String section = changeCommandJSON["section"];
-            List componentParams = changeCommandJSON["component_params"];
-            Margin margin = Margin(
-                int.parse(changeCommandJSON["margin"][0].toString()).toDouble(),
-                int.parse(changeCommandJSON["margin"][1].toString()).toDouble(),
-                int.parse(changeCommandJSON["margin"][2].toString()).toDouble(),
-                int.parse(changeCommandJSON["margin"][3].toString())
-                    .toDouble());
-            ComponentType componentType =
-                componentTypeFromString(changeCommandJSON["component_type"]);
-            int configEntryIndex = changeCommandJSON["config_entry_index"];
-
-            addConfigEntryWithComponent(configEntryIndex, section, margin,
-                componentType, componentParams);
-            break;
-          case "add_no_entry":
-            String section = changeCommandJSON["section"];
-            List componentParams = changeCommandJSON["component_params"];
-            ComponentType componentType =
-                componentTypeFromString(changeCommandJSON["component_type"]);
-            int componentIndex = changeCommandJSON["component_index"];
-            int configEntryIndex = changeCommandJSON["config_entry_index"];
-
-            addComponentToConfigEntry(configEntryIndex, componentIndex, section,
-                componentType, componentParams);
-            break;
-
-          //modify command
-          case "modify":
-            String section = changeCommandJSON["section"];
-            String componentID = changeCommandJSON["component_id"];
-            dynamic value = changeCommandJSON["value"];
-
-            modifyComponent(componentID, value, section);
-            break;
-
-          //delete command
-          case "delete_w_entry":
-            String section = changeCommandJSON["section"];
-            int configEntryIndex = changeCommandJSON["configEntryIndex"];
-
-            sectionData.state.removeConfigEntry(configEntryIndex, section);
-            break;
-          case "delete_no_entry":
-            int componentIndex = changeCommandJSON["componentIndex"];
-            String section = changeCommandJSON["section"];
-            int configEntryIndex = changeCommandJSON["configEntryIndex"];
-
-            sectionData.state.removeComponentFromConfigEntry(
-                componentIndex, configEntryIndex, section);
-            break;
-          default:
-        }
       }
     }
   }
 
-  ComponentType componentTypeFromString(String componentType) {
-    switch (componentType) {
-      case "text":
-        return ComponentType.Text;
-      case "input":
-        return ComponentType.Input;
-      case "image":
-        return ComponentType.Image;
-      case "button":
-        return ComponentType.Button;
-      case "color_block":
-        return ComponentType.ColorBlock;
-      case "live_model":
-        return ComponentType.LiveModel;
-      default:
-        return null;
-    }
-  }
-
-  void errorHandler() {
-    print("error");
-  }
-
-  void sendMessage(dynamic value) {
-    Map<String, dynamic> msg = {
-      "command": "complete_constraint",
-      "state_change": false,
-      "state": "3",
-      "component_change": false,
-      "components": [
-        // {
-        //   "change_type": "delete_w_entry",
-        //   "componentIndex": 0,
-        //   "section": "top",
-        //   "configEntryIndex": 0
-        // },
-        {
-          "change_type": "add_no_entry",
-          "component_params": [
-            "text",
-            [0.0, 0.0, 0.0, 0.0],
-            "Policing",
-            "center",
-            20.0,
-            "#000000"
-          ],
-          "section": "top",
-          "margin": [0, 0, 0, 0],
-          "component_type": "text",
-          "config_entry_index": 0,
-          "component_index": 0
-        },
-        {
-          "change_type": "modify",
-          "component_id": "view_chair",
-          "value": "early",
-          "section": "top"
-        }
-      ],
-      "data": "hello"
-    };
-    if (isConnected) {
-      channel.sink.add(jsonEncode(msg));
-      print("sent ${jsonEncode(msg)}");
-    } else {
-      throw Exception("A connection has not been opened");
-    }
-  }
-
-  void isViewConnectedToConstraint() {
-    if (isConnected) {
-      sectionData.setCurrentConfig(sectionData.initialStateID);
-    } else {
-      sectionData.setNoConnectionState();
-    }
+  void getConstraintDetails() {
+    IOWebSocketChannel channel1 =
+        IOWebSocketChannel.connect("ws://192.168.1.129:4321/constraint_detail");
+    channel1.sink.add(jsonEncode({
+      "constraint_name": constraintName,
+      "stage_name": stageName,
+      "task_id": taskID,
+      "user_id": userID
+    }));
+    channel1.stream.first.then((value) {
+      Map<String, dynamic> data = jsonDecode(value);
+      setState(() {
+        canSkip = !data["required"];
+      });
+      print(data);
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    initConnection();
-    listenForMessages();
+    getNextConstraintDetails();
+    getConstraintConfigurationInputs();
+    getConstraintDetails();
+
+    channel.sink.add(jsonEncode({
+      "constraint_name": constraintName,
+      "stage_name": stageName,
+      "task_id": taskID,
+      "user_id": userID
+    }));
+
+    channel.stream.listen((event) {
+      Map<String, dynamic> recvData = jsonDecode(event);
+      String eventData = recvData["event"];
+
+      if (eventData == "STAGE_CONSTRAINT_COMPLETED") {
+        setState(() {
+          isConstraintComplete = true;
+        });
+        String constraintMsg = recvData["msg"];
+        showConstraintCompleteDialog(constraintMsg);
+      }
+    });
+  }
+
+  void getNextConstraintDetails() {
+    IOWebSocketChannel channel = IOWebSocketChannel.connect(
+        "ws://192.168.1.129:4321/next_constraint_or_stage");
+    channel.sink.add(jsonEncode({
+      "user_id": userID,
+      "task_id": taskID,
+      "stage_name": stageName,
+      "constraint_name": constraintName
+    }));
+
+    channel.stream.first.then((value) {
+      Map<String, dynamic> data = jsonDecode(value);
+
+      nextStageName = data["stage_name"];
+      nextConstraintName = data["constraint_name"];
+
+      print(nextStageName);
+      print(nextConstraintName);
+    });
+  }
+
+  void startNextConstraint() {
+    final channel =
+        IOWebSocketChannel.connect("ws://192.168.1.129:4321/start_constraint1");
+
+    channel.sink.add(jsonEncode({
+      "user_id": userID,
+      "task_id": taskID,
+      "constraint_name": nextConstraintName,
+      "stage_name": nextStageName
+    }));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$constraintName has started. Loading')));
+
+    channel.stream.first.then((event) {
+      // the first response from the websocket server is an input request
+      Map<String, dynamic> recvData = jsonDecode(event);
+      String eventData = recvData["event"];
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return ConstraintView(
+            nextConstraintName, nextStageName, stageGroupID, taskID, userID);
+      }));
+      // else if (eventData == "STAGE_CONSTRAINT_COMPLETED") {
+      //   String constraintMsg = recvData["msg"];
+      //   showConstraintCompleteDialog(constraintMsg);
+      // }
+    });
+  }
+
+  void showConstraintCompleteDialog(String msg) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Constraint complete"),
+          content: Container(width: double.maxFinite, child: Text(msg)),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Approve'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    isViewConnectedToConstraint();
+    constraintData = SectionData.forStatic(
+            stageName, constraintName, taskID, userID, configurationInputs)
+        .fromConstraint(constraintName);
 
-    return Container(
-      color: Colors.white,
-      child: Stack(
-        children: [
-          Container(
-              color: HexColor(sectionData.state.bgColor),
-              height: MediaQuery.of(context).size.height,
-              key: UniqueKey(),
-              child: sectionData.state.buildTopView()),
-          TextButton(
-              onPressed: () {
-                addComponentToConfigEntry(0, 0, "top", ComponentType.Text, [
-                  "text",
-                  Margin(0, 0, 0, 0),
-                  "placeholder" + DateTime.now().toString(),
-                  ComponentAlign.center,
-                  20.0,
-                  "#000000"
-                ]);
-              },
-              child: Text("add")),
-          Container(
-            margin: EdgeInsets.only(left: 50),
-            child: TextButton(
-                onPressed: () {
-                  removeConfigEntry(0, "top");
-                },
-                child: Text("remove")),
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 110),
-            child: TextButton(
-                onPressed: () {
-                  sendMessage("3");
-                },
-                child: Text("send")),
-          ),
-          Container(
-              key: UniqueKey(), child: ConstraintDraggableSheet(sectionData)),
-          Visibility(
-            visible: isConstraintComplete,
-            child: Container(
-              width: double.maxFinite,
-              height: 50,
-              decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey[100],
-                      width: 1.0,
-                    ),
-                  )),
-              child: Wrap(
-                runAlignment: WrapAlignment.center,
-                alignment: WrapAlignment.spaceAround,
-                children: [
-                  sectionData.isRequired
-                      ? Container(
-                          margin: EdgeInsets.only(right: 20),
-                          child: TextButton(
-                              child: Text(
-                                "SKIP",
-                                style: TextStyle(color: Colors.grey),
+    return WillPopScope(
+      onWillPop: () {
+        return Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return TaskView(
+            taskID,
+            userID,
+            currentStage: stageName,
+          );
+        }));
+      },
+      child: SafeArea(
+        child: Scaffold(
+          body: FutureBuilder(
+            future: constraintData,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                SectionData sectionData = snapshot.data;
+                sectionData.setInitialState("1");
+                return Container(
+                  color: Colors.white,
+                  child: Stack(
+                    children: [
+                      ///Top section
+                      Container(
+                          color: HexColor(sectionData.state.bgColor),
+                          height: MediaQuery.of(context).size.height,
+                          key: UniqueKey(),
+                          child: sectionData.state.buildTopView()),
+
+                      ///Draggable bottom section
+                      Container(
+                          key: UniqueKey(),
+                          child: ConstraintDraggableSheet(sectionData)),
+
+                      ///This section displays options to skip, continue, or view all the constraints
+                      Container(
+                        margin: EdgeInsets.only(top: 20, right: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => TaskView(
+                                          taskID,
+                                          userID,
+                                          currentStage: stageName,
+                                        )));
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(right: 10),
+                                padding: EdgeInsets.only(
+                                    top: 5, bottom: 5, left: 5, right: 5),
+                                decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border:
+                                        Border.all(color: Colors.grey[300])),
+                                child: Icon(Icons.grid_view,
+                                    size: 12, color: Colors.black),
                               ),
-                              onPressed: () {}))
-                      : Container(
-                          margin: EdgeInsets.only(right: 20),
-                          child: TextButton(
-                              child: Text(
-                                "",
-                                style: TextStyle(color: Colors.grey),
+                            ),
+                            Visibility(
+                              visible: true,
+                              child: Container(
+                                padding: EdgeInsets.only(
+                                    top: 5, bottom: 5, left: 10, right: 10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border:
+                                        Border.all(color: Colors.grey[300])),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    sectionData.isRequired
+                                        ? GestureDetector(
+                                            onTap: canSkip
+                                                ? () {
+                                                    startNextConstraint();
+                                                  }
+                                                : () {},
+                                            child: Container(
+                                                child: Text(
+                                              "SKIP",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontFamily: "JetBrainMono",
+                                                  color: canSkip
+                                                      ? Colors.blue
+                                                      : Colors.grey),
+                                            )),
+                                          )
+                                        : Container(
+                                            child: Text(
+                                            "",
+                                            style:
+                                                TextStyle(color: Colors.grey),
+                                          )),
+                                    Visibility(
+                                      visible: isConstraintComplete,
+                                      child: nextStageName == null
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            TaskView(
+                                                              taskID,
+                                                              userID,
+                                                              currentStage:
+                                                                  stageName,
+                                                            )));
+                                              },
+                                              child: Container(
+                                                  margin:
+                                                      EdgeInsets.only(left: 20),
+                                                  child: Text("FINISH",
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontFamily:
+                                                              "JetBrainMono",
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              Colors.green))),
+                                            )
+                                          : GestureDetector(
+                                              onTap: () {
+                                                startNextConstraint();
+                                              },
+                                              child: Container(
+                                                  margin:
+                                                      EdgeInsets.only(left: 20),
+                                                  child: Text("CONTINUE",
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontFamily:
+                                                              "JetBrainMono",
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color:
+                                                              Colors.green))),
+                                            ),
+                                    )
+                                  ],
+                                ),
                               ),
-                              onPressed: () {})),
-                  Container(
-                      margin: EdgeInsets.only(left: 20),
-                      child: TextButton(
-                          child: Text("CONTINUE",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green)),
-                          onPressed: () {}))
-                ],
-              ),
-            ),
-          )
-        ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                          child: Text(
+                            stageName,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: stageName == "Pending"
+                                  ? Colors.red[600].withOpacity(0.9)
+                                  : stageName == "Active"
+                                      ? Colors.green[600].withOpacity(0.9)
+                                      : stageName == "Complete"
+                                          ? Colors.blue[600].withOpacity(0.9)
+                                          : Colors.grey[600].withOpacity(0.9),
+                              fontFamily: "JetBrainMono",
+                            ),
+                          ),
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.grey[300])),
+                          margin: EdgeInsets.only(bottom: 20, right: 20),
+                          padding: EdgeInsets.only(
+                              left: 10, right: 10, top: 5, bottom: 5),
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              } else {
+                return Center(
+                  child: Text("Loading $constraintName's view"),
+                );
+              }
+            },
+          ),
+        ),
       ),
     );
   }
 
   @override
   void dispose() {
-    channel.sink.close();
     super.dispose();
   }
 }

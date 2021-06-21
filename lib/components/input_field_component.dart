@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 
 class InputFieldComponent extends Component {
   String ID;
-  Margin margin;
+  ViewMargin margin;
   String hintText;
   String errorText;
   bool isFormGood = true;
   Form form;
 
   InputFieldComponent(
-      String ID, Margin margin, String hintText, String errorText)
+      String ID, ViewMargin margin, String hintText, String errorText)
       : super(ID, margin, ComponentType.Input) {
     this.ID = ID;
     this.margin = margin;
@@ -42,9 +42,9 @@ class InputFieldComponent extends Component {
   }
 
   @override
-  InputFieldComponent buildComponent(List componentParams) {
+  InputFieldComponent buildComponent(List componentParams, bool fromConstraint) {
     String ID = componentParams[0];
-    Margin margin = componentParams[1];
+    ViewMargin margin = fromConstraint ? ViewMargin.fromString(componentParams[1]) : componentParams[1];
     String hintText = componentParams[2];
     String errorText = componentParams[3];
 

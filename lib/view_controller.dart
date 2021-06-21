@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:constraint_view/components/button_component.dart';
 import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
@@ -12,6 +14,7 @@ import 'package:constraint_view/models/margin_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:model_viewer/model_viewer.dart';
+import 'package:web_socket_channel/io.dart';
 
 import 'models/section_data.dart';
 
@@ -70,7 +73,7 @@ class _ViewControllerState extends State<ViewController> {
     List<Widget> entries = [];
 
     for (ConfigEntry entry in this.sectionToUse) {
-      Margin entryMargin = entry.margin;
+      ViewMargin entryMargin = entry.margin;
       List<Widget> components = [];
 
       for (Component component in entry.components) {
@@ -150,7 +153,8 @@ class _ViewControllerState extends State<ViewController> {
   }
 
   Widget buildTextComponent(TextComponent textComponent) {
-    Margin componentMargin = textComponent.margin;
+    ViewMargin componentMargin = textComponent.margin;
+    textComponent.placeholder = formatText(textComponent.placeholder);
     Text textWidget = textComponent.buildComponentView();
 
     builtComponents[textComponent.ID] = textComponent;
@@ -168,7 +172,7 @@ class _ViewControllerState extends State<ViewController> {
   }
 
   Widget buildInputFieldComponent(InputFieldComponent inputFieldComponent) {
-    Margin componentMargin = inputFieldComponent.margin;
+    ViewMargin componentMargin = inputFieldComponent.margin;
 
     Form textFormField = inputFieldComponent.buildComponentView();
 
@@ -187,7 +191,7 @@ class _ViewControllerState extends State<ViewController> {
   }
 
   Widget buildImageComponent(ImageComponent imageComponent) {
-    Margin componentMargin = imageComponent.margin;
+    ViewMargin componentMargin = imageComponent.margin;
     double imageHeight = imageComponent.height;
     double imageWidth = imageComponent.width;
 
@@ -208,7 +212,7 @@ class _ViewControllerState extends State<ViewController> {
   }
 
   Widget buildButtonComponent(ButtonComponent buttonComponent) {
-    Margin componentMargin = buttonComponent.margin;
+    ViewMargin componentMargin = buttonComponent.margin;
     TextButton textButton = buttonComponent.buildComponentView(function: () {
       processButtonAction(buttonComponent);
     });
@@ -235,7 +239,7 @@ class _ViewControllerState extends State<ViewController> {
   }
 
   Widget buildLiveModelComponent(LiveModelComponent liveModelComponent) {
-    Margin componentMargin = liveModelComponent.margin;
+    ViewMargin componentMargin = liveModelComponent.margin;
     ModelViewer liveModel = liveModelComponent.buildComponentView();
 
     builtComponents[liveModelComponent.ID] = liveModel;
@@ -285,9 +289,79 @@ class _ViewControllerState extends State<ViewController> {
           return true;
         }
         return false;
+      case "input_field":
+        bool isInputFieldValid = true;
+        for (String inputId in requirementArgs) {
+          if (getComponentValue(inputId) == null) {
+            isInputFieldValid = false;
+          }
+        }
+
+        return isInputFieldValid;
+        break;
       default:
         return true;
     }
+  }
+
+  String formatText(String msg) {
+    bool isLeftBracketFound = false;
+    int startIndex = 0;
+    int endIndex = 0;
+    String string = msg;
+    bool keywordFound = false;
+    int replaceableWords = 0;
+
+    string.characters.forEach((element) {
+      var character = element;
+      if (character == "{") {
+        isLeftBracketFound = true;
+      } else if (character == "}") {
+        if (isLeftBracketFound) {
+          isLeftBracketFound = false;
+          replaceableWords++;
+        }
+      }
+    });
+
+    for (int i = 0; i < replaceableWords; i++) {
+      int count = 0;
+      List characters = string.characters.toList();
+      for (String character in characters) {
+        count++;
+        if (keywordFound) {
+          keywordFound = false;
+          break;
+        } else {
+          if (character == "{") {
+            startIndex = count;
+            isLeftBracketFound = true;
+          } else if (character == "}") {
+            if (isLeftBracketFound) {
+              if (isLeftBracketFound) {
+                endIndex = count;
+
+                isLeftBracketFound = false;
+                String word = string.substring(startIndex, endIndex - 1);
+
+                if (configurationModel.configurationInputs.containsKey(word)) {
+                  string = string.replaceAll(
+                      string.substring(startIndex - 1, endIndex),
+                      configurationModel.configurationInputs[word]);
+                } else {
+                  string = string.replaceAll(
+                      string.substring(startIndex - 1, endIndex), "Loading");
+                }
+
+                keywordFound = true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return string;
   }
 
   ///Save a value to the global [savedValues] dictionary.
@@ -309,7 +383,6 @@ class _ViewControllerState extends State<ViewController> {
           return;
         }
         savedValues[valueKey] = values;
-        print(savedValues);
         break;
       case "save_val":
         List values = [];
@@ -322,7 +395,24 @@ class _ViewControllerState extends State<ViewController> {
         }
 
         savedValues[valueKey] = values;
-        print(savedValues);
+        break;
+      case "send_inputs":
+        List values = [];
+        for (String inputIDs in valueIDs) {
+          values.add(getComponentValue(inputIDs));
+        }
+
+        final channel = IOWebSocketChannel.connect(
+            "ws://192.168.1.129:4321/start_constraint2");
+        channel.sink.add(jsonEncode({
+          "response": "INPUT_REQUIRED",
+          "constraint_name": configurationModel.constraintName,
+          "stage_name": configurationModel.stageName,
+          "user_id": configurationModel.userID,
+          "task_id": configurationModel.taskID,
+          "data": values
+        }));
+
         break;
       default:
     }
@@ -354,13 +444,11 @@ class _ViewControllerState extends State<ViewController> {
       saveValue(
           buttonComponent.actionFunction,
           buttonComponent.actionFunctionArgs[0],
-          buttonComponent.actionFunctionArgs[1]);
+          buttonComponent.actionFunctionArgs);
     } else {
       throw Exception(
           "Button ${buttonComponent.ID}'s requirement not fulfilled");
     }
-
-    print(isRequirementSatisfied);
   }
 
   void notifyChange() {
@@ -369,6 +457,8 @@ class _ViewControllerState extends State<ViewController> {
 
   @override
   Widget build(BuildContext context) {
+    formatText("{data} bv bb {data2} {data} {data}");
+
     return buildView();
   }
 }
