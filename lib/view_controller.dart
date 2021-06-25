@@ -16,6 +16,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:model_viewer/model_viewer.dart';
 import 'package:web_socket_channel/io.dart';
 
+import 'components/list_component.dart';
 import 'models/section_data.dart';
 
 class ViewController extends StatefulWidget {
@@ -108,9 +109,14 @@ class _ViewControllerState extends State<ViewController> {
 
             components.add(builtComponent);
             break;
+          case ComponentType.List:
+            ListComponent listComponent = component;
+            Widget builtComponent = buildListComponent(listComponent);
+
+            components.add(builtComponent);
+            break;
           default:
-            throw Exception(
-                "Component ${component.type} has not been rendered");
+            throw Exception("Component ${component.type} cannot be rendered");
         }
       }
 
@@ -149,6 +155,20 @@ class _ViewControllerState extends State<ViewController> {
                   : MainAxisAlignment.start,
               children: entries,
             ),
+    );
+  }
+
+  Widget buildListComponent(ListComponent listComponent) {
+    Widget listWidget = listComponent.buildComponentView();
+    ViewMargin componentMargin = listComponent.margin;
+    return Expanded(
+      child: Container(
+          margin: EdgeInsets.only(
+              top: componentMargin.top,
+              bottom: componentMargin.bottom,
+              left: componentMargin.left,
+              right: componentMargin.right),
+          child: listWidget),
     );
   }
 
@@ -343,6 +363,7 @@ class _ViewControllerState extends State<ViewController> {
 
                 isLeftBracketFound = false;
                 String word = string.substring(startIndex, endIndex - 1);
+                print(configurationModel.draggableSheetMaxHeight);
 
                 if (configurationModel.configurationInputs.containsKey(word)) {
                   string = string.replaceAll(
@@ -403,7 +424,7 @@ class _ViewControllerState extends State<ViewController> {
         }
 
         final channel = IOWebSocketChannel.connect(
-            "ws://192.168.1.129:4321/start_constraint2");
+            "ws://10.167.152.138:4321/start_constraint2");
         channel.sink.add(jsonEncode({
           "response": "INPUT_REQUIRED",
           "constraint_name": configurationModel.constraintName,
@@ -457,7 +478,7 @@ class _ViewControllerState extends State<ViewController> {
 
   @override
   Widget build(BuildContext context) {
-    formatText("{data} bv bb {data2} {data} {data}");
+    // formatText("{data} bv bb {data2} {data} {data}");
 
     return buildView();
   }

@@ -1,8 +1,1 @@
-enum ComponentType {
-  Text,
-  Input,
-  Image,
-  Button,
-  ColorBlock,
-  LiveModel
-}
+enum ComponentType { Text, Input, Image, Button, ColorBlock, LiveModel, List }

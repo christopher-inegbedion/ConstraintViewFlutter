@@ -11,6 +11,7 @@ import 'package:uuid/uuid.dart';
 import 'components/button_component.dart';
 import 'components/input_field_component.dart';
 import 'components/text_component.dart';
+import 'components_test_page.dart';
 import 'custom_views/constraint_view.dart';
 import 'enums/component_align.dart';
 import 'models/config_entry.dart';
@@ -111,14 +112,14 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: MainApp());
+        home: ComponentsTestPage());
   }
 }
 
 class MainApp extends StatelessWidget {
   GlobalKey<FormState> formKey = GlobalKey();
   String userID = Uuid().v4();
-  String taskID = "2ddeb905-9ce2-4f99-8a9d-ce7713fd7e9e";
+  String taskID = "3693bce4-6223-4127-b3ef-f2337ccf83df";
 
   Future<dynamic> getAllConstraints() async {
     Future<dynamic> data = NetworkUtils.performNetworkAction(

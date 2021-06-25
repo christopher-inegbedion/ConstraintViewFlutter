@@ -44,7 +44,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
 
   void initTaskDetails() {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/pipeline_session_admin_details");
+        "ws://10.167.152.138:4321/pipeline_session_admin_details");
 
     channel.sink.add(jsonEncode({"task_id": taskID}));
 
@@ -69,7 +69,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
   void dispose() {
     super.dispose();
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/disconnect_task_details");
+        "ws://10.167.152.138:4321/disconnect_task_details");
 
     channel.sink.add(jsonEncode({"task_id": taskID}));
   }
@@ -77,7 +77,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
   @override
   Widget build(BuildContext context) {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/connect_task_details");
+        "ws://10.167.152.138:4321/connect_task_details");
 
     channel.sink.add(jsonEncode({"task_id": taskID}));
 
@@ -158,7 +158,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
                             GestureDetector(
                                 onTap: () {
                                   final channel = IOWebSocketChannel.connect(
-                                      "ws://192.168.1.129:4321/pipeline_details");
+                                      "ws://10.167.152.138:4321/pipeline_details");
 
                                   channel.sink.add(jsonEncode({
                                     "task_id": taskID,
@@ -207,7 +207,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
                             GestureDetector(
                                 onTap: () {
                                   final channel = IOWebSocketChannel.connect(
-                                      "ws://192.168.1.129:4321/pipeline_details");
+                                      "ws://10.167.152.138:4321/pipeline_details");
 
                                   channel.sink.add(jsonEncode({
                                     "task_id": taskID,
@@ -256,7 +256,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
                           GestureDetector(
                               onTap: () {
                                 final channel = IOWebSocketChannel.connect(
-                                    "ws://192.168.1.129:4321/pipeline_details");
+                                    "ws://10.167.152.138:4321/pipeline_details");
 
                                 channel.sink.add(jsonEncode({
                                   "task_id": taskID,

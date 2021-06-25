@@ -48,7 +48,7 @@ class _ConstraintViewState extends State<ConstraintView> {
   Map<String, dynamic> configurationInputs = {"data": "data", "data2": "data4"};
 
   IOWebSocketChannel channel = IOWebSocketChannel.connect(
-      "ws://192.168.1.129:4321/on_constraint_complete");
+      "ws://10.167.152.138:4321/on_constraint_complete");
 
   _ConstraintViewState(this.constraintName, this.stageName, this.stageGroupID,
       this.taskID, this.userID);
@@ -110,8 +110,8 @@ class _ConstraintViewState extends State<ConstraintView> {
   }
 
   void getConstraintDetails() {
-    IOWebSocketChannel channel1 =
-        IOWebSocketChannel.connect("ws://192.168.1.129:4321/constraint_detail");
+    IOWebSocketChannel channel1 = IOWebSocketChannel.connect(
+        "ws://10.167.152.138:4321/constraint_detail");
     channel1.sink.add(jsonEncode({
       "constraint_name": constraintName,
       "stage_name": stageName,
@@ -157,7 +157,7 @@ class _ConstraintViewState extends State<ConstraintView> {
 
   void getNextConstraintDetails() {
     IOWebSocketChannel channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/next_constraint_or_stage");
+        "ws://10.167.152.138:4321/next_constraint_or_stage");
     channel.sink.add(jsonEncode({
       "user_id": userID,
       "task_id": taskID,
@@ -177,8 +177,8 @@ class _ConstraintViewState extends State<ConstraintView> {
   }
 
   void startNextConstraint() {
-    final channel =
-        IOWebSocketChannel.connect("ws://192.168.1.129:4321/start_constraint1");
+    final channel = IOWebSocketChannel.connect(
+        "ws://10.167.152.138:4321/start_constraint1");
 
     channel.sink.add(jsonEncode({
       "user_id": userID,

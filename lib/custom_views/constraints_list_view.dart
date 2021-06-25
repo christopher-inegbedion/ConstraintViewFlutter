@@ -81,7 +81,7 @@ class _ConstraintsListState extends State<ConstraintsListView> {
   void startConstraint(String constraintName) {
     if (stageStarted) {
       final channel = IOWebSocketChannel.connect(
-          "ws://192.168.1.129:4321/start_constraint1");
+          "ws://10.167.152.138:4321/start_constraint1");
 
       channel.sink.add(jsonEncode({
         "user_id": userID,
@@ -109,7 +109,7 @@ class _ConstraintsListState extends State<ConstraintsListView> {
       });
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('stage has not started')));
+          .showSnackBar(SnackBar(content: Text('Constraint has not started')));
     }
   }
 
@@ -234,47 +234,49 @@ class _ConstraintsListState extends State<ConstraintsListView> {
                   ],
                 ),
               ),
-              isRequired ? Align(
-                alignment: Alignment.bottomRight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[400], width: 1),
-                    color: Colors.white,
-                  ),
-                  height: 23,
-                  width: 78,
-                  margin: EdgeInsets.only(right: 10, bottom: 10),
-                  child: Align(
-                      child: Text(
-                    "REQUIRED",
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red),
-                    textAlign: TextAlign.center,
-                  )),
-                ),
-              ) : Align(
-                alignment: Alignment.bottomRight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[400], width: 1),
-                    color: Colors.white,
-                  ),
-                  height: 23,
-                  width: 78,
-                  margin: EdgeInsets.only(right: 10, bottom: 10),
-                  child: Align(
-                      child: Text(
-                    "VIEW ONLY",
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red),
-                    textAlign: TextAlign.center,
-                  )),
-                ),
-              )
+              isRequired
+                  ? Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[400], width: 1),
+                          color: Colors.white,
+                        ),
+                        height: 23,
+                        width: 78,
+                        margin: EdgeInsets.only(right: 10, bottom: 10),
+                        child: Align(
+                            child: Text(
+                          "REQUIRED",
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red),
+                          textAlign: TextAlign.center,
+                        )),
+                      ),
+                    )
+                  : Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[400], width: 1),
+                          color: Colors.white,
+                        ),
+                        height: 23,
+                        width: 78,
+                        margin: EdgeInsets.only(right: 10, bottom: 10),
+                        child: Align(
+                            child: Text(
+                          "VIEW ONLY",
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red),
+                          textAlign: TextAlign.center,
+                        )),
+                      ),
+                    )
             ],
           ),
         ),
