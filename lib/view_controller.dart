@@ -247,20 +247,17 @@ class ViewControllerState extends State<ViewController> {
       }
     }
 
-    Widget listWidget = ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: views.length,
-      itemBuilder: (context, index) {
-        return views[index];
-      },
+    Widget listWidget = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: views,
     );
     ViewMargin componentMargin = listComponent.margin;
 
     builtComponents[listComponent.ID] = listComponent;
 
-    return Expanded(
+    return Flexible(
       child: Container(
+          width: MediaQuery.of(context).size.width,
           margin: EdgeInsets.only(
               top: componentMargin.top,
               bottom: componentMargin.bottom,
@@ -277,7 +274,7 @@ class ViewControllerState extends State<ViewController> {
 
     builtComponents[textComponent.ID] = textComponent;
 
-    return Expanded(
+    return Flexible(
       child: Container(
         margin: EdgeInsets.only(
             top: componentMargin.top,
@@ -296,7 +293,7 @@ class ViewControllerState extends State<ViewController> {
 
     builtComponents[inputFieldComponent.ID] = inputFieldComponent;
 
-    return Expanded(
+    return Flexible(
       child: Container(
         margin: EdgeInsets.only(
             top: componentMargin.top,
@@ -337,7 +334,7 @@ class ViewControllerState extends State<ViewController> {
 
     builtComponents[buttonComponent.ID] = textButton;
 
-    return Expanded(
+    return Flexible(
       child: Container(
         margin: EdgeInsets.only(
             top: componentMargin.top,
