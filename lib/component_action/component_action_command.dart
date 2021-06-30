@@ -2,8 +2,8 @@ import 'package:constraint_view/component_action/component_action.dart';
 import 'package:flutter/material.dart';
 
 abstract class ComponentActionCommand {
-  ComponentAction componentAction;
   String id;
+  ComponentAction componentAction;
   String name;
   String commandName;
   ComponentActionCommand success;
@@ -87,7 +87,8 @@ abstract class ComponentActionCommand {
                   endIndex = count;
 
                   isLeftBracketFound = false;
-                  int index = int.parse(string.substring(startIndex, endIndex - 1));
+                  int index =
+                      int.parse(string.substring(startIndex, endIndex - 1));
                   dynamic word = prevResult[index];
 
                   keywordFound = true;

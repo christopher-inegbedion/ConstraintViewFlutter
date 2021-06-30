@@ -16,9 +16,16 @@ class AddDataToListComponentCommand extends ComponentActionCommand {
 
   @override
   run(dynamic result) {
-    String componentID = value[0];
-    List data = jsonDecode(jsonEncode(value[1]));
-    componentAction.viewControllerState
-        .addValueToListComponent(componentID, data);
+    super.run(result);
+    try {
+      String componentID = value[0];
+      List data = jsonDecode(jsonEncode(value[1]));
+      componentAction.viewControllerState
+          .addValueToListComponent(componentID, data);
+      runSuccess();
+    } catch (e) {
+      print("AddDataToListComponent error: $e");
+      runFailure();
+    }
   }
 }

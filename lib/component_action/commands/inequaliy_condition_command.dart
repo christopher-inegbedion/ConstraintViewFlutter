@@ -1,29 +1,35 @@
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 
-class GetComponentListDetails extends ComponentActionCommand {
-  GetComponentListDetails(
+class InEqualityConditionCommand extends ComponentActionCommand {
+  InEqualityConditionCommand(
       String id,
       ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "GetComponentListIndex", "gcli", success,
+      : super(componentAction, id, "InEqualityCondition", "iec", success,
             failure, usePrevResult, value);
 
   @override
   run(dynamic result) {
     super.run(result);
+
     try {
-      this.result = [
-        componentAction.commandInitiator.dataIndex,
-        componentAction.commandInitiator.componentIndex,
-        componentAction.commandInitiator.parentListIndex
-      ];
-      runSuccess();
+      dynamic value1 = value[0];
+      dynamic value2 = value[1];
+
+      if (value1 != value2) {
+        this.result = [true];
+        runSuccess();
+      } else {
+        this.result = [false];
+        runFailure();
+      }
     } catch (e) {
-      print(e);
+      print("InequalityCondition error: $e");
+      this.result = [false];
       runFailure();
     }
   }

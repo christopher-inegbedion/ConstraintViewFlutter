@@ -12,6 +12,7 @@ abstract class Component {
   int parentListIndex;
   int dataIndex;
   int componentIndex;
+  bool inList = false;
 
   Component(this.ID, this.margin, this.type);
 

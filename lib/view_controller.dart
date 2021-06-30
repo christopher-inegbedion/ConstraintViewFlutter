@@ -93,6 +93,7 @@ class ViewControllerState extends State<ViewController> {
     for (ConfigEntry entry in this.sectionToUse) {
       ViewMargin entryMargin = entry.margin;
       List<Widget> components = [];
+      print(entry.components);
 
       for (Component component in entry.components) {
         switch (component.type) {
@@ -197,6 +198,7 @@ class ViewControllerState extends State<ViewController> {
               textComponent.parentListIndex = listComponent.dataIndex;
               textComponent.dataIndex = i;
               textComponent.componentIndex = j;
+              textComponent.inList = true;
               textComponent.setValue(componentData);
               builtComponents[textComponent.ID] = textComponent;
 
@@ -216,6 +218,7 @@ class ViewControllerState extends State<ViewController> {
               listComponent1.parentListIndex = listComponent.dataIndex;
               listComponent1.dataIndex = i;
               listComponent1.componentIndex = j;
+              listComponent1.inList = true;
               listComponent1.setValue(componentData);
               builtComponents[listComponent1.ID] = listComponent1;
 
@@ -235,10 +238,30 @@ class ViewControllerState extends State<ViewController> {
               buttonComponent.parentListIndex = listComponent.dataIndex;
               buttonComponent.dataIndex = i;
               buttonComponent.componentIndex = j;
+              buttonComponent.inList = true;
               builtComponents[buttonComponent.ID] = buttonComponent;
 
               views.add(buildButtonComponent(buttonComponent));
               listComponent.componentViews.add(buttonComponent);
+            }
+            break;
+          case ComponentType.Input:
+            if (!(componentData is List)) {
+              InputFieldComponent templateComponent = listComponents[j];
+              InputFieldComponent inputFieldComponent = InputFieldComponent(
+                  "${templateComponent.ID}-${(i)}-$j",
+                  templateComponent.margin,
+                  templateComponent.hintText,
+                  templateComponent.errorText);
+
+              inputFieldComponent.parentListIndex = listComponent.dataIndex;
+              inputFieldComponent.dataIndex = i;
+              inputFieldComponent.componentIndex = j;
+              inputFieldComponent.inList = true;
+              builtComponents[inputFieldComponent.ID] = inputFieldComponent;
+
+              views.add(buildInputFieldComponent(inputFieldComponent));
+              listComponent.componentViews.add(inputFieldComponent);
             }
             break;
           default:
@@ -544,7 +567,7 @@ class ViewControllerState extends State<ViewController> {
     }
   }
 
-  Component getComponentFromList(
+  Component getComponentFromListWithIndex(
       String listComponentID, int dataIndex, int componentIndex) {
     Component component = getComponentFromID(listComponentID);
     Component result;
@@ -557,6 +580,25 @@ class ViewControllerState extends State<ViewController> {
       Component component = element;
       if (component.componentIndex == componentIndex &&
           component.dataIndex == dataIndex) {
+        result = component;
+        return;
+      }
+    });
+
+    return result;
+  }
+
+  Component getComponentFromList(String listComponentID, String componentID) {
+    Component component = getComponentFromID(listComponentID);
+    Component result;
+    if (component.type != ComponentType.List) {
+      throw Exception("List component required");
+    }
+
+    ListComponent listComponent = component;
+    listComponent.componentViews.forEach((element) {
+      Component component = element;
+      if (component.ID == componentID) {
         result = component;
         return;
       }
@@ -633,10 +675,38 @@ class ViewControllerState extends State<ViewController> {
     setState(() {});
   }
 
+  void changeComponent(String initialComponentID, Component newComponent,
+      {String listComponentID, int dataIndex, int componentIndex}) {
+    bool componentFound = true;
+    int index = 0;
+
+    for (ConfigEntry entry in this.sectionToUse) {
+      entry.components.removeWhere((element) {
+        Component tempComp = element;
+        componentFound = tempComp.ID == initialComponentID;
+        print(tempComp.ID);
+        return componentFound;
+      });
+
+      if (componentFound) {
+        entry.components.insert(index, newComponent);
+        break;
+      }
+      index++;
+    }
+
+    for (ConfigEntry entry in this.sectionToUse) {
+      print(entry.components);
+    }
+
+    notifyChange();
+
+    print(builtComponents);
+    print("change");
+  }
+
   @override
   Widget build(BuildContext context) {
-    // formatText("{data} bv bb {data2} {data} {data}");
-
     return buildView();
   }
 }

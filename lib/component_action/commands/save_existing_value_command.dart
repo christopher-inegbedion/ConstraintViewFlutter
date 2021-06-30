@@ -15,11 +15,18 @@ class SaveExistingValueCommand extends ComponentActionCommand {
   @override
   run(dynamic result) {
     super.run(result);
-    String key = value[0];
-    String valueToSave = result[0];
+    try {
+      String key = value[0];
+      String valueToSave = value[1];
 
-    componentAction.viewControllerState.savedValues[key] = valueToSave;
-    print(componentAction.viewControllerState.savedValues);
-    runSuccess();
+      componentAction.viewControllerState.savedValues[key] = valueToSave;
+      this.result = [valueToSave];
+      print(componentAction.viewControllerState.savedValues[key]);
+      runSuccess();
+    } catch (e, stacktrace) {
+      print(stacktrace);
+      print("SaveExistingValue error: $e");
+      runFailure();
+    }
   }
 }

@@ -25,28 +25,95 @@ class ComponentsTestPage extends StatefulWidget {
 
 class ComponentsTestPageState extends State<ComponentsTestPage> {
   TextComponent dummy;
+  InputFieldComponent inputFieldComponent;
+  InputFieldComponent variantInputFieldComponent;
   ListComponent dummy2;
   ButtonComponent dummy3;
   TextComponent dummy4;
-  UniqueKey key = UniqueKey();
+  GlobalKey key = GlobalKey();
+  UniqueKey key1 = UniqueKey();
 
   List<ConfigurationModel> configModels;
   ComponentsTestPageState() {
-    dummy = TextComponent("text1", ViewMargin(0, 10, 0, 0),
-        "Get the exchange rates", ComponentAlign.center, 20, "#000000");
+    inputFieldComponent = InputFieldComponent("", ViewMargin(0, 0, 0, 0),
+        "Enter option name", "Please enter a variant name");
+    variantInputFieldComponent = InputFieldComponent("", ViewMargin(0, 0, 0, 0),
+        "Enter variant name", "Please enter a variant name");
     dummy4 = TextComponent("text2", ViewMargin(0, 10, 0, 0),
         "Get the exchange rates", ComponentAlign.center, 20, "#000000");
-    dummy2 = ListComponent("sd", ViewMargin(0, 10, 0, 0), [""], [dummy4]);
+    dummy2 = ListComponent(
+        "sd", ViewMargin(0, 10, 0, 0), [""], [variantInputFieldComponent]);
 
     dummy3 = ButtonComponent("new_variant_btn", ViewMargin(0, 0, 0, 20),
         "New variant", ComponentAlign.right, {
       "commandName": "gcld",
       "success": {
         "commandName": "gcfl",
-        "success": null,
+        "success": {
+          "commandName": "sev",
+          "success": {
+            "commandName": "cv",
+            "success": {
+              "commandName": "iec",
+              "success": {
+                "commandName": "gcld",
+                "success": {
+                  "commandName": "gcfl",
+                  "success": {
+                    "commandName": "cv",
+                    "success": {
+                      "commandName": "sev",
+                      "success": {
+                        "commandName": "gev",
+                        "success": {
+                          "commandName": "rcwtc",
+                          "success": null,
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": [
+                            "{0}",
+                            [0, 0, 0, 0],
+                            "ee",
+                            "center",
+                            20,
+                            "#000000"
+                          ]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": ["option_editing", "option_value"]
+                      },
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": ["value", "{0}"]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": ["{0}"]
+                  },
+                  "failure": null,
+                  "usePrevResult": false,
+                  "value": ["list", "{0}", 0]
+                },
+                "failure": null,
+                "usePrevResult": false,
+                "value": []
+              },
+              "failure": null,
+              "usePrevResult": false,
+              "value": ["{0}", null]
+            },
+            "failure": null,
+            "usePrevResult": false,
+            "value": ["{0}"]
+          },
+          "failure": null,
+          "usePrevResult": false,
+          "value": ["option_editing", "{0}"]
+        },
         "failure": null,
         "usePrevResult": false,
-        "value": ["list", "{0}", 1]
+        "value": ["list", "{0}", 0]
       },
       "failure": null,
       "usePrevResult": false,
@@ -59,8 +126,8 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           true,
           [
             ConfigEntry([
-              ListComponent(
-                  "list", ViewMargin(0, 0, 0, 0), [[]], [dummy, dummy2, dummy3])
+              ListComponent("list", ViewMargin(0, 0, 0, 0), [[]],
+                  [inputFieldComponent, dummy2, dummy3])
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
               ButtonComponent(
@@ -73,14 +140,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                   "usePrevResult": false,
                   "value": [
                     "list",
-                    [
-                      DateTime.now().toString(),
-                      [
-                        ["base text1"],
-                        ["base text2"]
-                      ],
-                      "Add new variant"
-                    ]
+                    [DateTime.now().toString(), [], "Add new variant"]
                   ]
                 },
                 //     {
@@ -197,12 +257,12 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           ///Top section
           Container(
               color: HexColor(sectionData.state.bgColor),
-              height: MediaQuery.of(context).size.height,
-              key: UniqueKey(),
+              // height: MediaQuery.of(context).size.height,
+              key: key,
               child: sectionData.state.buildTopView()),
 
           ///Draggable bottom section
-          Container(key: key, child: ConstraintDraggableSheet(sectionData)),
+          Container(key: key1, child: ConstraintDraggableSheet(sectionData)),
         ],
       ),
     )));

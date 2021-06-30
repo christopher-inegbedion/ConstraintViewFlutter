@@ -17,10 +17,15 @@ class TerminalPrintCommand extends ComponentActionCommand {
   @override
   run(dynamic result) {
     super.run(result);
-    this.result = null;
-    value.forEach((element) {
-      print("$result $element");
-    });
-    runSuccess();
+    try {
+      this.result = null;
+      value.forEach((element) {
+        print(element);
+      });
+      runSuccess();
+    } catch (e) {
+      print("TerminalPrint error: $e");
+      runFailure();
+    }
   }
 }

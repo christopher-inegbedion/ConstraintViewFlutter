@@ -4,6 +4,7 @@ import 'package:constraint_view/enums/component_align.dart';
 import 'package:constraint_view/models/component_model.dart';
 import 'package:constraint_view/models/margin_model.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 
 class TextComponent extends Component {
   String ID;
@@ -36,10 +37,6 @@ class TextComponent extends Component {
                 : TextAlign.center;
   }
 
-  Color getColorFromTextColor() {
-    return Color(int.parse(this.textColor.replaceAll("#", "0xff")));
-  }
-
   @override
   Widget buildComponentView() {
     return Text(
@@ -47,7 +44,7 @@ class TextComponent extends Component {
       style: TextStyle(
           fontSize: this.textSize,
           fontFamily: "JetBrainMono",
-          color: this.getColorFromTextColor()),
+          color: HexColor(textColor)),
       textAlign: TextComponent.getTextAlignment(this.textComponentAlign),
     );
   }

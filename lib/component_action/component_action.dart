@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:constraint_view/component_action/commands/add_data_to_list_component_command.dart';
 import 'package:constraint_view/component_action/commands/component_value_command.dart';
+import 'package:constraint_view/component_action/commands/equality_conition_command.dart';
 import 'package:constraint_view/component_action/commands/get_component_from_list_command.dart';
-import 'package:constraint_view/component_action/commands/get_component_list_details_command.dart';
+import 'package:constraint_view/component_action/commands/get_component_list_details_index.dart';
+import 'package:constraint_view/component_action/commands/get_existing_values_command.dart';
 import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
+import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
 import 'package:constraint_view/component_action/commands/set_component_value_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_command.dart';
@@ -12,6 +15,8 @@ import 'package:constraint_view/component_action/commands/terminal_print_command
 import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/models/component_model.dart';
 import 'package:constraint_view/view_controller.dart';
+
+import 'commands/inequaliy_condition_command.dart';
 
 class ComponentAction {
   ComponentActionCommand command;
@@ -99,11 +104,27 @@ class ComponentAction {
             componentAction, id, success, failure, usePrevResult, value);
         break;
       case "gcld":
-        return GetComponentListDetails(
+        return GetComponentListIndex(
             id, componentAction, success, failure, usePrevResult, value);
         break;
       case "gcfl":
         return GetComponentFromListCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "eq":
+        return EqualityConditionCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "iec":
+        return InEqualityConditionCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "rcwtc":
+        return ReplaceComponentWithTextComponentCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "gev":
+        return GetExistingValuesCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
 
