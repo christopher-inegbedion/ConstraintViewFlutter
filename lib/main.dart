@@ -7,16 +7,7 @@ import 'package:constraint_view/models/section_data.dart';
 import 'package:constraint_view/task_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-
-import 'components/button_component.dart';
-import 'components/input_field_component.dart';
-import 'components/text_component.dart';
 import 'components_test_page.dart';
-import 'custom_views/constraint_view.dart';
-import 'enums/component_align.dart';
-import 'models/config_entry.dart';
-import 'models/configuration_model.dart';
-import 'models/margin_model.dart';
 import 'utils/network_functions.dart';
 
 void main() {
@@ -24,86 +15,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  List<ConfigurationModel> configModels = [
-    ConfigurationModel(
-        "1",
-        true,
-        [
-          ConfigEntry([
-            TextComponent("2", ViewMargin(0, 0, 0, 0), "Get the exchange rates",
-                ComponentAlign.center, 20, "#000000"),
-          ], ViewMargin(0, 0, 0, 0)),
-          ConfigEntry([
-            TextComponent("3", ViewMargin(0, 0, 0, 0), "Result: ",
-                ComponentAlign.center, 16, "#000000"),
-          ], ViewMargin(10, 0, 0, 0)),
-        ],
-        [
-          ConfigEntry([
-            TextComponent("enter_data", ViewMargin(0, 0, 0, 0),
-                "Enter exchange rate data", ComponentAlign.left, 20, "#000000")
-          ], ViewMargin(20, 0, 20, 0)),
-          ConfigEntry([
-            InputFieldComponent("x_rate1", ViewMargin(0, 0, 20, 20),
-                "Exchange rate 1", "Exchange rate 1 required"),
-            InputFieldComponent("x_rate2", ViewMargin(0, 0, 20, 20),
-                "Exchange rate 2", "Exchange rate 2 required"),
-          ], ViewMargin(20, 0, 0, 0)),
-          ConfigEntry([
-            ButtonComponent(
-                "ID",
-                ViewMargin(0, 0, 0, 20),
-                "Submit",
-                ComponentAlign.right,
-                "",
-                [],
-                "save",
-                [
-                  "keyy",
-                  ["x_rate1", "x_rate2"]
-                ]),
-          ], ViewMargin(10, 0, 0, 0)),
-        ],
-        true,
-        true,
-        draggableSheetMaxHeight: 0.32),
-    ConfigurationModel(
-        "2",
-        true,
-        [
-          ConfigEntry([
-            TextComponent("3", ViewMargin(0, 0, 0, 0), "Result: ",
-                ComponentAlign.center, 16, "#000000"),
-          ], ViewMargin(10, 0, 0, 0)),
-        ],
-        [
-          ConfigEntry([
-            TextComponent("enter_data", ViewMargin(0, 0, 0, 0),
-                "Enter exchange rate data", ComponentAlign.left, 20, "#000000")
-          ], ViewMargin(20, 0, 20, 0))
-        ],
-        true,
-        true,
-        draggableSheetMaxHeight: 0.32),
-    ConfigurationModel(
-        "3",
-        false,
-        [
-          ConfigEntry([
-            TextComponent("view_chair", ViewMargin(0, 0, 0, 0),
-                "View your chair", ComponentAlign.left, 30.0, "#000000")
-          ], ViewMargin(40, 0, 30, 0)),
-          ConfigEntry([
-            LiveModelComponent(
-                "ID", 'assets/chair.gltf', false, ViewMargin(0, 0, 0, 0))
-          ], ViewMargin(20, 0, 0, 0))
-        ],
-        [],
-        true,
-        true,
-        draggableSheetMaxHeight: 0.1)
-  ];
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -119,7 +30,7 @@ class MyApp extends StatelessWidget {
 class MainApp extends StatelessWidget {
   GlobalKey<FormState> formKey = GlobalKey();
   String userID = Uuid().v4();
-  String taskID = "3693bce4-6223-4127-b3ef-f2337ccf83df";
+  String taskID = "015bcd8f-11ff-4b21-9201-5186b0e3b3a5";
 
   Future<dynamic> getAllConstraints() async {
     Future<dynamic> data = NetworkUtils.performNetworkAction(

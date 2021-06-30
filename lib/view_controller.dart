@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:constraint_view/component_action/component_action.dart';
+import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/components/button_component.dart';
 import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
@@ -22,10 +24,10 @@ import 'models/section_data.dart';
 class ViewController extends StatefulWidget {
   ConfigurationModel configurationModel;
   final String section;
-  _ViewControllerState state;
+  ViewControllerState state;
 
   ViewController(this.configurationModel, this.section) {
-    state = _ViewControllerState(configurationModel, section);
+    state = ViewControllerState(configurationModel, section);
   }
 
   void notifyChange() {
@@ -33,10 +35,10 @@ class ViewController extends StatefulWidget {
   }
 
   @override
-  _ViewControllerState createState() => state;
+  ViewControllerState createState() => state;
 }
 
-class _ViewControllerState extends State<ViewController> {
+class ViewControllerState extends State<ViewController> {
   ConfigurationModel configurationModel;
   String section;
   Map builtComponents = {};
@@ -44,7 +46,22 @@ class _ViewControllerState extends State<ViewController> {
   List<ConfigEntry> sectionToUse;
   bool ignoreScoll = false;
 
-  _ViewControllerState(this.configurationModel, this.section);
+  ViewControllerState(this.configurationModel, this.section);
+
+  Future<void> showDialogWithMsg(String title, String msg) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Container(
+            child: Text(msg),
+          ),
+        );
+      },
+    );
+  }
 
   Widget buildView() {
     if (this.configurationModel == null) {
@@ -159,8 +176,89 @@ class _ViewControllerState extends State<ViewController> {
   }
 
   Widget buildListComponent(ListComponent listComponent) {
-    Widget listWidget = listComponent.buildComponentView();
+    List<Widget> views = [];
+    List listData = listComponent.data;
+    List<Component> listComponents = listComponent.initialComponents;
+    for (int i = 0; i < listData.length; i++) {
+      for (int j = 0; j < listData[i].length; j++) {
+        dynamic componentData = listData[i][j];
+
+        switch (listComponents[j].type) {
+          case ComponentType.Text:
+            if (!(componentData is List)) {
+              TextComponent templateComponent = listComponents[j];
+              TextComponent textComponent = TextComponent(
+                  "${templateComponent.ID}-${(i)}-$j",
+                  templateComponent.margin,
+                  templateComponent.placeholder,
+                  templateComponent.textComponentAlign,
+                  templateComponent.textSize,
+                  templateComponent.textColor);
+              textComponent.parentListIndex = listComponent.dataIndex;
+              textComponent.dataIndex = i;
+              textComponent.componentIndex = j;
+              textComponent.setValue(componentData);
+              builtComponents[textComponent.ID] = textComponent;
+
+              views.add(buildTextComponent(textComponent));
+
+              listComponent.componentViews.add(textComponent);
+            }
+            break;
+          case ComponentType.List:
+            if ((componentData is List)) {
+              ListComponent templateComponent = listComponents[j];
+              ListComponent listComponent1 = ListComponent(
+                  "${templateComponent.ID}-${(i)}-$j",
+                  templateComponent.margin,
+                  templateComponent.data,
+                  templateComponent.initialComponents);
+              listComponent1.parentListIndex = listComponent.dataIndex;
+              listComponent1.dataIndex = i;
+              listComponent1.componentIndex = j;
+              listComponent1.setValue(componentData);
+              builtComponents[listComponent1.ID] = listComponent1;
+
+              views.add(buildListComponent(listComponent1));
+              listComponent.componentViews.add(listComponent1);
+            }
+            break;
+          case ComponentType.Button:
+            if (!(componentData is List)) {
+              ButtonComponent templateComponent = listComponents[j];
+              ButtonComponent buttonComponent = ButtonComponent(
+                  "${templateComponent.ID}-${(i)}-$j",
+                  templateComponent.margin,
+                  templateComponent.text,
+                  templateComponent.alignment,
+                  templateComponent.actionCommand);
+              buttonComponent.parentListIndex = listComponent.dataIndex;
+              buttonComponent.dataIndex = i;
+              buttonComponent.componentIndex = j;
+              builtComponents[buttonComponent.ID] = buttonComponent;
+
+              views.add(buildButtonComponent(buttonComponent));
+              listComponent.componentViews.add(buttonComponent);
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    Widget listWidget = ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: views.length,
+      itemBuilder: (context, index) {
+        return views[index];
+      },
+    );
     ViewMargin componentMargin = listComponent.margin;
+
+    builtComponents[listComponent.ID] = listComponent;
+
     return Expanded(
       child: Container(
           margin: EdgeInsets.only(
@@ -234,7 +332,7 @@ class _ViewControllerState extends State<ViewController> {
   Widget buildButtonComponent(ButtonComponent buttonComponent) {
     ViewMargin componentMargin = buttonComponent.margin;
     TextButton textButton = buttonComponent.buildComponentView(function: () {
-      processButtonAction(buttonComponent);
+      processActionCommand(buttonComponent, buttonComponent.actionCommand);
     });
 
     builtComponents[buttonComponent.ID] = textButton;
@@ -288,41 +386,51 @@ class _ViewControllerState extends State<ViewController> {
     );
   }
 
-  bool processButtonRequirement(
-      String requirementFunction, List requirementArgs) {
-    switch (requirementFunction) {
-      case "value":
-        dynamic requiredValue = requirementArgs[0];
-        String valueKey = requirementArgs[1];
-
-        if (savedValues.containsKey(valueKey)) {
-          if (savedValues[valueKey] == requiredValue) {
-            return true;
-          }
-        }
-
-        return false;
-      case "availability":
-        String valueKey = requirementArgs[0];
-
-        if (savedValues.containsKey(valueKey)) {
-          return true;
-        }
-        return false;
-      case "input_field":
-        bool isInputFieldValid = true;
-        for (String inputId in requirementArgs) {
-          if (getComponentValue(inputId) == null) {
-            isInputFieldValid = false;
-          }
-        }
-
-        return isInputFieldValid;
-        break;
-      default:
-        return true;
+  void processActionCommand(Component commandInitiator, Map command) {
+    if (command != null) {
+      ComponentAction componentAction =
+          ComponentAction.fromJson(this, commandInitiator, command);
+      componentAction.start();
+    } else {
+      print("No command");
     }
   }
+
+  // bool processButtonRequirement(
+  //     String requirementFunction, List requirementArgs) {
+  //   switch (requirementFunction) {
+  //     case "value":
+  //       dynamic requiredValue = requirementArgs[0];
+  //       String valueKey = requirementArgs[1];
+
+  //       if (savedValues.containsKey(valueKey)) {
+  //         if (savedValues[valueKey] == requiredValue) {
+  //           return true;
+  //         }
+  //       }
+
+  //       return false;
+  //     case "availability":
+  //       String valueKey = requirementArgs[0];
+
+  //       if (savedValues.containsKey(valueKey)) {
+  //         return true;
+  //       }
+  //       return false;
+  //     case "input_field":
+  //       bool isInputFieldValid = true;
+  //       for (String inputId in requirementArgs) {
+  //         if (getComponentValue(inputId) == null) {
+  //           isInputFieldValid = false;
+  //         }
+  //       }
+
+  //       return isInputFieldValid;
+  //       break;
+  //     default:
+  //       return true;
+  //   }
+  // }
 
   String formatText(String msg) {
     bool isLeftBracketFound = false;
@@ -424,7 +532,7 @@ class _ViewControllerState extends State<ViewController> {
         }
 
         final channel = IOWebSocketChannel.connect(
-            "ws://10.167.152.138:4321/start_constraint2");
+            "ws://192.168.1.129:4321/start_constraint2");
         channel.sink.add(jsonEncode({
           "response": "INPUT_REQUIRED",
           "constraint_name": configurationModel.constraintName,
@@ -439,11 +547,29 @@ class _ViewControllerState extends State<ViewController> {
     }
   }
 
-  dynamic getComponentValue(String componentID) {
-    if (!builtComponents.containsKey(componentID)) {
-      throw Exception("Component with ID $componentID cannot be found");
+  Component getComponentFromList(
+      String listComponentID, int dataIndex, int componentIndex) {
+    Component component = getComponentFromID(listComponentID);
+    Component result;
+    if (component.type != ComponentType.List) {
+      throw Exception("List component required");
     }
-    Component component = builtComponents[componentID];
+
+    ListComponent listComponent = component;
+    listComponent.componentViews.forEach((element) {
+      Component component = element;
+      if (component.componentIndex == componentIndex &&
+          component.dataIndex == dataIndex) {
+        result = component;
+        return;
+      }
+    });
+
+    return result;
+  }
+
+  dynamic getComponentValue(String componentID) {
+    Component component = getComponentFromID(componentID);
 
     dynamic componentValue = component.getValue();
 
@@ -454,23 +580,57 @@ class _ViewControllerState extends State<ViewController> {
     return null;
   }
 
-  void processButtonAction(ButtonComponent buttonComponent) {
-    bool isRequirementSatisfied = processButtonRequirement(
-        buttonComponent.requirementFunction,
-        buttonComponent.requirementFuncitonArgs);
-
-    configurationModel.modifyComponent("2", "therr", "top");
-
-    if (isRequirementSatisfied) {
-      saveValue(
-          buttonComponent.actionFunction,
-          buttonComponent.actionFunctionArgs[0],
-          buttonComponent.actionFunctionArgs);
-    } else {
-      throw Exception(
-          "Button ${buttonComponent.ID}'s requirement not fulfilled");
+  Component getComponentFromID(String id) {
+    if (!builtComponents.containsKey(id)) {
+      throw Exception("Component with ID $id cannot be found");
     }
+    Component component = builtComponents[id];
+    return component;
   }
+
+  void setComponentValue(String componentID, dynamic value) {
+    Component component = getComponentFromID(componentID);
+
+    component.setValue(value);
+    notifyChange();
+  }
+
+  void addValueToListComponent(String componentID, dynamic value,
+      {Component componentData}) {
+    Component component;
+    if (componentID != null) {
+      component = getComponentFromID(componentID);
+    } else {
+      component = componentData;
+    }
+
+    if (component.type != ComponentType.List) {
+      throw Exception("This method can only be used with a List component");
+    }
+
+    ListComponent listComponent = component;
+    print(listComponent.ID);
+    listComponent.addValue(value);
+    notifyChange();
+  }
+
+  // void processButtonAction(ButtonComponent buttonComponent) {
+  //   bool isRequirementSatisfied = processButtonRequirement(
+  //       buttonComponent.requirementFunction,
+  //       buttonComponent.requirementFuncitonArgs);
+
+  //   configurationModel.modifyComponent("2", "therr", "top");
+
+  //   if (isRequirementSatisfied) {
+  //     saveValue(
+  //         buttonComponent.actionFunction,
+  //         buttonComponent.actionFunctionArgs[0],
+  //         buttonComponent.actionFunctionArgs);
+  //   } else {
+  //     throw Exception(
+  //         "Button ${buttonComponent.ID}'s requirement not fulfilled");
+  //   }
+  // }
 
   void notifyChange() {
     setState(() {});

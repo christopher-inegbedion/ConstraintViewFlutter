@@ -1,3 +1,5 @@
+import 'package:constraint_view/component_action/component_action.dart';
+import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/enums/component_align.dart';
 import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/models/component_model.dart';
@@ -7,30 +9,17 @@ import 'package:flutter/material.dart';
 class ButtonComponent extends Component {
   String text;
   String color;
-  String requirementFunction;
-  List<dynamic> requirementFuncitonArgs;
-  String actionFunction;
-  List<dynamic> actionFunctionArgs;
+  Map actionCommand;
   ComponentAlign alignment;
 
-  ButtonComponent(
-      String ID,
-      ViewMargin margin,
-      String text,
-      ComponentAlign alignment,
-      String requirementFunction,
-      List<dynamic> requirementFuncitonArgs,
-      String actionFunction,
-      List<dynamic> actionFunctionArgs,
+  ButtonComponent(String ID, ViewMargin margin, String text,
+      ComponentAlign alignment, Map actionCommand,
       {String color})
       : super(ID, margin, ComponentType.Button) {
     this.text = text;
     this.color = color;
     this.alignment = alignment;
-    this.requirementFunction = requirementFunction;
-    this.requirementFuncitonArgs = requirementFuncitonArgs;
-    this.actionFunction = actionFunction;
-    this.actionFunctionArgs = actionFunctionArgs;
+    this.actionCommand = actionCommand;
   }
 
   ButtonComponent.forStatic() : super.forStatic();
@@ -55,22 +44,16 @@ class ButtonComponent extends Component {
 
   @override
   ButtonComponent buildComponent(List componentParams, bool fromConstraint) {
+    print(componentParams);
     String ID = componentParams[0];
     ViewMargin margin = fromConstraint
         ? ViewMargin.fromString(componentParams[1])
         : componentParams[1];
     String text = componentParams[2];
     ComponentAlign alignment = getComponentAlignFromString(componentParams[3]);
-    String requirementFunction = componentParams[4];
-    List requirementFunctionArgs =
-        fromConstraint ? componentParams[5].split(",") : componentParams[5];
-    String actionFunction = componentParams[6];
-    List actionFunctionArgs =
-        fromConstraint ? componentParams[7].split(",") : componentParams[7];
-    String color = componentParams[8];
+    String color = componentParams[5];
 
-    return ButtonComponent(ID, margin, text, alignment, requirementFunction,
-        requirementFunctionArgs, actionFunction, actionFunctionArgs,
+    return ButtonComponent(ID, margin, text, alignment, componentParams[4],
         color: color);
   }
 
@@ -94,7 +77,6 @@ class ButtonComponent extends Component {
 
   @override
   setValue(value) {
-    // TODO: implement setValue
-    throw UnimplementedError();
+    this.text = value;
   }
 }

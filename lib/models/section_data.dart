@@ -186,6 +186,6 @@ class SectionData {
 
   void setInitialState(String configID) {
     setCurrentConfig(configID);
-    print(this.configurationInputs);
+    // print(this.configurationInputs);
   }
 }

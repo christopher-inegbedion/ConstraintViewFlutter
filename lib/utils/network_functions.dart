@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 
 class NetworkUtils {
-  static String serverAddr = "10.167.152.138:";
+  static String serverAddr = "192.168.1.129:";
   static String portNum = "8000";
 
   static dynamic performNetworkAction(String addr, String path, String method,

@@ -81,7 +81,7 @@ class _ConstraintsListState extends State<ConstraintsListView> {
   void startConstraint(String constraintName) {
     if (stageStarted) {
       final channel = IOWebSocketChannel.connect(
-          "ws://10.167.152.138:4321/start_constraint1");
+          "ws://192.168.1.129:4321/start_constraint1");
 
       channel.sink.add(jsonEncode({
         "user_id": userID,

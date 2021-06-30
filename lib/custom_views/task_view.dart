@@ -52,7 +52,7 @@ class _TaskViewState extends State<TaskView> {
 
   void listenToPipelineChanges() {
     IOWebSocketChannel channel =
-        IOWebSocketChannel.connect("ws://10.167.152.138:4321/is_stage_running");
+        IOWebSocketChannel.connect("ws://192.168.1.129:4321/is_stage_running");
     channel.sink.add(jsonEncode({
       "stage_name": currentStage,
       "user_id": userID,
@@ -89,7 +89,7 @@ class _TaskViewState extends State<TaskView> {
 
   void isPipeRunning() {
     IOWebSocketChannel channel =
-        IOWebSocketChannel.connect("ws://10.167.152.138:4321/is_pipe_running");
+        IOWebSocketChannel.connect("ws://192.168.1.129:4321/is_pipe_running");
     channel.sink.add(jsonEncode({"user_id": userID, "task_id": taskID}));
     channel.stream.first.then((event) {
       Map<String, dynamic> recvData = jsonDecode(event);
@@ -140,7 +140,7 @@ class _TaskViewState extends State<TaskView> {
       startingStage = true;
     });
     IOWebSocketChannel channel =
-        IOWebSocketChannel.connect("ws://10.167.152.138:4321/start_pipeline");
+        IOWebSocketChannel.connect("ws://192.168.1.129:4321/start_pipeline");
     channel.sink.add(jsonEncode(
         {"user_id": userID, "task_id": taskID, "stage_name": currentStage}));
 

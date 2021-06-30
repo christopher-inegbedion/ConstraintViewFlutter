@@ -8,6 +8,11 @@ abstract class Component {
   ViewMargin margin;
   dynamic value;
 
+  //These variables are for children of the list component
+  int parentListIndex;
+  int dataIndex;
+  int componentIndex;
+
   Component(this.ID, this.margin, this.type);
 
   Component.forStatic() {}

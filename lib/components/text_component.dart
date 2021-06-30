@@ -1,3 +1,4 @@
+import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/enums/component_align.dart';
 import 'package:constraint_view/models/component_model.dart';
