@@ -22,10 +22,12 @@ class ShowDialogWithInputsCommand extends ComponentActionCommand {
           .showDialogWithButtons(title, inputFields)
           .then((value) {
         this.result = value;
+
         runSuccess();
       });
     } catch (e, stacktrace) {
       print(stacktrace);
+      print("ShowDialogWithInputs error: $e");
       runFailure();
     }
   }

@@ -18,14 +18,16 @@ class GetComponentFromListCommand extends ComponentActionCommand {
     super.run(result);
     try {
       String componentID = value[0];
-      int dataIndex = value[1];
+      int dataIndex = int.parse(value[1]);
       int componentIndex = value[2];
 
       Component component = componentAction.viewControllerState
-          .getComponentFromListWithIndex(componentID, dataIndex, componentIndex);
+          .getComponentFromListWithIndex(
+              componentID, dataIndex, componentIndex);
       this.result = [component.ID];
       runSuccess();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print("GetComponentFromList error: $e");
       runFailure();
     }

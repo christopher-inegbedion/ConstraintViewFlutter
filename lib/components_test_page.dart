@@ -35,59 +35,72 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
 
   List<ConfigurationModel> configModels;
   ComponentsTestPageState() {
-    optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
-        "", ComponentAlign.left, 20, "#000000");
-    variantName = TextComponent("variant_name", ViewMargin(10, 0, 30, 0),
-        "", ComponentAlign.left, 16, "#263238");
+    optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0), "",
+        ComponentAlign.left, 20, "#000000");
+    variantName = TextComponent("variant_name", ViewMargin(10, 0, 30, 0), "",
+        ComponentAlign.left, 16, "#263238");
     dummy4 = TextComponent("text3", ViewMargin(0, 10, 0, 0),
         "Get the exchange rates", ComponentAlign.center, 20, "#000000");
-    variantsList = ListComponent("variants_list", ViewMargin(0, 10, 0, 0), [""], [variantName]);
+    variantsList = ListComponent(
+        "variants_list", ViewMargin(0, 10, 0, 0), [""], [variantName]);
 
     newVariantBtn = ButtonComponent("new_variant_btn", ViewMargin(0, 0, 0, 20),
-        "New variant", ComponentAlign.right, {
+        "Add new variant", ComponentAlign.right, {
       "commandName": "gcld",
       "success": {
-        "commandName": "gcfl",
+        "commandName": "sev",
         "success": {
-          "commandName": "sev",
+          "commandName": "sdwi",
           "success": {
-            "commandName": "sdwi",
+            "commandName": "sev",
             "success": {
-              "commandName": "sev",
+              "commandName": "gev",
               "success": {
-                "commandName": "gev",
+                "commandName": "gcfl",
                 "success": {
-                  "commandName": "adtlc",
-                  "success": null,
+                  "commandName": "sev",
+                  "success": {
+                    "commandName": "gev",
+                    "success": {
+                      "commandName": "adtlc",
+                      "success": null,
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": [
+                        "{0}",
+                        ["{1}"]
+                      ]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": ["id", "value"]
+                  },
                   "failure": null,
                   "usePrevResult": false,
-                  "value": [
-                    "{0}",
-                    ["Variant: {variant_value}"]
-                  ]
+                  "value": ["id", "{0}"]
                 },
                 "failure": null,
                 "usePrevResult": false,
-                "value": ["option_id"]
+                "value": ["list", "{0}", 1]
               },
               "failure": null,
               "usePrevResult": false,
-              "value": ["variant_value", "{0}"]
+              "value": ["index"]
             },
             "failure": null,
             "usePrevResult": false,
-            "value": [
-              "New variant",
-              ["Variant name"]
-            ]
+            "value": ["value", "{0}"]
           },
           "failure": null,
           "usePrevResult": false,
-          "value": ["option_id", "{0}"]
+          "value": [
+            "New variant",
+            ["Variant name"]
+          ]
         },
         "failure": null,
         "usePrevResult": false,
-        "value": ["list", "{0}", 1]
+        "value": ["index", "{0}"]
       },
       "failure": null,
       "usePrevResult": false,
@@ -121,20 +134,14 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                 {
                   "commandName": "sdwi",
                   "success": {
-                    "commandName": "sev",
-                    "success": {
-                      "commandName": "adtlc",
-                      "success": null,
-                      "failure": null,
-                      "usePrevResult": false,
-                      "value": [
-                        "list",
-                        ["Option: {0}", [], "Add new variant"]
-                      ]
-                    },
+                    "commandName": "adtlc",
+                    "success": null,
                     "failure": null,
                     "usePrevResult": false,
-                    "value": ["value", "{0}"]
+                    "value": [
+                      "list",
+                      ["{0}", [], ""]
+                    ]
                   },
                   "failure": null,
                   "usePrevResult": false,
@@ -146,7 +153,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
               ),
             ], ViewMargin(10, 0, 0, 0)),
             ConfigEntry([
-              ListComponent("list", ViewMargin(0, 0, 0, 0), [[]],
+              ListComponent("list", ViewMargin(0, 0, 0, 0), [],
                   [optionName, variantsList, newVariantBtn])
             ], ViewMargin(0, 0, 0, 0)),
           ],

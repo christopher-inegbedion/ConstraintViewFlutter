@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +56,6 @@ abstract class ComponentActionCommand {
       int startIndex = 0;
       int endIndex = 0;
       String string = data.toString();
-      bool keywordFound = false;
       int replaceableWords = 0;
 
       string.characters.forEach((element) {
@@ -74,30 +75,41 @@ abstract class ComponentActionCommand {
         List characters = string.characters.toList();
         for (String character in characters) {
           count++;
-          if (keywordFound) {
-            keywordFound = false;
-            break;
-          } else {
-            if (character == "{") {
-              startIndex = count;
-              isLeftBracketFound = true;
-            } else if (character == "}") {
-              if (isLeftBracketFound) {
-                if (isLeftBracketFound) {
-                  endIndex = count;
+          if (character == "{") {
+            startIndex = count;
+            isLeftBracketFound = true;
+          } else if (character == "}") {
+            if (isLeftBracketFound) {
+              endIndex = count;
 
-                  isLeftBracketFound = false;
-                  int index =
-                      int.parse(string.substring(startIndex, endIndex - 1));
-                  dynamic word = prevResult[index];
-
-                  keywordFound = true;
-                  return word;
-                }
-              }
+              isLeftBracketFound = false;
+              int index = int.parse(string.substring(startIndex, endIndex - 1));
+              dynamic word = prevResult[index];
+              return word;
             }
           }
         }
+      }
+    } else if (data is List) {
+      String type = data.runtimeType.toString();
+      if (type == "List<String>") {
+        List<String> newList = [];
+        int i = 0;
+        data.forEach((element) {
+          newList.add(formatText(element, prevResult));
+          i++;
+        });
+
+        return newList;
+      } else {
+        List newList = [];
+        int i = 0;
+        data.forEach((element) {
+          newList.add(formatText(element, prevResult));
+          i++;
+        });
+
+        return newList;
       }
     }
 

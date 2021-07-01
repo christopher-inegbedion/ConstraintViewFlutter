@@ -20,6 +20,7 @@ class AddDataToListComponentCommand extends ComponentActionCommand {
     try {
       String componentID = value[0];
       List data = jsonDecode(jsonEncode(value[1]));
+
       componentAction.viewControllerState
           .addValueToListComponent(componentID, data);
       runSuccess();

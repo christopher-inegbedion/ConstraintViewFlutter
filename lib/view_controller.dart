@@ -151,7 +151,6 @@ class ViewControllerState extends State<ViewController> {
     for (ConfigEntry entry in this.sectionToUse) {
       ViewMargin entryMargin = entry.margin;
       List<Widget> components = [];
-      print(entry.components);
 
       for (Component component in entry.components) {
         switch (component.type) {
@@ -647,7 +646,7 @@ class ViewControllerState extends State<ViewController> {
       if (component.componentIndex == componentIndex &&
           component.dataIndex == dataIndex) {
         result = component;
-        return;
+        return result;
       }
     });
 
@@ -714,8 +713,8 @@ class ViewControllerState extends State<ViewController> {
     }
 
     ListComponent listComponent = component;
-    print(listComponent.ID);
     listComponent.addValue(value);
+
     notifyChange();
   }
 
@@ -750,7 +749,6 @@ class ViewControllerState extends State<ViewController> {
       entry.components.removeWhere((element) {
         Component tempComp = element;
         componentFound = tempComp.ID == initialComponentID;
-        print(tempComp.ID);
         return componentFound;
       });
 
@@ -761,14 +759,7 @@ class ViewControllerState extends State<ViewController> {
       index++;
     }
 
-    for (ConfigEntry entry in this.sectionToUse) {
-      print(entry.components);
-    }
-
     notifyChange();
-
-    print(builtComponents);
-    print("change");
   }
 
   @override

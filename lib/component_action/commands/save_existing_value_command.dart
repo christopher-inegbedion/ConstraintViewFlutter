@@ -17,7 +17,7 @@ class SaveExistingValueCommand extends ComponentActionCommand {
     super.run(result);
     try {
       String key = value[0];
-      String valueToSave = value[1];
+      String valueToSave = value[1].toString();
 
       componentAction.viewControllerState.savedValues[key] = valueToSave;
       this.result = [valueToSave];

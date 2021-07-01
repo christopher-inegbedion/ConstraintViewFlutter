@@ -6,10 +6,12 @@ import 'package:constraint_view/component_action/commands/component_value_comman
 import 'package:constraint_view/component_action/commands/equality_conition_command.dart';
 import 'package:constraint_view/component_action/commands/get_component_from_list_command.dart';
 import 'package:constraint_view/component_action/commands/get_component_list_details.dart';
+import 'package:constraint_view/component_action/commands/get_existing_value_from_list_command.dart';
 import 'package:constraint_view/component_action/commands/get_existing_values_command.dart';
 import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
 import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
+import 'package:constraint_view/component_action/commands/save_existing_value_to_list_command.dart';
 import 'package:constraint_view/component_action/commands/set_component_value_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_with_inputs_command.dart';
@@ -37,12 +39,11 @@ class ComponentAction {
   }
 
   ComponentActionCommand buildCommandFromJSON(Map data) {
-    Map newData = data;
-    String name = newData["commandName"];
-    Map successData = newData["success"];
-    Map failureData = newData["failure"];
-    bool usePrevResult = newData["usePrevResult"];
-    List value = newData["value"];
+    String name = data["commandName"];
+    Map successData = data["success"];
+    Map failureData = data["failure"];
+    bool usePrevResult = data["usePrevResult"];
+    List value = data["value"];
 
     if (successData == null) {
       if (failureData == null) {
@@ -77,6 +78,8 @@ class ComponentAction {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value) {
+    print(value);
+
     switch (commandName) {
       case "gtc":
         return GreaterThanComperatorCommand(
@@ -137,29 +140,19 @@ class ComponentAction {
         return CloseDialogCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
-
+      case "sevtl":
+        return SaveExistingValueToListCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "gevfl":
+        return GetExistingValueFromListCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
 
       default:
         return null;
     }
   }
-
-  Map data = {
-    "commandName": "gtc",
-    "success": {
-      "commandName": "tp",
-      "success": null,
-      "failure": null,
-      "value": ["success"]
-    },
-    "failure": {
-      "commandName": "tp",
-      "success": null,
-      "failure": null,
-      "value": ["failure"]
-    },
-    "value": [2, 3]
-  };
 
   void start() {
     if (command != null) {
