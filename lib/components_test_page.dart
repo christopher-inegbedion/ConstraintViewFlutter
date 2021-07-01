@@ -25,26 +25,25 @@ class ComponentsTestPage extends StatefulWidget {
 
 class ComponentsTestPageState extends State<ComponentsTestPage> {
   TextComponent dummy;
-  InputFieldComponent inputFieldComponent;
-  InputFieldComponent variantInputFieldComponent;
-  ListComponent dummy2;
-  ButtonComponent dummy3;
+  TextComponent optionName;
+  TextComponent variantName;
+  ListComponent variantsList;
+  ButtonComponent newVariantBtn;
   TextComponent dummy4;
   GlobalKey key = GlobalKey();
   UniqueKey key1 = UniqueKey();
 
   List<ConfigurationModel> configModels;
   ComponentsTestPageState() {
-    inputFieldComponent = InputFieldComponent("", ViewMargin(0, 0, 0, 0),
-        "Enter option name", "Please enter a variant name");
-    variantInputFieldComponent = InputFieldComponent("", ViewMargin(0, 0, 0, 0),
-        "Enter variant name", "Please enter a variant name");
-    dummy4 = TextComponent("text2", ViewMargin(0, 10, 0, 0),
+    optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
+        "", ComponentAlign.left, 20, "#000000");
+    variantName = TextComponent("variant_name", ViewMargin(10, 0, 30, 0),
+        "", ComponentAlign.left, 16, "#263238");
+    dummy4 = TextComponent("text3", ViewMargin(0, 10, 0, 0),
         "Get the exchange rates", ComponentAlign.center, 20, "#000000");
-    dummy2 = ListComponent(
-        "sd", ViewMargin(0, 10, 0, 0), [""], [variantInputFieldComponent]);
+    variantsList = ListComponent("variants_list", ViewMargin(0, 10, 0, 0), [""], [variantName]);
 
-    dummy3 = ButtonComponent("new_variant_btn", ViewMargin(0, 0, 0, 20),
+    newVariantBtn = ButtonComponent("new_variant_btn", ViewMargin(0, 0, 0, 20),
         "New variant", ComponentAlign.right, {
       "commandName": "gcld",
       "success": {
@@ -52,68 +51,43 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
         "success": {
           "commandName": "sev",
           "success": {
-            "commandName": "cv",
+            "commandName": "sdwi",
             "success": {
-              "commandName": "iec",
+              "commandName": "sev",
               "success": {
-                "commandName": "gcld",
+                "commandName": "gev",
                 "success": {
-                  "commandName": "gcfl",
-                  "success": {
-                    "commandName": "cv",
-                    "success": {
-                      "commandName": "sev",
-                      "success": {
-                        "commandName": "gev",
-                        "success": {
-                          "commandName": "rcwtc",
-                          "success": null,
-                          "failure": null,
-                          "usePrevResult": false,
-                          "value": [
-                            "{0}",
-                            [0, 0, 0, 0],
-                            "ee",
-                            "center",
-                            20,
-                            "#000000"
-                          ]
-                        },
-                        "failure": null,
-                        "usePrevResult": false,
-                        "value": ["option_editing", "option_value"]
-                      },
-                      "failure": null,
-                      "usePrevResult": false,
-                      "value": ["value", "{0}"]
-                    },
-                    "failure": null,
-                    "usePrevResult": false,
-                    "value": ["{0}"]
-                  },
+                  "commandName": "adtlc",
+                  "success": null,
                   "failure": null,
                   "usePrevResult": false,
-                  "value": ["list", "{0}", 0]
+                  "value": [
+                    "{0}",
+                    ["Variant: {variant_value}"]
+                  ]
                 },
                 "failure": null,
                 "usePrevResult": false,
-                "value": []
+                "value": ["option_id"]
               },
               "failure": null,
               "usePrevResult": false,
-              "value": ["{0}", null]
+              "value": ["variant_value", "{0}"]
             },
             "failure": null,
             "usePrevResult": false,
-            "value": ["{0}"]
+            "value": [
+              "New variant",
+              ["Variant name"]
+            ]
           },
           "failure": null,
           "usePrevResult": false,
-          "value": ["option_editing", "{0}"]
+          "value": ["option_id", "{0}"]
         },
         "failure": null,
         "usePrevResult": false,
-        "value": ["list", "{0}", 0]
+        "value": ["list", "{0}", 1]
       },
       "failure": null,
       "usePrevResult": false,
@@ -123,81 +97,63 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
     configModels = [
       ConfigurationModel(
           "1",
-          true,
+          false,
           [
             ConfigEntry([
-              ListComponent("list", ViewMargin(0, 0, 0, 0), [[]],
-                  [inputFieldComponent, dummy2, dummy3])
+              TextComponent("title", ViewMargin(30, 0, 30, 0),
+                  "Product variants", ComponentAlign.left, 25, "#000000"),
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent(
+                  "title",
+                  ViewMargin(5, 0, 30, 0),
+                  "Add variants to the product",
+                  ComponentAlign.left,
+                  19,
+                  "#263238"),
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
               ButtonComponent(
-                "ID", ViewMargin(0, 0, 0, 20), "Add new option",
+                "ID",
+                ViewMargin(20, 0, 0, 20),
+                "Add new option",
                 ComponentAlign.right,
                 {
-                  "commandName": "adtlc",
-                  "success": null,
+                  "commandName": "sdwi",
+                  "success": {
+                    "commandName": "sev",
+                    "success": {
+                      "commandName": "adtlc",
+                      "success": null,
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": [
+                        "list",
+                        ["Option: {0}", [], "Add new variant"]
+                      ]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": ["value", "{0}"]
+                  },
                   "failure": null,
                   "usePrevResult": false,
                   "value": [
-                    "list",
-                    [DateTime.now().toString(), [], "Add new variant"]
+                    "New option",
+                    ["Option name"]
                   ]
                 },
-                //     {
-                //   "commandName": "cv",
-                //   "success": {
-                //     "commandName": "sev",
-                //     "success": {
-                //       "commandName": "cv",
-                //       "success": {
-                //         "commandName": "sev",
-                //         "success": null,
-                //         "failure": null,
-                //         "usePrevResult": false,
-                //         "value": ["ss2"]
-                //       },
-                //       "usePrevResult": false,
-                //       "failure": null,
-                //       "value": ["x_rate2"]
-                //     },
-                //     "failure": null,
-                //     "usePrevResult": false,
-                //     "value": ["ss"]
-                //   },
-                //   "usePrevResult": false,
-                //   "failure": null,
-                //   "value": ["x_rate1"]
-                // }
               ),
-            ], ViewMargin(10, 0, 0, 0))
-          ],
-          [
+            ], ViewMargin(10, 0, 0, 0)),
             ConfigEntry([
-              TextComponent(
-                  "enter_data",
-                  ViewMargin(0, 0, 0, 0),
-                  "Enter exchange rate data",
-                  ComponentAlign.left,
-                  20,
-                  "#000000"),
-              TextComponent(
-                  "enter_data2",
-                  ViewMargin(0, 0, 0, 0),
-                  "Enter exchange rate data 2",
-                  ComponentAlign.left,
-                  20,
-                  "#000000")
-            ], ViewMargin(20, 0, 20, 0)),
-            ConfigEntry([
-              InputFieldComponent("x_rate1", ViewMargin(0, 0, 20, 20),
-                  "Exchange rate 1", "Exchange rate 1 required"),
-              InputFieldComponent("x_rate2", ViewMargin(0, 0, 20, 20),
-                  "Exchange rate 2", "Exchange rate 2 required"),
-            ], ViewMargin(20, 0, 0, 0)),
+              ListComponent("list", ViewMargin(0, 0, 0, 0), [[]],
+                  [optionName, variantsList, newVariantBtn])
+            ], ViewMargin(0, 0, 0, 0)),
           ],
-          true,
-          true,
-          draggableSheetMaxHeight: 0.32,
+          [],
+          false,
+          false,
+          draggableSheetMaxHeight: 0.2,
           configurationInputs: {"result": "dsf"}),
       ConfigurationModel(
           "2",

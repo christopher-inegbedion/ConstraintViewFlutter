@@ -1,15 +1,15 @@
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 
-class GetComponentListIndex extends ComponentActionCommand {
-  GetComponentListIndex(
+class GetComponentListDetailCommand extends ComponentActionCommand {
+  GetComponentListDetailCommand(
       String id,
       ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "GetComponentListIndex", "gcli", success,
+      : super(componentAction, id, "GetComponentListDetail", "gcld", success,
             failure, usePrevResult, value);
 
   @override
@@ -25,7 +25,7 @@ class GetComponentListIndex extends ComponentActionCommand {
       runSuccess();
     } catch (e, stracktrace) {
       print(stracktrace);
-      print("GetComponentListIndex error: $e");
+      print("GetComponentListDetail error: $e");
       runFailure();
     }
   }

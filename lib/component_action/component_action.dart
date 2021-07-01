@@ -1,16 +1,18 @@
 import 'dart:convert';
 
 import 'package:constraint_view/component_action/commands/add_data_to_list_component_command.dart';
+import 'package:constraint_view/component_action/commands/close_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/component_value_command.dart';
 import 'package:constraint_view/component_action/commands/equality_conition_command.dart';
 import 'package:constraint_view/component_action/commands/get_component_from_list_command.dart';
-import 'package:constraint_view/component_action/commands/get_component_list_details_index.dart';
+import 'package:constraint_view/component_action/commands/get_component_list_details.dart';
 import 'package:constraint_view/component_action/commands/get_existing_values_command.dart';
 import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
 import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
 import 'package:constraint_view/component_action/commands/set_component_value_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_command.dart';
+import 'package:constraint_view/component_action/commands/show_dialog_with_inputs_command.dart';
 import 'package:constraint_view/component_action/commands/terminal_print_command.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/models/component_model.dart';
@@ -104,7 +106,7 @@ class ComponentAction {
             componentAction, id, success, failure, usePrevResult, value);
         break;
       case "gcld":
-        return GetComponentListIndex(
+        return GetComponentListDetailCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
       case "gcfl":
@@ -127,6 +129,15 @@ class ComponentAction {
         return GetExistingValuesCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
+      case "sdwi":
+        return ShowDialogWithInputsCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "cd":
+        return CloseDialogCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+
 
       default:
         return null;

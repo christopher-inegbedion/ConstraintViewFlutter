@@ -45,6 +45,7 @@ class ViewControllerState extends State<ViewController> {
   Map<String, dynamic> savedValues = {};
   List<ConfigEntry> sectionToUse;
   bool ignoreScoll = false;
+  BuildContext dialogContext;
 
   ViewControllerState(this.configurationModel, this.section);
 
@@ -53,6 +54,7 @@ class ViewControllerState extends State<ViewController> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
+        dialogContext = context;
         return AlertDialog(
           title: Text(title),
           content: Container(
@@ -61,6 +63,62 @@ class ViewControllerState extends State<ViewController> {
         );
       },
     );
+  }
+
+  Future<dynamic> showDialogWithButtons(
+      String title, List<String> inputFields) async {
+    GlobalKey<FormState> key = GlobalKey();
+    List<TextEditingController> textControllers = [];
+    List values = [];
+    inputFields.forEach((element) {
+      textControllers.add(TextEditingController());
+    });
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Container(
+              width: MediaQuery.of(context).size.width,
+              child: Form(
+                  key: key,
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: inputFields.length,
+                      itemBuilder: (context, index) {
+                        dialogContext = context;
+                        return TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter some text';
+                              }
+                              return null;
+                            },
+                            controller: textControllers[index],
+                            decoration: InputDecoration(
+                              hintText: inputFields[index],
+                            ));
+                      })),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    if (key.currentState.validate()) {
+                      textControllers.forEach((controller) {
+                        values.add(controller.text);
+                      });
+                      Navigator.pop(context, values);
+                    }
+                  },
+                  child: Text("Done"))
+            ],
+          );
+        });
+  }
+
+  void closeDialog() {
+    Navigator.of(context).pop();
   }
 
   Widget buildView() {
@@ -270,15 +328,17 @@ class ViewControllerState extends State<ViewController> {
       }
     }
 
-    Widget listWidget = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: views,
-    );
+    Widget listWidget = ListView.builder(
+        shrinkWrap: true,
+        itemCount: views.length,
+        itemBuilder: (context, index) {
+          return views[index];
+        });
     ViewMargin componentMargin = listComponent.margin;
 
     builtComponents[listComponent.ID] = listComponent;
 
-    return Flexible(
+    return Expanded(
       child: Container(
           width: MediaQuery.of(context).size.width,
           margin: EdgeInsets.only(
@@ -297,7 +357,7 @@ class ViewControllerState extends State<ViewController> {
 
     builtComponents[textComponent.ID] = textComponent;
 
-    return Flexible(
+    return Expanded(
       child: Container(
         margin: EdgeInsets.only(
             top: componentMargin.top,
@@ -498,8 +558,14 @@ class ViewControllerState extends State<ViewController> {
                       string.substring(startIndex - 1, endIndex),
                       configurationModel.configurationInputs[word]);
                 } else {
-                  string = string.replaceAll(
-                      string.substring(startIndex - 1, endIndex), "Loading");
+                  if (savedValues.containsKey(word)) {
+                    string = string.replaceAll(
+                        string.substring(startIndex - 1, endIndex),
+                        savedValues[word]);
+                  } else {
+                    string = string.replaceAll(
+                        string.substring(startIndex - 1, endIndex), "Loading");
+                  }
                 }
 
                 keywordFound = true;

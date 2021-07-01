@@ -22,7 +22,7 @@ class GetComponentFromListCommand extends ComponentActionCommand {
       int componentIndex = value[2];
 
       Component component = componentAction.viewControllerState
-          .getComponentFromList(componentID, dataIndex, componentIndex);
+          .getComponentFromListWithIndex(componentID, dataIndex, componentIndex);
       this.result = [component.ID];
       runSuccess();
     } catch (e) {
