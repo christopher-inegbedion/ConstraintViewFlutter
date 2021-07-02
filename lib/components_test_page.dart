@@ -29,23 +29,20 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
   TextComponent variantName;
   ListComponent variantsList;
   ButtonComponent newVariantBtn;
-  TextComponent dummy4;
   GlobalKey key = GlobalKey();
   UniqueKey key1 = UniqueKey();
 
   List<ConfigurationModel> configModels;
   ComponentsTestPageState() {
-    optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0), "",
-        ComponentAlign.left, 20, "#000000");
-    variantName = TextComponent("variant_name", ViewMargin(10, 0, 30, 0), "",
-        ComponentAlign.left, 16, "#263238");
-    dummy4 = TextComponent("text3", ViewMargin(0, 10, 0, 0),
-        "Get the exchange rates", ComponentAlign.center, 20, "#000000");
+    optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
+        "Option name", ComponentAlign.left, 20, "#000000");
+    variantName = TextComponent("variant_name", ViewMargin(10, 0, 30, 0),
+        "Variant name", ComponentAlign.left, 16, "#263238");
     variantsList = ListComponent(
         "variants_list", ViewMargin(0, 10, 0, 0), [""], [variantName]);
 
-    newVariantBtn = ButtonComponent("new_variant_btn", ViewMargin(0, 0, 0, 20),
-        "Add new variant", ComponentAlign.right, {
+    newVariantBtn = ButtonComponent("new_variant_btn", ViewMargin(0, 0, 20, 0),
+        "Add new variant", ComponentAlign.left, {
       "commandName": "gcld",
       "success": {
         "commandName": "sev",
@@ -63,7 +60,49 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                     "commandName": "gev",
                     "success": {
                       "commandName": "adtlc",
-                      "success": null,
+                      "success": {
+                        "commandName": "gev",
+                        "success": {
+                          "commandName": "gcfl",
+                          "success": {
+                            "commandName": "cv",
+                            "success": {
+                              "commandName": "sev",
+                              "success": {
+                                "commandName": "gev",
+                                "success": {
+                                  "commandName": "sevtl",
+                                  "success": null,
+                                  "failure": null,
+                                  "usePrevResult": false,
+                                  "value": ["{0}", "{1}", false]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": [
+                                  ["option_name", "value"],
+                                  true
+                                ]
+                              },
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": ["option_name", "{0}", true]
+                            },
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": ["{0}"]
+                          },
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": ["list", "{0}", 0]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": [
+                          ["index"],
+                          true
+                        ]
+                      },
                       "failure": null,
                       "usePrevResult": false,
                       "value": [
@@ -73,11 +112,14 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                     },
                     "failure": null,
                     "usePrevResult": false,
-                    "value": ["id", "value"]
+                    "value": [
+                      ["id", "value"],
+                      true
+                    ]
                   },
                   "failure": null,
                   "usePrevResult": false,
-                  "value": ["id", "{0}"]
+                  "value": ["id", "{0}", true]
                 },
                 "failure": null,
                 "usePrevResult": false,
@@ -85,11 +127,14 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
               },
               "failure": null,
               "usePrevResult": false,
-              "value": ["index"]
+              "value": [
+                ["index"],
+                true
+              ]
             },
             "failure": null,
             "usePrevResult": false,
-            "value": ["value", "{0}"]
+            "value": ["value", "{0}", true]
           },
           "failure": null,
           "usePrevResult": false,
@@ -100,7 +145,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
         },
         "failure": null,
         "usePrevResult": false,
-        "value": ["index", "{0}"]
+        "value": ["index", "{0}", true]
       },
       "failure": null,
       "usePrevResult": false,
@@ -114,7 +159,15 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           [
             ConfigEntry([
               TextComponent("title", ViewMargin(30, 0, 30, 0),
-                  "Product variants", ComponentAlign.left, 25, "#000000"),
+                  "Product variants", ComponentAlign.left, 22, "#000000"),
+              ButtonComponent("save_data", ViewMargin(0, 0, 0, 20), "Save",
+                  ComponentAlign.right, {
+                "commandName": "gev",
+                "success": null,
+                "failure": null,
+                "usePrevResult": false,
+                "value": null
+              })
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
               TextComponent(
@@ -134,14 +187,44 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                 {
                   "commandName": "sdwi",
                   "success": {
-                    "commandName": "adtlc",
-                    "success": null,
+                    "commandName": "sev",
+                    "success": {
+                      "commandName": "gev",
+                      "success": {
+                        "commandName": "adtlc",
+                        "success": {
+                          "commandName": "gev",
+                          "success": {
+                            "commandName": "sevtl",
+                            "success": null,
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": ["{0}", null, false]
+                          },
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": [
+                            ["option_name"],
+                            true
+                          ]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": [
+                          "list",
+                          ["{0}", [], ""]
+                        ]
+                      },
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": [
+                        ["option_name"],
+                        true
+                      ]
+                    },
                     "failure": null,
                     "usePrevResult": false,
-                    "value": [
-                      "list",
-                      ["{0}", [], ""]
-                    ]
+                    "value": ["option_name", "{0}", true]
                   },
                   "failure": null,
                   "usePrevResult": false,

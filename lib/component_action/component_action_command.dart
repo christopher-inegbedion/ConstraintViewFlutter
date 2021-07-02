@@ -31,10 +31,12 @@ abstract class ComponentActionCommand {
       }
     } else {
       List newValue = [];
-      value.forEach((element) {
-        newValue.add(formatText(element, result));
-      });
-      value = newValue;
+      if (value != null) {
+        value.forEach((element) {
+          newValue.add(formatText(element, result));
+        });
+        value = newValue;
+      }
     }
   }
 

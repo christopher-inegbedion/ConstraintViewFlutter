@@ -16,13 +16,29 @@ class GetExistingValuesCommand extends ComponentActionCommand {
   run(dynamic result) {
     super.run(result);
     try {
-      List returnVal = [];
-      for (String val in value) {
-        returnVal.add(componentAction.viewControllerState.savedValues[val]);
+      if (value != null) {
+        List data = value[0];
+        bool temp = value[1];
+        print(this.result);
+
+        var storageUsing = temp
+            ? componentAction.viewControllerState.tempValues
+            : componentAction.viewControllerState.savedValues;
+        List returnVal = [];
+        for (String val in data) {
+          returnVal.add(storageUsing[val]);
+        }
+        this.result = returnVal;
+      } else {
+        this.result = componentAction.viewControllerState.savedValues.isEmpty
+            ? null
+            : componentAction.viewControllerState.savedValues;
+        print(this.result);
       }
-      this.result = returnVal;
+
       runSuccess();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print("GetExistingValues erorr: $e");
       runFailure();
     }

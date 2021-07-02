@@ -19,15 +19,24 @@ class SaveExistingValueToListCommand extends ComponentActionCommand {
     try {
       String key = value[0];
       String data = value[1];
+      bool temp = value[2];
 
-      if (componentAction.viewControllerState.savedValues.containsKey(key)) {
-        componentAction.viewControllerState.savedValues[key].add(data);
+      var storageUsing = temp
+          ? componentAction.viewControllerState.tempValues
+          : componentAction.viewControllerState.savedValues;
+
+      if (storageUsing.containsKey(key)) {
+        if (data != null) {
+          storageUsing[key].add(data);
+        }
       } else {
-        componentAction.viewControllerState.savedValues[key] = [];
-        componentAction.viewControllerState.savedValues[key].add(data);
+        storageUsing[key] = [];
+        if (data != null) {
+          storageUsing[key].add(data);
+        }
       }
+      print(storageUsing);
       this.result = [data];
-      print(componentAction.viewControllerState.savedValues);
       runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);

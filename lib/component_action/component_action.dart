@@ -78,8 +78,6 @@ class ComponentAction {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value) {
-    print(value);
-
     switch (commandName) {
       case "gtc":
         return GreaterThanComperatorCommand(

@@ -43,6 +43,7 @@ class ViewControllerState extends State<ViewController> {
   String section;
   Map builtComponents = {};
   Map<String, dynamic> savedValues = {};
+  Map<String, dynamic> tempValues = {};
   List<ConfigEntry> sectionToUse;
   bool ignoreScoll = false;
   BuildContext dialogContext;

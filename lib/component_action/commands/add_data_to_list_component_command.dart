@@ -24,7 +24,8 @@ class AddDataToListComponentCommand extends ComponentActionCommand {
       componentAction.viewControllerState
           .addValueToListComponent(componentID, data);
       runSuccess();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print("AddDataToListComponent error: $e");
       runFailure();
     }

@@ -18,11 +18,13 @@ class GetExistingValueFromListCommand extends ComponentActionCommand {
     try {
       String key = value[0];
       int index = int.parse(value[1].toString());
-      print(key);
-      print(componentAction.viewControllerState.savedValues);
+      bool temp = value[2];
 
-      dynamic data =
-          componentAction.viewControllerState.savedValues[key][index];
+      var storageUsing = temp
+          ? componentAction.viewControllerState.tempValues
+          : componentAction.viewControllerState.savedValues;
+
+      dynamic data = storageUsing[key][index];
       this.result = [data];
       runSuccess();
     } catch (e, stacktrace) {

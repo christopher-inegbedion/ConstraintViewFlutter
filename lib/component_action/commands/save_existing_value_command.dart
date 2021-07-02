@@ -18,10 +18,15 @@ class SaveExistingValueCommand extends ComponentActionCommand {
     try {
       String key = value[0];
       String valueToSave = value[1].toString();
+      bool temp = value[2];
 
-      componentAction.viewControllerState.savedValues[key] = valueToSave;
+      var storageUsing = temp
+          ? componentAction.viewControllerState.tempValues
+          : componentAction.viewControllerState.savedValues;
+
+      storageUsing[key] = valueToSave;
+
       this.result = [valueToSave];
-      print(componentAction.viewControllerState.savedValues[key]);
       runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);
