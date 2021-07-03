@@ -476,48 +476,11 @@ class ViewControllerState extends State<ViewController> {
     }
   }
 
-  // bool processButtonRequirement(
-  //     String requirementFunction, List requirementArgs) {
-  //   switch (requirementFunction) {
-  //     case "value":
-  //       dynamic requiredValue = requirementArgs[0];
-  //       String valueKey = requirementArgs[1];
-
-  //       if (savedValues.containsKey(valueKey)) {
-  //         if (savedValues[valueKey] == requiredValue) {
-  //           return true;
-  //         }
-  //       }
-
-  //       return false;
-  //     case "availability":
-  //       String valueKey = requirementArgs[0];
-
-  //       if (savedValues.containsKey(valueKey)) {
-  //         return true;
-  //       }
-  //       return false;
-  //     case "input_field":
-  //       bool isInputFieldValid = true;
-  //       for (String inputId in requirementArgs) {
-  //         if (getComponentValue(inputId) == null) {
-  //           isInputFieldValid = false;
-  //         }
-  //       }
-
-  //       return isInputFieldValid;
-  //       break;
-  //     default:
-  //       return true;
-  //   }
-  // }
-
   String formatText(String msg) {
     bool isLeftBracketFound = false;
     int startIndex = 0;
     int endIndex = 0;
     String string = msg;
-    bool keywordFound = false;
     int replaceableWords = 0;
 
     string.characters.forEach((element) {
@@ -537,39 +500,34 @@ class ViewControllerState extends State<ViewController> {
       List characters = string.characters.toList();
       for (String character in characters) {
         count++;
-        if (keywordFound) {
-          keywordFound = false;
-          break;
-        } else {
-          if (character == "{") {
-            startIndex = count;
-            isLeftBracketFound = true;
-          } else if (character == "}") {
-            if (isLeftBracketFound) {
-              if (isLeftBracketFound) {
-                endIndex = count;
+        if (character == "{") {
+          startIndex = count;
+          isLeftBracketFound = true;
+        } else if (character == "}") {
+          if (isLeftBracketFound) {
+            endIndex = count;
 
-                isLeftBracketFound = false;
-                String word = string.substring(startIndex, endIndex - 1);
-                print(configurationModel.draggableSheetMaxHeight);
+            isLeftBracketFound = false;
+            String word = string.substring(startIndex, endIndex - 1);
+            print(configurationModel.configurationInputs);
 
-                if (configurationModel.configurationInputs.containsKey(word)) {
+            if (configurationModel.configurationInputs != null) {
+              if (configurationModel.configurationInputs.containsKey(word)) {
+                string = string.replaceAll(
+                    string.substring(startIndex - 1, endIndex),
+                    configurationModel.configurationInputs[word]);
+              } else {
+                if (savedValues.containsKey(word)) {
                   string = string.replaceAll(
                       string.substring(startIndex - 1, endIndex),
-                      configurationModel.configurationInputs[word]);
+                      savedValues[word]);
                 } else {
-                  if (savedValues.containsKey(word)) {
-                    string = string.replaceAll(
-                        string.substring(startIndex - 1, endIndex),
-                        savedValues[word]);
-                  } else {
-                    string = string.replaceAll(
-                        string.substring(startIndex - 1, endIndex), "Loading");
-                  }
+                  string = string.replaceAll(
+                      string.substring(startIndex - 1, endIndex), "Loading");
                 }
-
-                keywordFound = true;
               }
+            } else {
+              return string;
             }
           }
         }
@@ -577,60 +535,6 @@ class ViewControllerState extends State<ViewController> {
     }
 
     return string;
-  }
-
-  ///Save a value to the global [savedValues] dictionary.
-  ///
-  ///Pass the [actionFunction] which defines how the save operation should be
-  ///carried out, [valueKey] which represents the key of the value to be saved
-  ///in the [savedValues] dictionary and [valueIDs] which represent where the
-  ///values should be gotten from (a component or an existing value)
-  void saveValue(String actionFunction, String valueKey, List valueIDs) {
-    switch (actionFunction) {
-      case "save":
-        List values = [];
-        for (String valueID in valueIDs) {
-          dynamic value = getComponentValue(valueID);
-          values.add(value);
-        }
-
-        if (values.contains(null)) {
-          return;
-        }
-        savedValues[valueKey] = values;
-        break;
-      case "save_val":
-        List values = [];
-        for (String valueID in valueIDs) {
-          if (savedValues.containsKey(valueID)) {
-            values.add(savedValues[valueID]);
-          } else {
-            throw Exception("A value with key $valueID has not been saved");
-          }
-        }
-
-        savedValues[valueKey] = values;
-        break;
-      case "send_inputs":
-        List values = [];
-        for (String inputIDs in valueIDs) {
-          values.add(getComponentValue(inputIDs));
-        }
-
-        final channel = IOWebSocketChannel.connect(
-            "ws://192.168.1.129:4321/start_constraint2");
-        channel.sink.add(jsonEncode({
-          "response": "INPUT_REQUIRED",
-          "constraint_name": configurationModel.constraintName,
-          "stage_name": configurationModel.stageName,
-          "user_id": configurationModel.userID,
-          "task_id": configurationModel.taskID,
-          "data": values
-        }));
-
-        break;
-      default:
-    }
   }
 
   Component getComponentFromListWithIndex(

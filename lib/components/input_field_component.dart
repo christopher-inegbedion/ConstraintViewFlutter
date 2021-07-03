@@ -58,7 +58,7 @@ class InputFieldComponent extends Component {
   Map<String, dynamic> toJson() {
     return {
       "component_properties": [ID, margin.toString(), hintText, errorText],
-      "type": "imput"
+      "type": "input"
     };
   }
 

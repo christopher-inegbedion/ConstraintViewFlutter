@@ -15,11 +15,14 @@ class ComponentValue extends ComponentActionCommand {
   @override
   void run(dynamic result) {
     super.run(result);
-    String componentID = value[0];
+
     try {
-      this.result = [
-        componentAction.viewControllerState.getComponentValue(componentID)
-      ];
+      List results = [];
+      for (String id in value) {
+        results.add(componentAction.viewControllerState.getComponentValue(id));
+      }
+
+      this.result = results;
       runSuccess();
     } catch (e) {
       runFailure();

@@ -12,6 +12,7 @@ import 'package:constraint_view/component_action/commands/greater_than_comperato
 import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_to_list_command.dart';
+import 'package:constraint_view/component_action/commands/send_data_to_ws_server_command.dart';
 import 'package:constraint_view/component_action/commands/set_component_value_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_with_inputs_command.dart';
@@ -146,6 +147,11 @@ class ComponentAction {
         return GetExistingValueFromListCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
+      case "sdtwss":
+        return SendDataToWebSocketServerCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+
 
       default:
         return null;

@@ -293,57 +293,47 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
     configModels2 = [
       ConfigurationModel(
           "1",
-          true,
+          false,
           [
             ConfigEntry([
-              TextComponent("constraint_name", ViewMargin(0, 0, 0, 0),
-                  "Pause constraint", ComponentAlign.center, 25, '#000000')
+              TextComponent(
+                  "constraint_name",
+                  ViewMargin(30, 0, 20, 20),
+                  "Product description constraint",
+                  ComponentAlign.left,
+                  20,
+                  '#000000')
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
               TextComponent(
                   "constraint_description",
-                  ViewMargin(0, 0, 0, 0),
-                  "Halts the stage for a given duration.",
-                  ComponentAlign.center,
+                  ViewMargin(5, 0, 20, 20),
+                  "Calculate the exchange rate between two currencies.",
+                  ComponentAlign.left,
                   16,
                   '#000000')
-            ], ViewMargin(5, 0, 0, 0))
-          ],
-          [
+            ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
-              InputFieldComponent("duration", ViewMargin(0, 0, 20, 10),
-                  "Duration", "Please enter a duration"),
-              ButtonComponent("submit_btn", ViewMargin(0, 0, 0, 0), "Submit",
-                  ComponentAlign.center, {
-                "commandName": "cv",
-                "success": {
-                  "commandName": "iec",
-                  "success": {
-                    "commandName": "cv",
-                    "success": {
-                      "commandName": "tp",
-                      "success": null,
-                      "failure": null,
-                      "usePrevResult": true,
-                      "value": [""]
-                    },
-                    "failure": null,
-                    "usePrevResult": false,
-                    "value": ["duration"]
-                  },
-                  "failure": null,
-                  "usePrevResult": false,
-                  "value": ["{0}", null]
-                },
-                "failure": null,
-                "usePrevResult": false,
-                "value": ["duration"]
-              })
+              TextComponent("product_name", ViewMargin(60, 0, 20, 0),
+                  "{Product name}", ComponentAlign.left, 15, "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("product_name_desc", ViewMargin(5, 0, 20, 0),
+                  "Product name", ComponentAlign.left, 20, "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("product_name", ViewMargin(60, 0, 20, 0),
+                  "{Product description}", ComponentAlign.left, 15, "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("product_name_desc", ViewMargin(5, 0, 20, 0),
+                  "Product description", ComponentAlign.left, 20, "#000000")
             ], ViewMargin(0, 0, 0, 0))
           ],
-          true,
-          true,
-          draggableSheetMaxHeight: 0.125)
+          [],
+          false,
+          false,
+          draggableSheetMaxHeight: 0.1)
     ];
   }
 
@@ -353,10 +343,10 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
         "constraintName", "taskID", "userID", {"result": "dsf"});
     sectionData.setInitialState("1");
 
-    SectionData sectionData2 =
-        SectionData(configModels2, true, "stage", "Pause", 'kln', 'kn', {});
+    SectionData sectionData2 = SectionData(configModels2, true, "stage",
+        "Product description", 'kln', 'kn', {"Product name": "Jet engine"});
     sectionData2.setCurrentConfig("1");
-    // log(jsonEncode(sectionData.toJson()).toString());
+    log(jsonEncode(sectionData2.toJson()).toString());
 
     return SafeArea(
         child: Scaffold(

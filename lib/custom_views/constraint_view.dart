@@ -272,151 +272,168 @@ class _ConstraintViewState extends State<ConstraintView> {
                           child: ConstraintDraggableSheet(sectionData)),
 
                       ///This section displays options to skip, continue, or view all the constraints
-                      Container(
-                        margin: EdgeInsets.only(top: 20, right: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => TaskView(
-                                          taskID,
-                                          userID,
-                                          currentStage: stageName,
-                                        )));
-                              },
-                              child: Container(
-                                margin: EdgeInsets.only(right: 10),
-                                padding: EdgeInsets.only(
-                                    top: 5, bottom: 5, left: 5, right: 5),
-                                decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border:
-                                        Border.all(color: Colors.grey[300])),
-                                child: Icon(Icons.grid_view,
-                                    size: 12, color: Colors.black),
-                              ),
-                            ),
-                            Visibility(
-                              visible: true,
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: 5, bottom: 5, left: 10, right: 10),
-                                decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border:
-                                        Border.all(color: Colors.grey[300])),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    sectionData.isRequired
-                                        ? GestureDetector(
-                                            onTap: canSkip
-                                                ? () {
-                                                    startNextConstraint();
-                                                  }
-                                                : () {},
-                                            child: Container(
-                                                child: Text(
-                                              "SKIP",
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontFamily: "JetBrainMono",
-                                                  color: canSkip
-                                                      ? Colors.blue
-                                                      : Colors.grey),
-                                            )),
-                                          )
-                                        : Container(
-                                            child: Text(
-                                            "",
-                                            style:
-                                                TextStyle(color: Colors.grey),
-                                          )),
-                                    Visibility(
-                                      visible: isConstraintComplete,
-                                      child: nextStageName == null
-                                          ? GestureDetector(
-                                              onTap: () {
-                                                Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            TaskView(
-                                                              taskID,
-                                                              userID,
-                                                              currentStage:
-                                                                  stageName,
-                                                            )));
-                                              },
-                                              child: Container(
-                                                  margin:
-                                                      EdgeInsets.only(left: 20),
-                                                  child: Text("FINISH",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          fontFamily:
-                                                              "JetBrainMono",
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              Colors.green))),
-                                            )
-                                          : GestureDetector(
-                                              onTap: () {
-                                                startNextConstraint();
-                                              },
-                                              child: Container(
-                                                  margin:
-                                                      EdgeInsets.only(left: 20),
-                                                  child: Text("CONTINUE",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          fontFamily:
-                                                              "JetBrainMono",
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              Colors.green))),
-                                            ),
-                                    )
-                                  ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          //Current stage
+                          Visibility(
+                            visible: isConstraintComplete,
+                            child: Container(
+                              margin: EdgeInsets.only(left: 20, top: 20),
+                              child: Text(
+                                stageName,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: stageName == "Pending"
+                                      ? Colors.red[600].withOpacity(0.9)
+                                      : stageName == "Active"
+                                          ? Colors.green[600].withOpacity(0.9)
+                                          : stageName == "Complete"
+                                              ? Colors.blue[600]
+                                                  .withOpacity(0.9)
+                                              : Colors.grey[600]
+                                                  .withOpacity(0.9),
+                                  fontFamily: "JetBrainMono",
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Container(
-                          child: Text(
-                            stageName,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: stageName == "Pending"
-                                  ? Colors.red[600].withOpacity(0.9)
-                                  : stageName == "Active"
-                                      ? Colors.green[600].withOpacity(0.9)
-                                      : stageName == "Complete"
-                                          ? Colors.blue[600].withOpacity(0.9)
-                                          : Colors.grey[600].withOpacity(0.9),
-                              fontFamily: "JetBrainMono",
+                              decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.9),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.grey[300])),
+                              padding: EdgeInsets.only(
+                                  left: 10, right: 10, top: 5, bottom: 5),
                             ),
                           ),
-                          decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.grey[300])),
-                          margin: EdgeInsets.only(bottom: 20, right: 20),
-                          padding: EdgeInsets.only(
-                              left: 10, right: 10, top: 5, bottom: 5),
-                        ),
-                      )
+
+                          //Menu, Skip, Continue/Finish
+                          Container(
+                            margin: EdgeInsets.only(right: 20, top: 20),
+                            child: Row(
+                              children: [
+                                //Menu button
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                            builder: (context) => TaskView(
+                                                  taskID,
+                                                  userID,
+                                                  currentStage: stageName,
+                                                )));
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 10),
+                                    padding: EdgeInsets.only(
+                                        top: 5, bottom: 5, left: 5, right: 5),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.9),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: Colors.grey[300])),
+                                    child: Icon(Icons.grid_view,
+                                        size: 12, color: Colors.black),
+                                  ),
+                                ),
+
+                                Container(
+                                  padding: EdgeInsets.only(
+                                      top: 5, bottom: 5, left: 10, right: 10),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.9),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border:
+                                          Border.all(color: Colors.grey[300])),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      //Skip button
+                                      Container(
+                                        margin: EdgeInsets.only(left: 0),
+                                        child: sectionData.isRequired
+                                            ? GestureDetector(
+                                                onTap: canSkip
+                                                    ? () {
+                                                        startNextConstraint();
+                                                      }
+                                                    : () {},
+                                                child: Container(
+                                                    child: Text(
+                                                  "SKIP",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontFamily:
+                                                          "JetBrainMono",
+                                                      color: canSkip
+                                                          ? Colors.blue
+                                                          : Colors.grey),
+                                                )),
+                                              )
+                                            : Container(
+                                                child: Text(
+                                                "",
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              )),
+                                      ),
+
+                                      //Continue button
+                                      Visibility(
+                                        visible: isConstraintComplete,
+                                        child: Container(
+                                          margin: EdgeInsets.only(left: 10),
+                                          child: nextStageName == null
+                                              ? GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.of(context).push(
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    TaskView(
+                                                                      taskID,
+                                                                      userID,
+                                                                      currentStage:
+                                                                          stageName,
+                                                                    )));
+                                                  },
+                                                  child: Container(
+                                                      child: Text("FINISH",
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              fontFamily:
+                                                                  "JetBrainMono",
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Colors
+                                                                  .green))),
+                                                )
+                                              : GestureDetector(
+                                                  onTap: () {
+                                                    startNextConstraint();
+                                                  },
+                                                  child: Container(
+                                                      child: Text("CONTINUE",
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              fontFamily:
+                                                                  "JetBrainMono",
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Colors
+                                                                  .green))),
+                                                ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 );
