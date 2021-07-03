@@ -35,7 +35,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
   GlobalKey key = GlobalKey();
   UniqueKey key1 = UniqueKey();
 
-  List<ConfigurationModel> configModels;
+  List<ConfigurationModel> configModels, configModels2;
   ComponentsTestPageState() {
     optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
         "Option name", ComponentAlign.left, 20, "#000000");
@@ -289,6 +289,62 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           true,
           draggableSheetMaxHeight: 0.1)
     ];
+
+    configModels2 = [
+      ConfigurationModel(
+          "1",
+          true,
+          [
+            ConfigEntry([
+              TextComponent("constraint_name", ViewMargin(0, 0, 0, 0),
+                  "Pause constraint", ComponentAlign.center, 25, '#000000')
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent(
+                  "constraint_description",
+                  ViewMargin(0, 0, 0, 0),
+                  "Halts the stage for a given duration.",
+                  ComponentAlign.center,
+                  16,
+                  '#000000')
+            ], ViewMargin(5, 0, 0, 0))
+          ],
+          [
+            ConfigEntry([
+              InputFieldComponent("duration", ViewMargin(0, 0, 20, 10),
+                  "Duration", "Please enter a duration"),
+              ButtonComponent("submit_btn", ViewMargin(0, 0, 0, 0), "Submit",
+                  ComponentAlign.center, {
+                "commandName": "cv",
+                "success": {
+                  "commandName": "iec",
+                  "success": {
+                    "commandName": "cv",
+                    "success": {
+                      "commandName": "tp",
+                      "success": null,
+                      "failure": null,
+                      "usePrevResult": true,
+                      "value": [""]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": ["duration"]
+                  },
+                  "failure": null,
+                  "usePrevResult": false,
+                  "value": ["{0}", null]
+                },
+                "failure": null,
+                "usePrevResult": false,
+                "value": ["duration"]
+              })
+            ], ViewMargin(0, 0, 0, 0))
+          ],
+          true,
+          true,
+          draggableSheetMaxHeight: 0.125)
+    ];
   }
 
   @override
@@ -296,7 +352,11 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
     SectionData sectionData = SectionData(configModels, true, "stage",
         "constraintName", "taskID", "userID", {"result": "dsf"});
     sectionData.setInitialState("1");
-    log(jsonEncode(sectionData.toJson()).toString());
+
+    SectionData sectionData2 =
+        SectionData(configModels2, true, "stage", "Pause", 'kln', 'kn', {});
+    sectionData2.setCurrentConfig("1");
+    // log(jsonEncode(sectionData.toJson()).toString());
 
     return SafeArea(
         child: Scaffold(
@@ -306,13 +366,13 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
         children: [
           ///Top section
           Container(
-              color: HexColor(sectionData.state.bgColor),
+              color: HexColor(sectionData2.state.bgColor),
               // height: MediaQuery.of(context).size.height,
               key: key,
-              child: sectionData.state.buildTopView()),
+              child: sectionData2.state.buildTopView()),
 
           ///Draggable bottom section
-          Container(key: key1, child: ConstraintDraggableSheet(sectionData)),
+          Container(key: key1, child: ConstraintDraggableSheet(sectionData2)),
         ],
       ),
     )));
