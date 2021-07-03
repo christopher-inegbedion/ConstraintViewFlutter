@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
 import 'package:constraint_view/component_action/commands/terminal_print_command.dart';
 import 'package:constraint_view/components/list_component.dart';
@@ -158,7 +161,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           false,
           [
             ConfigEntry([
-              TextComponent("title", ViewMargin(30, 0, 30, 0),
+              TextComponent("title", ViewMargin(0, 0, 30, 0),
                   "Product variants", ComponentAlign.left, 22, "#000000"),
               ButtonComponent("save_data", ViewMargin(0, 0, 0, 20), "Save",
                   ComponentAlign.right, {
@@ -168,7 +171,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                 "usePrevResult": false,
                 "value": null
               })
-            ], ViewMargin(0, 0, 0, 0)),
+            ], ViewMargin(30, 0, 0, 0)),
             ConfigEntry([
               TextComponent(
                   "title",
@@ -293,6 +296,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
     SectionData sectionData = SectionData(configModels, true, "stage",
         "constraintName", "taskID", "userID", {"result": "dsf"});
     sectionData.setInitialState("1");
+    log(jsonEncode(sectionData.toJson()).toString());
 
     return SafeArea(
         child: Scaffold(

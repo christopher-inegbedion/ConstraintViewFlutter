@@ -73,6 +73,21 @@ class TextComponent extends Component {
         ID, margin, placeholder, componentAlign, textSize, textColor);
   }
 
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "component_properties": [
+        ID,
+        margin.toString(),
+        placeholder,
+        componentAlignToString(textComponentAlign),
+        textSize,
+        textColor
+      ],
+      "type": "text"
+    };
+  }
+
   ComponentAlign getComponentAlignFromString(String componentAlign) {
     switch (componentAlign) {
       case "center":

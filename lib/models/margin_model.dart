@@ -14,4 +14,9 @@ class ViewMargin {
         double.parse("${marginArray[2]}"),
         double.parse("${marginArray[3]}"));
   }
+
+  @override
+  String toString() {
+    return "$top,$bottom,$left,$right";
+  }
 }

@@ -6,4 +6,12 @@ class ConfigEntry {
   ViewMargin margin;
 
   ConfigEntry(this.components, this.margin);
+
+  Map<String, dynamic> toJson() {
+    List componentsJson = [];
+    for (Component component in components) {
+      componentsJson.add(component.toJson());
+    }
+    return {"components": componentsJson, "margin": margin.toString()};
+  }
 }

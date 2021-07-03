@@ -25,4 +25,6 @@ abstract class Component {
   setValue(dynamic value);
 
   getValue();
+
+  Map<String, dynamic> toJson();
 }

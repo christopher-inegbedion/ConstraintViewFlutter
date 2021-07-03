@@ -23,11 +23,21 @@ class LiveModelComponent extends Component {
   @override
   LiveModelComponent buildComponent(List componentParams, bool fromConstraint) {
     String ID = componentParams[0];
-    ViewMargin margin = fromConstraint ? ViewMargin.fromString(componentParams[1]) : componentParams[1];
+    ViewMargin margin = fromConstraint
+        ? ViewMargin.fromString(componentParams[1])
+        : componentParams[1];
     String url = componentParams[2];
     bool arEnabled = componentParams[3];
 
     return LiveModelComponent(ID, url, arEnabled, margin);
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "component_properties": [ID, margin.toString(), url, arEnabled],
+      "type": "live_model"
+    };
   }
 
   @override

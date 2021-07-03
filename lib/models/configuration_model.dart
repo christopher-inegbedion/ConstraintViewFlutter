@@ -213,4 +213,28 @@ class ConfigurationModel {
 
     return component;
   }
+
+  Map<String, dynamic> toJson() {
+    List topSectionData = [];
+    for (ConfigEntry configEntry in topSection) {
+      topSectionData.add(configEntry.toJson());
+    }
+
+    List bottomSectionData = [];
+    for (ConfigEntry configEntry in bottomSection) {
+      bottomSectionData.add(configEntry.toJson());
+    }
+
+    return {
+      "id": this.ID,
+      "bg_color": this.bgColor,
+      "bottom_section_can_expand": this.bottomSectionCanExpand ? "1" : "0",
+      "bottom_section_can_open": this.bottomSectionCanOpen ? "1" : "0",
+      "bottom_sheet_color": this.bottomSheetColor,
+      "center_top_section_data": this.centerTopSectionData ? "1" : "0",
+      "draggable_sheet_max_height": this.draggableSheetMaxHeight,
+      "top_section": topSectionData,
+      "bottom_section": bottomSectionData
+    };
+  }
 }

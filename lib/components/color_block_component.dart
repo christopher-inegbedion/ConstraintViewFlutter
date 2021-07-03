@@ -15,9 +15,12 @@ class ColorBlockComponent extends Component {
       : super(ID, margin, ComponentType.ColorBlock);
 
   @override
-  ColorBlockComponent buildComponent(List componentParams, bool fromConstraint) {
+  ColorBlockComponent buildComponent(
+      List componentParams, bool fromConstraint) {
     String ID = componentParams[0];
-    ViewMargin margin = fromConstraint ? ViewMargin.fromString(componentParams[1]) : componentParams[1];
+    ViewMargin margin = fromConstraint
+        ? ViewMargin.fromString(componentParams[1])
+        : componentParams[1];
     double width = componentParams[2];
     double height = componentParams[3];
     String color = componentParams[4];
@@ -32,6 +35,14 @@ class ColorBlockComponent extends Component {
       width: width,
       height: height,
     );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "component_properties": [ID, margin.toString(), width, height, color],
+      "type": "color"
+    };
   }
 
   @override

@@ -24,6 +24,11 @@ class ListComponent extends Component {
   }
 
   @override
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+
+  @override
   Widget buildComponentView() {
     throw UnimplementedError();
   }

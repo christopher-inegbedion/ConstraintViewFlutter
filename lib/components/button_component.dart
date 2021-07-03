@@ -71,6 +71,21 @@ class ButtonComponent extends Component {
   }
 
   @override
+  Map<String, dynamic> toJson() {
+    return {
+      "type": "button",
+      "component_properties": [
+        ID,
+        margin.toString(),
+        text,
+        componentAlignToString(alignment),
+        actionCommand,
+        color
+      ]
+    };
+  }
+
+  @override
   getValue() {
     return text;
   }

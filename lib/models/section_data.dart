@@ -3,13 +3,10 @@ import 'dart:convert';
 import 'package:constraint_view/components/button_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
 import 'package:constraint_view/components/text_component.dart';
-import 'package:constraint_view/custom_views/constraint_view.dart';
 import 'package:constraint_view/enums/component_align.dart';
 import 'package:constraint_view/models/component_model.dart';
 import 'package:constraint_view/models/configuration_model.dart';
 import 'package:constraint_view/utils/network_functions.dart';
-import 'package:constraint_view/view_controller.dart';
-import 'package:web_socket_channel/io.dart';
 
 import 'config_entry.dart';
 import 'margin_model.dart';
@@ -187,5 +184,13 @@ class SectionData {
   void setInitialState(String configID) {
     setCurrentConfig(configID);
     // print(this.configurationInputs);
+  }
+
+  Map<String, dynamic> toJson() {
+    List view = [];
+    for (ConfigurationModel configurationModel in allStates) {
+      view.add(configurationModel.toJson());
+    }
+    return {"constraint_name": constraintName, "view": view};
   }
 }
