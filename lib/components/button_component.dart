@@ -87,7 +87,7 @@ class ButtonComponent extends Component {
 
   @override
   getValue() {
-    return text;
+    return this.text;
   }
 
   @override

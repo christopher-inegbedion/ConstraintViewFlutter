@@ -24,7 +24,9 @@ class ComponentValue extends ComponentActionCommand {
 
       this.result = results;
       runSuccess();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
+      print("ComponentValue error: $e");
       runFailure();
     }
   }

@@ -9,11 +9,13 @@ import 'package:constraint_view/component_action/commands/get_component_list_det
 import 'package:constraint_view/component_action/commands/get_existing_value_from_list_command.dart';
 import 'package:constraint_view/component_action/commands/get_existing_values_command.dart';
 import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
+import 'package:constraint_view/component_action/commands/propeitry/is_constraint_required_command.dart';
 import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_to_list_command.dart';
 import 'package:constraint_view/component_action/commands/send_data_to_ws_server_command.dart';
 import 'package:constraint_view/component_action/commands/set_component_value_command.dart';
+import 'package:constraint_view/component_action/commands/show_constraint_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_with_inputs_command.dart';
 import 'package:constraint_view/component_action/commands/terminal_print_command.dart';
@@ -151,7 +153,14 @@ class ComponentAction {
         return SendDataToWebSocketServerCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
-
+      case "scd":
+        return ShowConstraintDialogCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "icr":
+        return IsConstraintRequiredCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
 
       default:
         return null;

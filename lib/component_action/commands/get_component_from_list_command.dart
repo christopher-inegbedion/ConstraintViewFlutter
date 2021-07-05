@@ -18,7 +18,7 @@ class GetComponentFromListCommand extends ComponentActionCommand {
     super.run(result);
     try {
       String componentID = value[0];
-      int dataIndex = int.parse(value[1]);
+      int dataIndex = int.parse(value[1].toString());
       int componentIndex = value[2];
 
       Component component = componentAction.viewControllerState

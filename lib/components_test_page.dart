@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
 import 'package:constraint_view/component_action/commands/terminal_print_command.dart';
+import 'package:constraint_view/components/dropdown_component.dart';
 import 'package:constraint_view/components/list_component.dart';
 import 'package:constraint_view/custom_views/constraint_view.dart';
 import 'package:constraint_view/custom_views/draggable_sheet.dart';
@@ -290,44 +291,107 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           draggableSheetMaxHeight: 0.1)
     ];
 
+    ButtonComponent buttonComponent = ButtonComponent(
+        "constraint_component",
+        ViewMargin(0, 0, 0, 0),
+        "d",
+        ComponentAlign.center,
+        {
+          "commandName": "gcld",
+          "success": {
+            "commandName": "gcfl",
+            "success": {
+              "commandName": "cv",
+              "success": {
+                "commandName": "sev",
+                "success": {
+                  "commandName": "icr",
+                  "success": {
+                    "commandName": "gev",
+                    "success": {
+                      "commandName": "scd",
+                      "success": null,
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": ["{0}", "ds"]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": [
+                      ["name"],
+                      true
+                    ]
+                  },
+                  "failure": null,
+                  "usePrevResult": false,
+                  "value": ["{0}"]
+                },
+                "failure": null,
+                "usePrevResult": false,
+                "value": ["name", "{0}", true]
+              },
+              "failure": null,
+              "usePrevResult": false,
+              "value": ["{0}"]
+            },
+            "failure": null,
+            "usePrevResult": false,
+            "value": ["list", "{0}", "{1}"]
+          },
+          "failure": null,
+          "usePrevResult": false,
+          "value": []
+        },
+        color: "#000000");
+
     configModels2 = [
       ConfigurationModel(
           "1",
-          false,
+          true,
           [
             ConfigEntry([
-              TextComponent(
-                  "constraint_name",
-                  ViewMargin(30, 0, 20, 20),
-                  "Product description constraint",
-                  ComponentAlign.left,
-                  20,
-                  '#000000')
+              DropdownComponent(
+                  "dropdown",
+                  ViewMargin(0, 0, 0, 0),
+                  ["data", "data2"],
+                  ComponentAlign.center,
+                  {
+                    "commandName": "cv",
+                    "success": {
+                      "commandName": "tp",
+                      "success": null,
+                      "failure": null,
+                      "usePrevResult": true,
+                      "value": ["dropdown"]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": ["dropdown"]
+                  })
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
-              TextComponent(
+              ButtonComponent(
                   "constraint_description",
-                  ViewMargin(5, 0, 20, 20),
-                  "Calculate the exchange rate between two currencies.",
-                  ComponentAlign.left,
-                  16,
-                  '#000000')
+                  ViewMargin(5, 0, 0, 0),
+                  "Button here.",
+                  ComponentAlign.center,
+                  {
+                    "commandName": "scd",
+                    "success": null,
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": []
+                  },
+                  color: '#000000')
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
-              TextComponent("product_name", ViewMargin(60, 0, 20, 0),
-                  "{Product name}", ComponentAlign.left, 15, "#000000")
-            ], ViewMargin(0, 0, 0, 0)),
-            ConfigEntry([
-              TextComponent("product_name_desc", ViewMargin(5, 0, 20, 0),
-                  "Product name", ComponentAlign.left, 20, "#000000")
-            ], ViewMargin(0, 0, 0, 0)),
-            ConfigEntry([
-              TextComponent("product_name", ViewMargin(60, 0, 20, 0),
-                  "{Product description}", ComponentAlign.left, 15, "#000000")
-            ], ViewMargin(0, 0, 0, 0)),
-            ConfigEntry([
-              TextComponent("product_name_desc", ViewMargin(5, 0, 20, 0),
-                  "Product description", ComponentAlign.left, 20, "#000000")
+              ListComponent("list", ViewMargin(0, 0, 0, 0), [
+                ["Exchange rate"],
+                ["Pause"],
+                ["Product description"]
+              ], [
+                buttonComponent
+              ])
             ], ViewMargin(0, 0, 0, 0))
           ],
           [],
@@ -346,7 +410,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
     SectionData sectionData2 = SectionData(configModels2, true, "stage",
         "Product description", 'kln', 'kn', {"Product name": "Jet engine"});
     sectionData2.setCurrentConfig("1");
-    log(jsonEncode(sectionData2.toJson()).toString());
+    // log(jsonEncode(sectionData2.toJson()).toString());
 
     return SafeArea(
         child: Scaffold(

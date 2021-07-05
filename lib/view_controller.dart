@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/components/button_component.dart';
+import 'package:constraint_view/components/dropdown_component.dart';
 import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
 import 'package:constraint_view/components/live_model_component.dart';
@@ -13,6 +14,7 @@ import 'package:constraint_view/models/component_model.dart';
 import 'package:constraint_view/models/config_entry.dart';
 import 'package:constraint_view/models/configuration_model.dart';
 import 'package:constraint_view/models/margin_model.dart';
+import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:model_viewer/model_viewer.dart';
@@ -64,6 +66,48 @@ class ViewControllerState extends State<ViewController> {
         );
       },
     );
+  }
+
+  Future showConstraintInDialog(String constraintName, String stageName) async {
+    Future<SectionData> sectionData = SectionData.forStatic(
+            stageName, constraintName, "taskID", "userID", null)
+        .fromConstraint(constraintName);
+    ViewController topView;
+
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          dialogContext = context;
+          return AlertDialog(
+            scrollable: true,
+            content: Container(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Container(
+                    height: MediaQuery.of(context).size.height / 2,
+                    child: FutureBuilder(
+                        future: sectionData,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            SectionData sectionData = snapshot.data;
+                            sectionData.setInitialState("1");
+                            topView = sectionData.state.buildTopView();
+                            return topView;
+                          } else {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                        }))
+              ]),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    print(topView.state.savedValues);
+                    Navigator.pop(context);
+                  },
+                  child: Text("Done"))
+            ],
+          );
+        });
   }
 
   Future<dynamic> showDialogWithButtons(
@@ -191,6 +235,12 @@ class ViewControllerState extends State<ViewController> {
 
             components.add(builtComponent);
             break;
+          case ComponentType.DropDown:
+            DropdownComponent dropdownComponent = component;
+            Widget builtComponent = buildDropdownComponent(dropdownComponent);
+
+            components.add(builtComponent);
+            break;
           default:
             throw Exception("Component ${component.type} cannot be rendered");
         }
@@ -216,9 +266,11 @@ class ViewControllerState extends State<ViewController> {
           : AlwaysScrollableScrollPhysics(),
       child: section == "top"
           ? Container(
+              width: MediaQuery.of(context).size.width,
               color: HexColor(configurationModel.bgColor),
               height: MediaQuery.of(context).size.height,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: configurationModel.centerTopSectionData
                     ? MainAxisAlignment.center
                     : MainAxisAlignment.start,
@@ -226,11 +278,34 @@ class ViewControllerState extends State<ViewController> {
               ),
             )
           : Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: configurationModel.centerTopSectionData
                   ? MainAxisAlignment.center
                   : MainAxisAlignment.start,
               children: entries,
             ),
+    );
+  }
+
+  Widget buildDropdownComponent(DropdownComponent dropdownComponent) {
+    ViewMargin componentMargin = dropdownComponent.margin;
+
+    DropdownButton dropdownButton = dropdownComponent.buildComponentView(
+        function: () {
+          processActionCommand(dropdownComponent, dropdownComponent.command);
+        },
+        notifyFunction: notifyChange);
+    builtComponents[dropdownComponent.ID] = dropdownComponent;
+
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.only(
+            top: componentMargin.top,
+            bottom: componentMargin.bottom,
+            left: componentMargin.left,
+            right: componentMargin.right),
+        child: dropdownButton,
+      ),
     );
   }
 
@@ -297,6 +372,7 @@ class ViewControllerState extends State<ViewController> {
               buttonComponent.dataIndex = i;
               buttonComponent.componentIndex = j;
               buttonComponent.inList = true;
+              buttonComponent.setValue(componentData);
               builtComponents[buttonComponent.ID] = buttonComponent;
 
               views.add(buildButtonComponent(buttonComponent));
@@ -415,7 +491,7 @@ class ViewControllerState extends State<ViewController> {
       processActionCommand(buttonComponent, buttonComponent.actionCommand);
     });
 
-    builtComponents[buttonComponent.ID] = textButton;
+    builtComponents[buttonComponent.ID] = buttonComponent;
 
     return Flexible(
       child: Container(
@@ -622,24 +698,6 @@ class ViewControllerState extends State<ViewController> {
 
     notifyChange();
   }
-
-  // void processButtonAction(ButtonComponent buttonComponent) {
-  //   bool isRequirementSatisfied = processButtonRequirement(
-  //       buttonComponent.requirementFunction,
-  //       buttonComponent.requirementFuncitonArgs);
-
-  //   configurationModel.modifyComponent("2", "therr", "top");
-
-  //   if (isRequirementSatisfied) {
-  //     saveValue(
-  //         buttonComponent.actionFunction,
-  //         buttonComponent.actionFunctionArgs[0],
-  //         buttonComponent.actionFunctionArgs);
-  //   } else {
-  //     throw Exception(
-  //         "Button ${buttonComponent.ID}'s requirement not fulfilled");
-  //   }
-  // }
 
   void notifyChange() {
     setState(() {});
