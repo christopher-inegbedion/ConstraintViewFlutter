@@ -9,7 +9,7 @@ class ShowDialogWithInputsCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "ShowDialogWithInputs", "sdwi", success,
+      : super(id, componentAction, "ShowDialogWithInputs", "sdwi", success,
             failure, usePrevResult, value);
 
   @override

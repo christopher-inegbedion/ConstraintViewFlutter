@@ -9,7 +9,7 @@ class GetExistingValueFromListCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "GetExistingValueFromList", "gevfl", success,
+      : super(id, componentAction, "GetExistingValueFromList", "gevfl", success,
             failure, usePrevResult, value);
 
   @override

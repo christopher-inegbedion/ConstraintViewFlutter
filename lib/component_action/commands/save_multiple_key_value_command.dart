@@ -1,36 +1,39 @@
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 
-class SaveExistingValueCommand extends ComponentActionCommand {
-  SaveExistingValueCommand(
+class SaveMultipleKeyValueCommand extends ComponentActionCommand {
+  SaveMultipleKeyValueCommand(
       String id,
       ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(id, componentAction, "SaveExistingValue", "sev", success, failure,
-            usePrevResult, value);
+      : super(id, componentAction, "SaveMultipleKeyValue", "smv", success,
+            failure, usePrevResult, value);
 
   @override
-  run(dynamic result) {
+  run(result) {
     super.run(result);
+
     try {
-      String key = value[0];
-      dynamic valueToSave = value[1];
-      bool temp = value[2];
+      bool temp = value[1];
 
       var storageUsing = temp
           ? componentAction.viewControllerState.tempValues
           : componentAction.viewControllerState.savedValues;
 
-      storageUsing[key] = valueToSave;
+      for (List pair in value[0]) {
+        String key = pair[0];
+        dynamic data = pair[1];
 
-      this.result = [valueToSave];
+        storageUsing[key] = data;
+      }
+
       runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);
-      print("SaveExistingValue error: $e");
+      print("SaveMultipleKeyValue error: $e");
       runFailure();
     }
   }

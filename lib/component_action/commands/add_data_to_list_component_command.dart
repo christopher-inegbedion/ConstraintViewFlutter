@@ -5,13 +5,13 @@ import 'package:constraint_view/component_action/component_action_command.dart';
 
 class AddDataToListComponentCommand extends ComponentActionCommand {
   AddDataToListComponentCommand(
-      ComponentAction componentAction,
       String id,
+      ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "AddDataToListComponent", "adtlc", success,
+      : super(id, componentAction, "AddDataToListComponent", "adtlc", success,
             failure, usePrevResult, value);
 
   @override

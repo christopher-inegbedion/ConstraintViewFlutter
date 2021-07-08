@@ -12,7 +12,7 @@ class IsConstraintRequiredCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "IsConstraintRequired", "icr", success,
+      : super(id, componentAction, "IsConstraintRequired", "icr", success,
             failure, usePrevResult, value);
 
   Future<dynamic> getAllConstraints() async {
@@ -34,7 +34,7 @@ class IsConstraintRequiredCommand extends ComponentActionCommand {
         List allConstraints = value["constraints"];
         for (Map constraint in allConstraints) {
           if (constraint["constraint_name"] == constraintName) {
-            if (constraint["required"]) {
+            if (constraint["is_configuration_input_required"]) {
               this.result = [true];
               runSuccess();
             } else {
@@ -44,7 +44,6 @@ class IsConstraintRequiredCommand extends ComponentActionCommand {
           }
         }
       });
-      runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);
       print("IsConstraintRequired error: $e");

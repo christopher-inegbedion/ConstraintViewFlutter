@@ -9,14 +9,14 @@ class ShowConstraintDialogCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "ShowConstraintDialog", "scd", success,
+      : super(id, componentAction, "ShowConstraintDialog", "scd", success,
             failure, usePrevResult, value);
 
   @override
   run(dynamic result) {
     super.run(result);
     try {
-      String constraintName = value[0];
+      String constraintName = value[0] + "_config";
       String stageName = value[1];
       componentAction.viewControllerState
           .showConstraintInDialog(constraintName, stageName)

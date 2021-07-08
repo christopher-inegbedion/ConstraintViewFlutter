@@ -9,7 +9,7 @@ class SaveValueCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "SaveValueCommand", "svc", success, failure,
+      : super(id, componentAction, "SaveValueCommand", "svc", success, failure,
             usePrevResult, value);
 
   run(dynamic result) {

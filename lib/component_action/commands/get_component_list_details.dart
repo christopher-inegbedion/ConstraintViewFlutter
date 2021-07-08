@@ -9,7 +9,7 @@ class GetComponentListDetailCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "GetComponentListDetail", "gcld", success,
+      : super(id, componentAction, "GetComponentListDetail", "gcld", success,
             failure, usePrevResult, value);
 
   @override

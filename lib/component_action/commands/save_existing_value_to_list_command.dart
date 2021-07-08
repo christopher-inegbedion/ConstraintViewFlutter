@@ -10,7 +10,7 @@ class SaveExistingValueToListCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "SaveExistingValueToList", "sevtl", success,
+      : super(id, componentAction, "SaveExistingValueToList", "sevtl", success,
             failure, usePrevResult, value);
 
   @override
@@ -35,7 +35,7 @@ class SaveExistingValueToListCommand extends ComponentActionCommand {
           storageUsing[key].add(data);
         }
       }
-      print(storageUsing);
+
       this.result = [data];
       runSuccess();
     } catch (e, stacktrace) {

@@ -9,7 +9,7 @@ class EqualityConditionCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "EqualityCondition", "eq", success, failure,
+      : super(id, componentAction, "EqualityCondition", "eq", success, failure,
             usePrevResult, value);
 
   run(dynamic result) {

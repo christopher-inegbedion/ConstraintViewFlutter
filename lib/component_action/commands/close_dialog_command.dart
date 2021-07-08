@@ -9,7 +9,7 @@ class CloseDialogCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "CloseDialogCommand", "cd", success, failure,
+      : super(id, componentAction, "CloseDialogCommand", "cd", success, failure,
             usePrevResult, value);
 
   @override

@@ -15,8 +15,8 @@ abstract class ComponentActionCommand {
   dynamic result;
 
   ComponentActionCommand(
-      this.componentAction,
       this.id,
+      this.componentAction,
       this.name,
       this.commandName,
       this.success,

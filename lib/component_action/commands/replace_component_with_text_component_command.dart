@@ -12,7 +12,7 @@ class ReplaceComponentWithTextComponentCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "ReplaceComponentWithTextComponentCommand",
+      : super(id, componentAction, "ReplaceComponentWithTextComponentCommand",
             "rcwtc", success, failure, usePrevResult, value);
 
   @override

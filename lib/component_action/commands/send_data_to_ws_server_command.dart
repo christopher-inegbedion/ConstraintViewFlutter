@@ -12,7 +12,7 @@ class SendDataToWebSocketServerCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "SendDataToWebSocketServer", "sdtwss",
+      : super(id, componentAction, "SendDataToWebSocketServer", "sdtwss",
             success, failure, usePrevResult, value);
 
   @override

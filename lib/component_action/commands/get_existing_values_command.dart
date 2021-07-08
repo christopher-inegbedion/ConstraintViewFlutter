@@ -9,7 +9,7 @@ class GetExistingValuesCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "GetExistingValues", "gev", success, failure,
+      : super(id, componentAction, "GetExistingValues", "gev", success, failure,
             usePrevResult, value);
 
   @override
@@ -19,7 +19,6 @@ class GetExistingValuesCommand extends ComponentActionCommand {
       if (value != null) {
         List data = value[0];
         bool temp = value[1];
-        print(this.result);
 
         var storageUsing = temp
             ? componentAction.viewControllerState.tempValues
@@ -33,7 +32,6 @@ class GetExistingValuesCommand extends ComponentActionCommand {
         this.result = componentAction.viewControllerState.savedValues.isEmpty
             ? null
             : componentAction.viewControllerState.savedValues;
-        print(this.result);
       }
 
       runSuccess();

@@ -3,13 +3,13 @@ import 'package:constraint_view/component_action/component_action_command.dart';
 
 class ShowDialogCommand extends ComponentActionCommand {
   ShowDialogCommand(
-      ComponentAction componentAction,
       String id,
+      ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "ShowDialogCommand", "sdc", success, failure,
+      : super(id, componentAction, "ShowDialogCommand", "sdc", success, failure,
             usePrevResult, value);
 
   @override

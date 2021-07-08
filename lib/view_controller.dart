@@ -16,6 +16,7 @@ import 'package:constraint_view/models/configuration_model.dart';
 import 'package:constraint_view/models/margin_model.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:model_viewer/model_viewer.dart';
 import 'package:web_socket_channel/io.dart';
@@ -48,7 +49,10 @@ class ViewControllerState extends State<ViewController> {
   Map<String, dynamic> tempValues = {};
   List<ConfigEntry> sectionToUse;
   bool ignoreScoll = false;
+  bool initialised = false;
   BuildContext dialogContext;
+
+  Widget view;
 
   ViewControllerState(this.configurationModel, this.section);
 
@@ -72,41 +76,50 @@ class ViewControllerState extends State<ViewController> {
     Future<SectionData> sectionData = SectionData.forStatic(
             stageName, constraintName, "taskID", "userID", null)
         .fromConstraint(constraintName);
+    SectionData sData;
     ViewController topView;
 
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           dialogContext = context;
-          return AlertDialog(
-            scrollable: true,
-            content: Container(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Container(
-                    height: MediaQuery.of(context).size.height / 2,
-                    child: FutureBuilder(
-                        future: sectionData,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            SectionData sectionData = snapshot.data;
-                            sectionData.setInitialState("1");
-                            topView = sectionData.state.buildTopView();
-                            return topView;
-                          } else {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                        }))
-              ]),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    print(topView.state.savedValues);
-                    Navigator.pop(context);
-                  },
-                  child: Text("Done"))
-            ],
-          );
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              scrollable: true,
+              content: Container(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Container(
+                      height: MediaQuery.of(context).size.height / 2,
+                      child: FutureBuilder(
+                          future: sectionData,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              sData = snapshot.data;
+                              sData.setInitialState("1");
+                              topView = sData.state.buildTopView();
+                              print(topView.state.savedValues);
+                              return topView;
+                            } else {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                          }))
+                ]),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      print(sData.state.topViewController.state.savedValues);
+                      // if (topView.state.savedValues["config_inputs"] ==
+                      //     null) {
+                      // } else {
+                      //   print(topView.state.savedValues["config_inputs"]);
+                      //   Navigator.pop(context);
+                      // }
+                    },
+                    child: Text("Done"))
+              ],
+            );
+          });
         });
   }
 
@@ -261,6 +274,7 @@ class ViewControllerState extends State<ViewController> {
     }
 
     return SingleChildScrollView(
+      key: GlobalKey(),
       physics: ignoreScoll
           ? NeverScrollableScrollPhysics()
           : AlwaysScrollableScrollPhysics(),
@@ -726,7 +740,25 @@ class ViewControllerState extends State<ViewController> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   setState(() {
+    //   });
+    // });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!initialised) {
+      view = buildView();
+      initialised = true;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return buildView();
+    return view;
   }
 }

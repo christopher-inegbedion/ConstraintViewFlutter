@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
 import 'package:constraint_view/component_action/commands/terminal_print_command.dart';
 import 'package:constraint_view/components/dropdown_component.dart';
 import 'package:constraint_view/components/list_component.dart';
@@ -28,6 +27,7 @@ class ComponentsTestPage extends StatefulWidget {
 }
 
 class ComponentsTestPageState extends State<ComponentsTestPage> {
+  SectionData sectionData2;
   TextComponent dummy;
   TextComponent optionName;
   TextComponent variantName;
@@ -36,7 +36,7 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
   GlobalKey key = GlobalKey();
   UniqueKey key1 = UniqueKey();
 
-  List<ConfigurationModel> configModels, configModels2;
+  List<ConfigurationModel> configModels, configModels2, configModels3;
   ComponentsTestPageState() {
     optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
         "Option name", ComponentAlign.left, 20, "#000000");
@@ -399,6 +399,81 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           false,
           draggableSheetMaxHeight: 0.1)
     ];
+
+    sectionData2 = SectionData(configModels2, true, "stage",
+        "Product description", 'kln', 'kn', {"Product name": "Jet engine"});
+    configModels3 = [
+      ConfigurationModel(
+          "1",
+          true,
+          [
+            ConfigEntry([
+              TextComponent("text1", ViewMargin(0, 0, 30, 0),
+                  "Product description", ComponentAlign.left, 25, "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent(
+                  "text2",
+                  ViewMargin(5, 0, 0, 0),
+                  "Enter your product description details",
+                  ComponentAlign.left,
+                  18,
+                  "#000000")
+            ], ViewMargin(0, 0, 30, 0)),
+            ConfigEntry([
+              TextComponent(
+                  "text3",
+                  ViewMargin(50, 0, 30, 0),
+                  "The name of your product",
+                  ComponentAlign.left,
+                  18,
+                  "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              InputFieldComponent("input1", ViewMargin(5, 0, 0, 0),
+                  "Product name", "Please enter the product name")
+            ], ViewMargin(0, 0, 30, 30)),
+            ConfigEntry([
+              TextComponent(
+                  "text4",
+                  ViewMargin(50, 0, 30, 0),
+                  "The description of your product",
+                  ComponentAlign.left,
+                  18,
+                  "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              InputFieldComponent("input2", ViewMargin(5, 0, 0, 0),
+                  "Product description", "Please describe your product")
+            ], ViewMargin(0, 0, 30, 30)),
+            ConfigEntry([
+              ButtonComponent("complete_btn", ViewMargin(0, 0, 0, 0), "Save",
+                  ComponentAlign.right, {
+                "commandName": "cv",
+                "success": {
+                  "commandName": "smkvtk",
+                  "success": null,
+                  "failure": null,
+                  "usePrevResult": false,
+                  "value": [
+                    "config_inputs",
+                    [
+                      ["Product name", "{0}"],
+                      ["Product description", "{1}"]
+                    ],
+                    false
+                  ]
+                },
+                "failure": null,
+                "usePrevResult": false,
+                "value": ["input1", "input2"]
+              })
+            ], ViewMargin(40, 0, 0, 30))
+          ],
+          [],
+          false,
+          false)
+    ];
   }
 
   @override
@@ -407,8 +482,8 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
         "constraintName", "taskID", "userID", {"result": "dsf"});
     sectionData.setInitialState("1");
 
-    SectionData sectionData2 = SectionData(configModels2, true, "stage",
-        "Product description", 'kln', 'kn', {"Product name": "Jet engine"});
+    SectionData sectionData3 = SectionData(configModels3, true, "null",
+        "Product description_config", "null", "null", null);
     sectionData2.setCurrentConfig("1");
     // log(jsonEncode(sectionData2.toJson()).toString());
 

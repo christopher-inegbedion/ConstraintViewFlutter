@@ -3,13 +3,13 @@ import 'package:constraint_view/component_action/component_action_command.dart';
 
 class SetComponentValueCommand extends ComponentActionCommand {
   SetComponentValueCommand(
-      ComponentAction componentAction,
       String id,
+      ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "SetComponentValue", "scv", success, failure,
+      : super(id, componentAction, "SetComponentValue", "scv", success, failure,
             usePrevResult, value);
 
   @override

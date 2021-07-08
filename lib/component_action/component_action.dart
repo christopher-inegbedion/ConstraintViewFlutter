@@ -8,11 +8,12 @@ import 'package:constraint_view/component_action/commands/get_component_from_lis
 import 'package:constraint_view/component_action/commands/get_component_list_details.dart';
 import 'package:constraint_view/component_action/commands/get_existing_value_from_list_command.dart';
 import 'package:constraint_view/component_action/commands/get_existing_values_command.dart';
-import 'package:constraint_view/component_action/commands/greater_than_comperator_command.dart';
 import 'package:constraint_view/component_action/commands/propeitry/is_constraint_required_command.dart';
 import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_to_list_command.dart';
+import 'package:constraint_view/component_action/commands/save_multiple_key_value_command.dart';
+import 'package:constraint_view/component_action/commands/save_multiple_key_values_to_key_command.dart';
 import 'package:constraint_view/component_action/commands/send_data_to_ws_server_command.dart';
 import 'package:constraint_view/component_action/commands/set_component_value_command.dart';
 import 'package:constraint_view/component_action/commands/show_constraint_dialog_command.dart';
@@ -82,32 +83,28 @@ class ComponentAction {
       bool usePrevResult,
       List value) {
     switch (commandName) {
-      case "gtc":
-        return GreaterThanComperatorCommand(
-            componentAction, id, success, failure, usePrevResult, value);
-        break;
       case "tp":
         return TerminalPrintCommand(
-            componentAction, id, success, failure, usePrevResult, value);
+            id, componentAction, success, failure, usePrevResult, value);
       case "cv":
         return ComponentValue(
-            componentAction, id, success, failure, usePrevResult, value);
+            id, componentAction, success, failure, usePrevResult, value);
         break;
       case "sdc":
         return ShowDialogCommand(
-            componentAction, id, success, failure, usePrevResult, value);
+            id, componentAction, success, failure, usePrevResult, value);
         break;
       case "sev":
         return SaveExistingValueCommand(
-            componentAction, id, success, failure, usePrevResult, value);
+            id, componentAction, success, failure, usePrevResult, value);
         break;
       case "scv":
         return SetComponentValueCommand(
-            componentAction, id, success, failure, usePrevResult, value);
+            id, componentAction, success, failure, usePrevResult, value);
         break;
       case "adtlc":
         return AddDataToListComponentCommand(
-            componentAction, id, success, failure, usePrevResult, value);
+            id, componentAction, success, failure, usePrevResult, value);
         break;
       case "gcld":
         return GetComponentListDetailCommand(
@@ -159,6 +156,14 @@ class ComponentAction {
         break;
       case "icr":
         return IsConstraintRequiredCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "smv":
+        return SaveMultipleKeyValueCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "smkvtk":
+        return SaveMultipleKeyValuesToKeyCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
 

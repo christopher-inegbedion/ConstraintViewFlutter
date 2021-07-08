@@ -9,7 +9,7 @@ class InEqualityConditionCommand extends ComponentActionCommand {
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(componentAction, id, "InEqualityCondition", "iec", success,
+      : super(id, componentAction, "InEqualityCondition", "iec", success,
             failure, usePrevResult, value);
 
   @override
