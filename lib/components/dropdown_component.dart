@@ -10,13 +10,15 @@ class DropdownComponent extends Component {
   ComponentAlign alignment;
   Map command;
   String currentItem;
+  String initialItem;
 
   DropdownComponent(String ID, ViewMargin margin, List<String> data,
-      ComponentAlign align, Map command)
+      String initialItem, ComponentAlign align, Map command)
       : super(ID, margin, ComponentType.DropDown) {
     this.data = data;
     this.alignment = alignment;
     this.command = command;
+    this.currentItem = initialItem;
   }
 
   DropdownComponent.forStatic() : super.forStatic();

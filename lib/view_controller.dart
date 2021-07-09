@@ -51,6 +51,8 @@ class ViewControllerState extends State<ViewController> {
   bool ignoreScoll = false;
   bool initialised = false;
   BuildContext dialogContext;
+  double screenHeight;
+  double screenWidth;
 
   Widget view;
 
@@ -77,7 +79,6 @@ class ViewControllerState extends State<ViewController> {
             stageName, constraintName, "taskID", "userID", null)
         .fromConstraint(constraintName);
     SectionData sData;
-    ViewController topView;
 
     return showDialog(
         context: context,
@@ -89,16 +90,14 @@ class ViewControllerState extends State<ViewController> {
               content: Container(
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Container(
-                      height: MediaQuery.of(context).size.height / 2,
+                      height: screenHeight / 2,
                       child: FutureBuilder(
                           future: sectionData,
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               sData = snapshot.data;
                               sData.setInitialState("1");
-                              topView = sData.state.buildTopView();
-                              print(topView.state.savedValues);
-                              return topView;
+                              return sData.state.buildTopView();
                             } else {
                               return Center(child: CircularProgressIndicator());
                             }
@@ -108,13 +107,14 @@ class ViewControllerState extends State<ViewController> {
               actions: [
                 TextButton(
                     onPressed: () {
-                      print(sData.state.topViewController.state.savedValues);
-                      // if (topView.state.savedValues["config_inputs"] ==
-                      //     null) {
-                      // } else {
-                      //   print(topView.state.savedValues["config_inputs"]);
-                      //   Navigator.pop(context);
-                      // }
+                      if (sData.state.topViewController.state
+                              .savedValues["config_inputs"] !=
+                          null) {
+                        Navigator.pop(context, [
+                          sData.state.topViewController.state
+                              .savedValues["config_inputs"]
+                        ]);
+                      }
                     },
                     child: Text("Done"))
               ],
@@ -138,7 +138,7 @@ class ViewControllerState extends State<ViewController> {
           return AlertDialog(
             title: Text(title),
             content: Container(
-              width: MediaQuery.of(context).size.width,
+              width: screenWidth,
               child: Form(
                   key: key,
                   child: ListView.builder(
@@ -274,15 +274,14 @@ class ViewControllerState extends State<ViewController> {
     }
 
     return SingleChildScrollView(
-      key: GlobalKey(),
       physics: ignoreScoll
           ? NeverScrollableScrollPhysics()
           : AlwaysScrollableScrollPhysics(),
       child: section == "top"
           ? Container(
-              width: MediaQuery.of(context).size.width,
+              width: screenWidth,
               color: HexColor(configurationModel.bgColor),
-              height: MediaQuery.of(context).size.height,
+              height: screenHeight,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: configurationModel.centerTopSectionData
@@ -430,7 +429,7 @@ class ViewControllerState extends State<ViewController> {
 
     return Expanded(
       child: Container(
-          width: MediaQuery.of(context).size.width,
+          width: screenWidth,
           margin: EdgeInsets.only(
               top: componentMargin.top,
               bottom: componentMargin.bottom,
@@ -542,8 +541,8 @@ class ViewControllerState extends State<ViewController> {
         notifyChange();
       },
       child: SizedBox(
-        height: MediaQuery.of(context).size.width,
-        width: MediaQuery.of(context).size.width,
+        height: screenHeight,
+        width: screenWidth,
         child: Container(
           child: liveModel,
           margin: EdgeInsets.only(
@@ -714,7 +713,9 @@ class ViewControllerState extends State<ViewController> {
   }
 
   void notifyChange() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void changeComponent(String initialComponentID, Component newComponent,
@@ -742,10 +743,10 @@ class ViewControllerState extends State<ViewController> {
   @override
   void initState() {
     super.initState();
-    // SchedulerBinding.instance.addPostFrameCallback((_) {
-    //   setState(() {
-    //   });
-    // });
+    Future.delayed(Duration.zero, () {
+      screenHeight = MediaQuery.of(context).size.height;
+      screenWidth = MediaQuery.of(context).size.width;
+    });
   }
 
   @override
@@ -759,6 +760,6 @@ class ViewControllerState extends State<ViewController> {
 
   @override
   Widget build(BuildContext context) {
-    return view;
+    return buildView();
   }
 }

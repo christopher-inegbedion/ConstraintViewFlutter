@@ -293,9 +293,9 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
 
     ButtonComponent buttonComponent = ButtonComponent(
         "constraint_component",
-        ViewMargin(0, 0, 0, 0),
+        ViewMargin(0, 0, 20, 0),
         "d",
-        ComponentAlign.center,
+        ComponentAlign.left,
         {
           "commandName": "gcld",
           "success": {
@@ -310,7 +310,101 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                     "commandName": "gev",
                     "success": {
                       "commandName": "scd",
-                      "success": null,
+                      "success": {
+                        "commandName": "sev",
+                        "success": {
+                          "commandName": "gev",
+                          "success": {
+                            "commandName": "smkvtk",
+                            "success": {
+                              "commandName": "gev",
+                              "success": {
+                                "commandName": "gev",
+                                "success": {
+                                  "commandName": "smkvtk",
+                                  "success": {
+                                    "commandName": "cv",
+                                    "success": {
+                                      "commandName": "sev",
+                                      "success": {
+                                        "commandName": "gev",
+                                        "success": {
+                                          "commandName": "gev",
+                                          "success": {
+                                            "commandName": "sevtl",
+                                            "success": null,
+                                            "failure": null,
+                                            "usePrevResult": false,
+                                            "value": ["{1}", "{0}", false]
+                                          },
+                                          "failure": null,
+                                          "usePrevResult": false,
+                                          "value": [
+                                            ["{0}", "current_stage"],
+                                            false
+                                          ]
+                                        },
+                                        "failure": null,
+                                        "usePrevResult": false,
+                                        "value": [
+                                          ["name"],
+                                          true
+                                        ]
+                                      },
+                                      "failure": null,
+                                      "usePrevResult": false,
+                                      "value": ["current_stage", "{0}", false]
+                                    },
+                                    "failure": null,
+                                    "usePrevResult": false,
+                                    "value": ["dropdown"]
+                                  },
+                                  "failure": null,
+                                  "usePrevResult": false,
+                                  "value": [
+                                    "{0}",
+                                    [
+                                      ["constraint_name", "{0}"],
+                                      ["config_inputs", "{1}"]
+                                    ],
+                                    false
+                                  ]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": [
+                                  ["name", "{0}"],
+                                  true
+                                ]
+                              },
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": [
+                                ["name"],
+                                true
+                              ]
+                            },
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": [
+                              "{0}",
+                              [
+                                ["config_inputs", "{1}"]
+                              ],
+                              true
+                            ]
+                          },
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": [
+                            ["name", "config_value"],
+                            true
+                          ]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": ["config_value", "{0}", true]
+                      },
                       "failure": null,
                       "usePrevResult": false,
                       "value": ["{0}", "ds"]
@@ -322,7 +416,95 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                       true
                     ]
                   },
-                  "failure": null,
+                  "failure": {
+                    "commandName": "gev",
+                    "success": {
+                      "commandName": "smkvtk",
+                      "success": {
+                        "commandName": "gev",
+                        "success": {
+                          "commandName": "gev",
+                          "success": {
+                            "commandName": "smkvtk",
+                            "success": {
+                              "commandName": "cv",
+                              "success": {
+                                "commandName": "sev",
+                                "success": {
+                                  "commandName": "gev",
+                                  "success": {
+                                    "commandName": "gev",
+                                    "success": {
+                                      "commandName": "sevtl",
+                                      "success": null,
+                                      "failure": null,
+                                      "usePrevResult": false,
+                                      "value": ["{1}", "{0}", false]
+                                    },
+                                    "failure": null,
+                                    "usePrevResult": false,
+                                    "value": [
+                                      ["{0}", "current_stage"],
+                                      false
+                                    ]
+                                  },
+                                  "failure": null,
+                                  "usePrevResult": false,
+                                  "value": [
+                                    ["name"],
+                                    true
+                                  ]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": ["current_stage", "{0}", false]
+                              },
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": ["dropdown"]
+                            },
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": [
+                              "{0}",
+                              [
+                                ["constraint_name", "{0}"],
+                                ["config_inputs", "{1}"]
+                              ],
+                              false
+                            ]
+                          },
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": [
+                            ["name", "{0}"],
+                            true
+                          ]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": [
+                          ["name"],
+                          true
+                        ]
+                      },
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": [
+                        "{0}",
+                        [
+                          ["config_inputs", null]
+                        ],
+                        true
+                      ]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": [
+                      ["name"],
+                      true
+                    ]
+                  },
                   "usePrevResult": false,
                   "value": ["{0}"]
                 },
@@ -347,14 +529,37 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
     configModels2 = [
       ConfigurationModel(
           "1",
-          true,
+          false,
           [
+            ConfigEntry([
+              TextComponent(
+                  "toptext",
+                  ViewMargin(0, 0, 0, 0),
+                  "Select constraints for your task",
+                  ComponentAlign.left,
+                  25,
+                  "#000000")
+            ], ViewMargin(40, 0, 30, 0)),
+            ConfigEntry([
+              TextComponent(
+                  "toptext",
+                  ViewMargin(0, 0, 0, 0),
+                  "The constraints you select will be part of your task",
+                  ComponentAlign.left,
+                  18,
+                  "#000000")
+            ], ViewMargin(10, 0, 30, 30)),
+            ConfigEntry([
+              TextComponent("toptext", ViewMargin(0, 0, 0, 0), "Stages:",
+                  ComponentAlign.left, 16, "#000000")
+            ], ViewMargin(30, 0, 30, 0)),
             ConfigEntry([
               DropdownComponent(
                   "dropdown",
-                  ViewMargin(0, 0, 0, 0),
-                  ["data", "data2"],
-                  ComponentAlign.center,
+                  ViewMargin(0, 0, 30, 50),
+                  ["Pending", "Active", "Complete"],
+                  "Pending",
+                  ComponentAlign.left,
                   {
                     "commandName": "cv",
                     "success": {
@@ -370,20 +575,9 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                   })
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
-              ButtonComponent(
-                  "constraint_description",
-                  ViewMargin(5, 0, 0, 0),
-                  "Button here.",
-                  ComponentAlign.center,
-                  {
-                    "commandName": "scd",
-                    "success": null,
-                    "failure": null,
-                    "usePrevResult": false,
-                    "value": []
-                  },
-                  color: '#000000')
-            ], ViewMargin(0, 0, 0, 0)),
+              TextComponent("toptext", ViewMargin(0, 0, 0, 0),
+                  "Available constraints:", ComponentAlign.left, 16, "#000000")
+            ], ViewMargin(30, 0, 30, 0)),
             ConfigEntry([
               ListComponent("list", ViewMargin(0, 0, 0, 0), [
                 ["Exchange rate"],
@@ -392,7 +586,137 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
               ], [
                 buttonComponent
               ])
-            ], ViewMargin(0, 0, 0, 0))
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              ButtonComponent("complete", ViewMargin(0, 0, 0, 0), "Complete",
+                  ComponentAlign.right, {
+                "commandName": "gev",
+                "success": {
+                  "commandName": "smkvtk",
+                  "success": {
+                    "commandName": "gev",
+                    "success": {
+                      "commandName": "smkvtk",
+                      "success": {
+                        "commandName": "gev",
+                        "success": {
+                          "commandName": "smkvtk",
+                          "success": {
+                            "commandName": "gev",
+                            "success": {
+                              "commandName": "sevtl",
+                              "success": {
+                                "commandName": "gev",
+                                "success": {
+                                  "commandName": "sevtl",
+                                  "success": {
+                                    "commandName": "gev",
+                                    "success": {
+                                      "commandName": "sevtl",
+                                      "success": {
+                                        "commandName": "gev",
+                                        "success": {
+                                          "commandName": "srd",
+                                          "success": null,
+                                          "failure": null,
+                                          "usePrevResult": false,
+                                          "value": ["{0}"]
+                                        },
+                                        "failure": null,
+                                        "usePrevResult": false,
+                                        "value": [
+                                          ["stages"],
+                                          false
+                                        ]
+                                      },
+                                      "failure": null,
+                                      "usePrevResult": false,
+                                      "value": ["stages", "{0}", false]
+                                    },
+                                    "failure": null,
+                                    "usePrevResult": false,
+                                    "value": [
+                                      ["Complete_data"],
+                                      false
+                                    ]
+                                  },
+                                  "failure": null,
+                                  "usePrevResult": false,
+                                  "value": ["stages", "{0}", false]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": [
+                                  ["Active_data"],
+                                  false
+                                ]
+                              },
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": ["stages", "{0}", false]
+                            },
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": [
+                              ["Pending_data"],
+                              false
+                            ]
+                          },
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": [
+                            "Complete_data",
+                            [
+                              ["stage_name", "Complete"],
+                              ["constraints", "{0}"]
+                            ],
+                            false
+                          ]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": [
+                          ["Complete"],
+                          false
+                        ]
+                      },
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": [
+                        "Active_data",
+                        [
+                          ["stage_name", "Active"],
+                          ["constraints", "{0}"]
+                        ],
+                        false
+                      ]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": [
+                      ["Active"],
+                      false
+                    ]
+                  },
+                  "failure": null,
+                  "usePrevResult": false,
+                  "value": [
+                    "Pending_data",
+                    [
+                      ["stage_name", "Pending"],
+                      ["constraints", "{0}"]
+                    ],
+                    false
+                  ]
+                },
+                "failure": null,
+                "usePrevResult": false,
+                "value": [
+                  ["Pending"],
+                  false
+                ]
+              })
+            ], ViewMargin(50, 0, 0, 30))
           ],
           [],
           false,
@@ -451,22 +775,29 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                   ComponentAlign.right, {
                 "commandName": "cv",
                 "success": {
-                  "commandName": "smkvtk",
-                  "success": null,
+                  "commandName": "sevtl",
+                  "success": {
+                    "commandName": "cv",
+                    "success": {
+                      "commandName": "sevtl",
+                      "success": null,
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": ["config_inputs", "{0}", false]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": ["input2"]
+                  },
                   "failure": null,
                   "usePrevResult": false,
-                  "value": [
-                    "config_inputs",
-                    [
-                      ["Product name", "{0}"],
-                      ["Product description", "{1}"]
-                    ],
-                    false
-                  ]
+                  "value": ["config_inputs", "{0}", false]
                 },
                 "failure": null,
                 "usePrevResult": false,
-                "value": ["input1", "input2"]
+                "value": [
+                  "input1",
+                ]
               })
             ], ViewMargin(40, 0, 0, 30))
           ],

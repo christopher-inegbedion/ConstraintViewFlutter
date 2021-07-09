@@ -94,12 +94,19 @@ abstract class ComponentActionCommand {
       }
     } else if (data is List) {
       String type = data.runtimeType.toString();
-      if (type == "List<String>") {
+      bool allDataIsString = true;
+
+      for (dynamic i in data) {
+        dynamic formattedData = formatText(i, prevResult);
+        if (!(formattedData is String)) {
+          allDataIsString = false;
+        }
+      }
+
+      if (allDataIsString) {
         List<String> newList = [];
-        int i = 0;
         data.forEach((element) {
           newList.add(formatText(element, prevResult));
-          i++;
         });
 
         return newList;

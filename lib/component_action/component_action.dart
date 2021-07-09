@@ -9,6 +9,7 @@ import 'package:constraint_view/component_action/commands/get_component_list_det
 import 'package:constraint_view/component_action/commands/get_existing_value_from_list_command.dart';
 import 'package:constraint_view/component_action/commands/get_existing_values_command.dart';
 import 'package:constraint_view/component_action/commands/propeitry/is_constraint_required_command.dart';
+import 'package:constraint_view/component_action/commands/propeitry/submit_registration_data_command.dart';
 import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_to_list_command.dart';
@@ -164,6 +165,10 @@ class ComponentAction {
         break;
       case "smkvtk":
         return SaveMultipleKeyValuesToKeyCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "srd":
+        return SubmitRegistrationDataCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
 

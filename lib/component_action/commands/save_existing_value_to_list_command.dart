@@ -18,7 +18,7 @@ class SaveExistingValueToListCommand extends ComponentActionCommand {
     super.run(result);
     try {
       String key = value[0];
-      String data = value[1];
+      dynamic data = value[1];
       bool temp = value[2];
 
       var storageUsing = temp
@@ -40,6 +40,7 @@ class SaveExistingValueToListCommand extends ComponentActionCommand {
       runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);
+      print("SaveExistingValueToList error: $e");
       runFailure();
     }
   }
