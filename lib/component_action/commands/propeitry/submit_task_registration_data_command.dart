@@ -4,35 +4,40 @@ import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 
-class SubmitRegistrationDataCommand extends ComponentActionCommand {
-  SubmitRegistrationDataCommand(
+class SubmitTaskRegistrationDataCommand extends ComponentActionCommand {
+  SubmitTaskRegistrationDataCommand(
       String id,
       ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(id, componentAction, "SubmitRegistrationData", "srd", success,
-            failure, usePrevResult, value);
+      : super(id, componentAction, "SubmitTaskRegistrationData", "strd",
+            success, failure, usePrevResult, value);
 
   @override
   run(result) {
     super.run(result);
     try {
-      dynamic data = {"stages": getValue()[0]};
-      print(data);
+      String taskName = getValue()[0];
+      String taskDesc = getValue()[1];
+      String stageGroupID = getValue()[2];
+
+      dynamic data = {
+        "task_name": taskName,
+        "task_desc": taskDesc,
+        "stage_group_id": stageGroupID
+      };
+
       Future<dynamic> response = NetworkUtils.performNetworkAction(
           NetworkUtils.serverAddr + NetworkUtils.portNum,
-          "/stage_group",
+          "/create_task",
           "post",
-          data: jsonEncode(data));
+          data: data);
       response.then((value) {
         Map result = jsonDecode(value);
-        if (result["result"] == "success") {
-          this.result = [result["msg"]];
-        } else {
-          this.result = [""];
-        }
+        print(result);
+        this.result = [result["task_id"]];
       }).onError((error, stackTrace) {
         runFailure();
       }).whenComplete(() {
@@ -40,7 +45,7 @@ class SubmitRegistrationDataCommand extends ComponentActionCommand {
       });
     } catch (e, stacktrace) {
       print(stacktrace);
-      print("SubmitRegistrationData error: $e");
+      print("SubmitTaskRegistrationData error: $e");
       runFailure();
     }
   }

@@ -14,10 +14,12 @@ class ShowDialogCommand extends ComponentActionCommand {
 
   @override
   run(dynamic result) {
-    String title = value[0];
-    String msg = value[1];
+    super.run(result);
     try {
+      String title = getValue()[0];
+      String msg = getValue()[1];
       componentAction.viewControllerState.showDialogWithMsg(title, msg);
+      print(result);
       runSuccess();
     } catch (e) {
       runFailure();

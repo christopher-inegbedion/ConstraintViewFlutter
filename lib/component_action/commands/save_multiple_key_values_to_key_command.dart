@@ -17,13 +17,13 @@ class SaveMultipleKeyValuesToKeyCommand extends ComponentActionCommand {
     super.run(result);
 
     try {
-      dynamic parentKey = value[0];
-      bool temp = value[2];
+      dynamic parentKey = getValue()[0];
+      bool temp = getValue()[2];
       Map<dynamic, dynamic> storageUsing = temp
           ? componentAction.viewControllerState.tempValues
           : componentAction.viewControllerState.savedValues;
 
-      for (List i in value[1]) {
+      for (List i in getValue()[1]) {
         dynamic key = i[0];
         dynamic data = i[1];
 

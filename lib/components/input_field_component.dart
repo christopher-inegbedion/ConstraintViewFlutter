@@ -78,4 +78,10 @@ class InputFieldComponent extends Component {
 
     return null;
   }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    throw UnimplementedError();
+  }
 }

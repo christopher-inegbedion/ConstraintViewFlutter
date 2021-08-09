@@ -6,5 +6,6 @@ enum ComponentType {
   ColorBlock,
   LiveModel,
   List,
+  ListTile,
   DropDown
 }

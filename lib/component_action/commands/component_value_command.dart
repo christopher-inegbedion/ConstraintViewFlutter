@@ -18,12 +18,23 @@ class ComponentValue extends ComponentActionCommand {
 
     try {
       List results = [];
-      for (String id in value) {
-        results.add(componentAction.viewControllerState.getComponentValue(id));
+      bool passedValidation = true;
+      for (String id in getValue()) {
+        if (componentAction.viewControllerState.getComponentValue(id) == null) {
+          passedValidation = false;
+          break;
+        } else {
+          results
+              .add(componentAction.viewControllerState.getComponentValue(id));
+        }
       }
 
-      this.result = results;
-      runSuccess();
+      if (passedValidation) {
+        this.result = results;
+        runSuccess();
+      } else {
+        runFailure();
+      }
     } catch (e, stacktrace) {
       print(stacktrace);
       print("ComponentValue error: $e");

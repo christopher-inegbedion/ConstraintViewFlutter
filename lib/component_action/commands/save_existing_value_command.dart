@@ -16,9 +16,9 @@ class SaveExistingValueCommand extends ComponentActionCommand {
   run(dynamic result) {
     super.run(result);
     try {
-      String key = value[0];
-      dynamic valueToSave = value[1];
-      bool temp = value[2];
+      String key = getValue()[0];
+      dynamic valueToSave = getValue()[1];
+      bool temp = getValue()[2];
 
       var storageUsing = temp
           ? componentAction.viewControllerState.tempValues
@@ -27,6 +27,7 @@ class SaveExistingValueCommand extends ComponentActionCommand {
       storageUsing[key] = valueToSave;
 
       this.result = [valueToSave];
+
       runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);

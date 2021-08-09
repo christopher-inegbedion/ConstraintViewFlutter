@@ -25,30 +25,87 @@ abstract class ComponentActionCommand {
       this.value);
 
   dynamic run(dynamic result) {
+    this.result = result;
     if (usePrevResult) {
       if (result != null) {
         value = result;
       }
     } else {
-      List newValue = [];
-      if (value != null) {
-        value.forEach((element) {
-          newValue.add(formatText(element, result));
-        });
-        value = newValue;
+      // List newValue = [];
+      // if (value != null) {
+      //   value.forEach((element) {
+      //     newValue.add(formatText(element, result));
+      //   });
+      //   value = jsonDecode(jsonEncode(newValue));
+      // }
+
+      // bool allDataIsString = true;
+
+      // for (dynamic i in value) {
+      //   dynamic formattedData = formatText(i, result);
+      //   if (!(formattedData is String)) {
+      //     allDataIsString = false;
+      //   }
+      // }
+
+      // if (allDataIsString) {
+      //   List<String> newList = [];
+      //   this.value.forEach((element) {
+      //     newList.add(formatText(element, result));
+      //   });
+
+      //   this.value = newList;
+      // } else {
+      //   List newList = [];
+      //   int i = 0;
+      //   this.value.forEach((element) {
+      //     newList.add(formatText(element, result));
+      //     i++;
+      //   });
+
+      //   this.value = newList;
+      // }
+    }
+  }
+
+  dynamic getValue() {
+    bool allDataIsString = true;
+
+    for (dynamic i in value) {
+      dynamic formattedData = formatText(i, result);
+      if (!(formattedData is String)) {
+        allDataIsString = false;
       }
+    }
+
+    if (allDataIsString) {
+      List<String> newList = [];
+      this.value.forEach((element) {
+        newList.add(formatText(element, result));
+      });
+
+      return newList;
+    } else {
+      List newList = [];
+      this.value.forEach((element) {
+        newList.add(formatText(element, result));
+      });
+
+      return newList;
     }
   }
 
   void runSuccess() {
-    if (this.success != null) {
-      success.run(result);
+    ComponentActionCommand newCommand = this.success;
+    if (newCommand != null) {
+      newCommand.run(result);
     }
   }
 
   void runFailure() {
-    if (this.failure != null) {
-      failure.run(result);
+    ComponentActionCommand newCommand = this.failure;
+    if (newCommand != null) {
+      newCommand.run(result);
     }
   }
 
@@ -85,9 +142,31 @@ abstract class ComponentActionCommand {
               endIndex = count;
 
               isLeftBracketFound = false;
-              int index = int.parse(string.substring(startIndex, endIndex - 1));
-              dynamic word = prevResult[index];
-              return word;
+              String key = string.substring(startIndex, endIndex - 1);
+              if (componentAction.viewControllerState.configurationModel
+                          .configurationInputs !=
+                      null &&
+                  componentAction.viewControllerState.configurationModel
+                      .configurationInputs
+                      .containsKey(key)) {
+                dynamic word = componentAction.viewControllerState
+                    .configurationModel.configurationInputs[key];
+
+                return word;
+              } else {
+                int index;
+                if (double.parse(key) != null) {
+                  index = int.parse(key);
+                }
+
+                if (prevResult.length > index) {
+                  dynamic word = prevResult[index];
+                  return word;
+                }
+              }
+              if (double.parse(key) != null) {
+                int index = int.parse(key);
+              }
             }
           }
         }

@@ -19,17 +19,17 @@ class ReplaceComponentWithTextComponentCommand extends ComponentActionCommand {
   run(dynamic result) {
     super.run(result);
     try {
-      String id = value[0];
+      String id = getValue()[0];
       ViewMargin margin = ViewMargin(
-        double.parse(value[1][0].toString()),
-        double.parse(value[1][1].toString()),
-        double.parse(value[1][2].toString()),
-        double.parse(value[1][3].toString()),
+        double.parse(getValue()[1][0].toString()),
+        double.parse(getValue()[1][1].toString()),
+        double.parse(getValue()[1][2].toString()),
+        double.parse(getValue()[1][3].toString()),
       );
-      String placeholder = value[2];
-      String align = value[3];
-      double textSize = double.parse(value[4].toString());
-      String textColor = value[5];
+      String placeholder = getValue()[2];
+      String align = getValue()[3];
+      double textSize = double.parse(getValue()[4].toString());
+      String textColor = getValue()[5];
 
       TextComponent textComponent = TextComponent(id, margin, placeholder,
           getComponentAlignFromString(align), textSize, textColor);

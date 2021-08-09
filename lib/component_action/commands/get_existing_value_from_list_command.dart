@@ -16,9 +16,9 @@ class GetExistingValueFromListCommand extends ComponentActionCommand {
   run(dynamic result) {
     super.run(result);
     try {
-      String key = value[0];
-      int index = int.parse(value[1].toString());
-      bool temp = value[2];
+      String key = getValue()[0];
+      int index = int.parse(getValue()[1].toString());
+      bool temp = getValue()[2];
 
       var storageUsing = temp
           ? componentAction.viewControllerState.tempValues

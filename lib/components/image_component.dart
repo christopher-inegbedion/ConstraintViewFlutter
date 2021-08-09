@@ -7,20 +7,26 @@ class ImageComponent extends Component {
   String imageUrl;
   double height;
   double width;
+  bool maxWidth;
 
   ImageComponent(String ID, ViewMargin margin, String imageUrl, double height,
-      double width)
+      double width, bool maxWidth)
       : super(ID, margin, ComponentType.Image) {
+    this.ID = ID;
+    this.margin = margin;
     this.imageUrl = imageUrl;
     this.height = height;
     this.width = width;
+    this.maxWidth = maxWidth;
   }
 
   ImageComponent.forStatic() : super.forStatic();
 
   @override
-  buildComponentView() {
+  buildComponentView({BuildContext context}) {
     return Image(
+      width: maxWidth ? MediaQuery.of(context).size.width : width,
+      height: height,
       image: NetworkImage(imageUrl),
     );
   }
@@ -32,16 +38,24 @@ class ImageComponent extends Component {
         ? ViewMargin.fromString(componentParams[1])
         : componentParams[1];
     String imageUrl = componentParams[2];
-    double height = componentParams[3];
-    double width = componentParams[4];
+    double height = double.parse(componentParams[3].toString());
+    double width = double.parse(componentParams[4].toString());
+    bool maxWidth = componentParams[5];
 
-    return ImageComponent(ID, margin, imageUrl, height, width);
+    return ImageComponent(ID, margin, imageUrl, height, width, maxWidth);
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      "component_properties": [ID, margin.toString(), imageUrl, height, width],
+      "component_properties": [
+        ID,
+        margin.toString(),
+        imageUrl,
+        height,
+        width,
+        maxWidth
+      ],
       "type": "image"
     };
   }
@@ -54,6 +68,12 @@ class ImageComponent extends Component {
   @override
   setValue(value) {
     // TODO: implement setValue
+    throw UnimplementedError();
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
     throw UnimplementedError();
   }
 }

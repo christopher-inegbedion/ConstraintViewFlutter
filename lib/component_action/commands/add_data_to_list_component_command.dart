@@ -18,11 +18,12 @@ class AddDataToListComponentCommand extends ComponentActionCommand {
   run(dynamic result) {
     super.run(result);
     try {
-      String componentID = value[0];
-      List data = jsonDecode(jsonEncode(value[1]));
+      String componentID = getValue()[0];
+      List data = jsonDecode(jsonEncode(getValue()[1]));
 
       componentAction.viewControllerState
           .addValueToListComponent(componentID, data);
+
       runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);

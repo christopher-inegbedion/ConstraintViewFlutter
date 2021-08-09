@@ -56,19 +56,6 @@ class ButtonComponent extends Component {
         color: color);
   }
 
-  ComponentAlign getComponentAlignFromString(String componentAlign) {
-    switch (componentAlign) {
-      case "center":
-        return ComponentAlign.center;
-      case "left":
-        return ComponentAlign.left;
-      case "right":
-        return ComponentAlign.right;
-      default:
-        return null;
-    }
-  }
-
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -92,5 +79,11 @@ class ButtonComponent extends Component {
   @override
   setValue(value) {
     this.text = value;
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    throw UnimplementedError();
   }
 }

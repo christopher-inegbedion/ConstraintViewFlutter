@@ -17,13 +17,13 @@ class SaveMultipleKeyValueCommand extends ComponentActionCommand {
     super.run(result);
 
     try {
-      bool temp = value[1];
+      bool temp = getValue()[1];
 
       var storageUsing = temp
           ? componentAction.viewControllerState.tempValues
           : componentAction.viewControllerState.savedValues;
 
-      for (List pair in value[0]) {
+      for (List pair in getValue()[0]) {
         String key = pair[0];
         dynamic data = pair[1];
 

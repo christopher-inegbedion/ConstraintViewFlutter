@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:web_socket_channel/io.dart';
+
+import 'custom_views/constraint_view.dart';
 
 class TaskDeailPage extends StatefulWidget {
   String taskID;
@@ -21,17 +25,229 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
 
   _TaskDeailPageState(this.taskID);
 
-  void showConstraintCompleteDialog(String msg) {
+  Future getActiveConstraints(String constraintName, String stageName) async {
+    final channel = IOWebSocketChannel.connect(
+        "ws://192.168.1.129:4321/pipeline_constraint_details");
+    channel.sink.add(jsonEncode({"task_id": taskID, "stage_name": stageName}));
+    dynamic value = await channel.stream.first;
+    Map<String, dynamic> recvData = jsonDecode(value);
+    List users = recvData[stageName][constraintName];
+    print(users);
+    return users;
+  }
+
+  void showActiveUsersForConstraint(String constraintName, String stageName) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: Text(constraintName),
+              content: FutureBuilder(
+                future: getActiveConstraints(constraintName, stageName),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List data = snapshot.data;
+                    List<Widget> widgets = [];
+                    for (String i in data) {
+                      widgets.add(TextButton(
+                        onPressed: (() {
+                          loadAdminConstraintViews(
+                              constraintName, stageName, i);
+                        }),
+                        child: Text(i),
+                      ));
+                    }
+                    print(widgets);
+                    return Column(
+                        mainAxisSize: MainAxisSize.min, children: widgets);
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text("An error occured"),
+                    );
+                  } else {
+                    return Center(child: Text("No data"));
+                  }
+                },
+              ));
+        });
+  }
+
+  void showConstraintCompleteDialog(Map msg, String userID) {
+    // for (Map data in msg["value"]) {
+    //   print(data);
+    // }
+
+    List<Widget> pendingWidgets = [];
+    pendingWidgets.add(
+      Text("Pending",
+          style: TextStyle(
+              fontFamily: "JetBrainMono",
+              fontWeight: FontWeight.bold,
+              fontSize: 18)),
+    );
+    if (msg["value"].length > 0) {
+      List pendingConstraints = msg["value"][0]["constraint_data"];
+
+      if (pendingConstraints.length > 0) {
+        for (Map constraint in pendingConstraints) {
+          pendingWidgets.add(Container(
+              margin: EdgeInsets.only(top: 5, bottom: 5),
+              child: Text("${constraint['constraint_name']}")));
+          pendingWidgets.add(Container(
+              margin: EdgeInsets.only(bottom: 15),
+              child: Text("Result: ${constraint['data']}",
+                  style: TextStyle(color: HexColor("#455A64")))));
+        }
+      } else {
+        pendingWidgets.add(Container(
+            margin: EdgeInsets.only(top: 5, bottom: 5),
+            child: Text(
+              "No pending constraints",
+              style: TextStyle(color: HexColor("#455A64")),
+            )));
+      }
+    } else {
+      pendingWidgets.add(Container(
+          margin: EdgeInsets.only(top: 5, bottom: 5),
+          child: Text(
+            "No pending constraints",
+            style: TextStyle(color: HexColor("#455A64")),
+          )));
+    }
+
+    List<Widget> activeWidgets = [];
+    activeWidgets.add(
+      Container(
+        margin: EdgeInsets.only(top: 20),
+        child: Text("Active",
+            style: TextStyle(
+                fontFamily: "JetBrainMono",
+                fontWeight: FontWeight.bold,
+                fontSize: 16)),
+      ),
+    );
+    if (msg["value"].length > 1) {
+      List activeConstraints = msg["value"][1]["constraint_data"];
+      if (activeConstraints.length > 0) {
+        for (Map constraint in activeConstraints) {
+          activeWidgets.add(Container(
+              margin: EdgeInsets.only(top: 5, bottom: 5),
+              child: Text("${constraint['constraint_name']}")));
+          activeWidgets.add(Container(
+              margin: EdgeInsets.only(bottom: 15),
+              child: Text("Result: ${constraint['data']}",
+                  style: TextStyle(color: HexColor("#455A64")))));
+        }
+      } else {
+        activeWidgets.add(Container(
+            margin: EdgeInsets.only(top: 5, bottom: 5),
+            child: Text(
+              "No active constraints",
+              style: TextStyle(color: HexColor("#455A64")),
+            )));
+      }
+    } else {
+      activeWidgets.add(Container(
+          margin: EdgeInsets.only(top: 5, bottom: 5),
+          child: Text(
+            "No active constraints",
+            style: TextStyle(color: HexColor("#455A64")),
+          )));
+    }
+
+    List<Widget> completeWidgets = [];
+    completeWidgets.add(
+      Container(
+        margin: EdgeInsets.only(top: 20),
+        child: Text("Complete",
+            style: TextStyle(
+                fontFamily: "JetBrainMono",
+                fontWeight: FontWeight.bold,
+                fontSize: 16)),
+      ),
+    );
+    if (msg["value"].length > 2) {
+      List completeConstraints = msg["value"][2]["constraint_data"];
+      if (completeConstraints.length > 0) {
+        for (Map constraint in completeConstraints) {
+          completeWidgets.add(Container(
+              margin: EdgeInsets.only(top: 5, bottom: 5),
+              child: Text("${constraint['constraint_name']}")));
+          completeWidgets.add(Container(
+              margin: EdgeInsets.only(bottom: 15),
+              child: Text("Result: ${constraint['data']}",
+                  style: TextStyle(color: HexColor("#455A64")))));
+        }
+      } else {
+        completeWidgets.add(Container(
+            margin: EdgeInsets.only(top: 5, bottom: 5),
+            child: Text(
+              "No complete constraints",
+              style: TextStyle(color: HexColor("#455A64")),
+            )));
+      }
+    } else {
+      completeWidgets.add(Container(
+          margin: EdgeInsets.only(top: 5, bottom: 5),
+          child: Text(
+            "No complete constraints",
+            style: TextStyle(color: HexColor("#455A64")),
+          )));
+    }
+
     showDialog<void>(
       context: context,
       barrierDismissible: true, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Constraint complete"),
-          content: Container(width: double.maxFinite, child: Text(msg)),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Constraint complete",
+                style: TextStyle(
+                    fontFamily: "JetBrainMono",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 10),
+                child: Text(
+                  "User ID: $userID",
+                  style: TextStyle(
+                      fontFamily: "JetBrainMono",
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          content: Container(
+              // height: 300,
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: pendingWidgets),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: activeWidgets),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: completeWidgets),
+                  ],
+                ),
+              )),
           actions: <Widget>[
             TextButton(
-              child: const Text('Approve'),
+              child: const Text('Done'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -40,6 +256,25 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
         );
       },
     );
+  }
+
+  void loadAdminConstraintViews(
+      String constraintName, String stageName, String userID) async {
+    String stageGroupID = await getStageGroupID();
+
+    print("constraint name: " + constraintName);
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return ConstraintView(
+        constraintName,
+        stageName,
+        stageGroupID,
+        taskID,
+        userID,
+        true,
+        customViewName: constraintName + "_admin",
+      );
+    }));
   }
 
   void initTaskDetails() {
@@ -57,6 +292,23 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
         completeUsers = data["complete_users"];
       });
     });
+  }
+
+  Future getStageGroupID() async {
+    Map data = jsonDecode(await NetworkUtils.performNetworkAction(
+        NetworkUtils.serverAddr + NetworkUtils.portNum,
+        "/task/" + taskID,
+        "get"));
+    return data["stage_group_id"];
+  }
+
+  Future getStageGroupData(String stage) async {
+    String stageGroupID = await getStageGroupID();
+    print("stageGroupID");
+    return NetworkUtils.performNetworkAction(
+        NetworkUtils.serverAddr + NetworkUtils.portNum,
+        "/stage_group/" + stageGroupID + "/" + stage,
+        "get");
   }
 
   @override
@@ -112,7 +364,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
         children: [
           Container(
               child: Text(
-            "Task ID",
+            "Task ID:",
             style: TextStyle(
                 fontFamily: "JetBrainMono",
                 fontSize: 20,
@@ -126,15 +378,183 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
           Container(
             margin: EdgeInsets.only(top: 20),
             child: Text(
-              "Live sessions: $liveSessionCount",
+              "Sessions: $liveSessionCount",
               style: TextStyle(
                   fontFamily: "JetBrainMono",
                   fontWeight: FontWeight.bold,
-                  fontSize: 15),
+                  fontSize: 16),
             ),
           ),
           Container(
             margin: EdgeInsets.only(top: 20, bottom: 5),
+            child: Text("Constraints",
+                style: TextStyle(
+                    fontFamily: "JetBrainMono",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20)),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 5, bottom: 5),
+            child: Text("Pending Constraints",
+                style: TextStyle(
+                    fontFamily: "JetBrainMono",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15)),
+          ),
+          Container(
+            child: FutureBuilder(
+              future: getStageGroupData("Pending"),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  Map<String, dynamic> data = jsonDecode(snapshot.data);
+                  if (data != null) {
+                    String stageName = data["stage_name"];
+                    List constraints = data["constraints"];
+                    List<Widget> widgets = [];
+                    for (Map constraint in constraints) {
+                      String constraintName = constraint["constraint_name"];
+                      widgets.add(GestureDetector(
+                          onTap: () {
+                            showActiveUsersForConstraint(
+                                constraintName, stageName);
+                          },
+                          child: Text(constraintName)));
+                    }
+                    return Column(children: widgets);
+                  } else {
+                    return Expanded(
+                      child: Center(
+                        child: Text("There are no constraints for this stage",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "JetBrainMono")),
+                      ),
+                    );
+                  }
+                } else if (snapshot.hasError) {
+                  print(snapshot);
+
+                  return Center(
+                    child: Text("An error occured",
+                        style: TextStyle(color: Colors.black)),
+                  );
+                } else {
+                  return Center(
+                    child:
+                        Text("Loading", style: TextStyle(color: Colors.black)),
+                  );
+                }
+              },
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 15, bottom: 5),
+            child: Text("Active Constraints",
+                style: TextStyle(
+                    fontFamily: "JetBrainMono",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15)),
+          ),
+          Container(
+            child: FutureBuilder(
+              future: getStageGroupData("Active"),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  Map<String, dynamic> data = jsonDecode(snapshot.data);
+                  if (data != null) {
+                    String stageName = data["stage_name"];
+                    List constraints = data["constraints"];
+                    print(constraints);
+                    List<Widget> widgets = [];
+                    for (Map constraint in constraints) {
+                      widgets.add(Text(constraint["constraint_name"]));
+                    }
+                    return Column(children: widgets);
+                  } else {
+                    return Expanded(
+                      child: Center(
+                        child: Text("There are no constraints for this stage",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "JetBrainMono")),
+                      ),
+                    );
+                  }
+                } else if (snapshot.hasError) {
+                  print(snapshot);
+
+                  return Center(
+                    child: Text("An error occured",
+                        style: TextStyle(color: Colors.black)),
+                  );
+                } else {
+                  return Center(
+                    child:
+                        Text("Loading", style: TextStyle(color: Colors.black)),
+                  );
+                }
+              },
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 15, bottom: 5),
+            child: Text("Complete Constraints",
+                style: TextStyle(
+                    fontFamily: "JetBrainMono",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15)),
+          ),
+          Container(
+            child: FutureBuilder(
+              future: getStageGroupData("Complete"),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  Map<String, dynamic> data = jsonDecode(snapshot.data);
+                  if (data != null) {
+                    String stageName = data["stage_name"];
+                    List constraints = data["constraints"];
+                    print(constraints);
+                    List<Widget> widgets = [];
+                    for (Map constraint in constraints) {
+                      widgets.add(Text(constraint["constraint_name"]));
+                    }
+                    return Column(children: widgets);
+                  } else {
+                    return Expanded(
+                      child: Center(
+                        child: Text("There are no constraints for this stage",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: "JetBrainMono")),
+                      ),
+                    );
+                  }
+                } else if (snapshot.hasError) {
+                  print(snapshot);
+
+                  return Center(
+                    child: Text("An error occured",
+                        style: TextStyle(color: Colors.black)),
+                  );
+                } else {
+                  return Center(
+                    child:
+                        Text("Loading", style: TextStyle(color: Colors.black)),
+                  );
+                }
+              },
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 40, bottom: 5),
+            child: Text("Completed users",
+                style: TextStyle(
+                    fontFamily: "JetBrainMono",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20)),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 10, bottom: 5),
             child: Text("Pending users",
                 style: TextStyle(
                     fontFamily: "JetBrainMono",
@@ -168,8 +588,9 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
                                   channel.stream.first.then((event) {
                                     Map<String, dynamic> data =
                                         jsonDecode(event);
+                                    print(data);
                                     showConstraintCompleteDialog(
-                                        data["value"].toString());
+                                        data, pendingUsers[index]);
                                   });
                                 },
                                 child: Text(
@@ -211,14 +632,15 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
 
                                   channel.sink.add(jsonEncode({
                                     "task_id": taskID,
-                                    "user_id": completeUsers[index]
+                                    "user_id": activeUsers[index]
                                   }));
 
                                   channel.stream.first.then((event) {
                                     Map<String, dynamic> data =
                                         jsonDecode(event);
+
                                     showConstraintCompleteDialog(
-                                        data["value"].toString());
+                                        data, activeUsers[index]);
                                   });
                                 },
                                 child: Text(
@@ -266,7 +688,7 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
                                 channel.stream.first.then((event) {
                                   Map<String, dynamic> data = jsonDecode(event);
                                   showConstraintCompleteDialog(
-                                      data["value"].toString());
+                                      data, completeUsers[index]);
                                 });
                               },
                               child: Text(

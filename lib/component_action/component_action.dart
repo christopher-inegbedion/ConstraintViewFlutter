@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:constraint_view/component_action/commands/add_data_to_list_component_command.dart';
+import 'package:constraint_view/component_action/commands/change_text_color_command.dart';
 import 'package:constraint_view/component_action/commands/close_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/component_value_command.dart';
 import 'package:constraint_view/component_action/commands/equality_conition_command.dart';
@@ -8,18 +9,27 @@ import 'package:constraint_view/component_action/commands/get_component_from_lis
 import 'package:constraint_view/component_action/commands/get_component_list_details.dart';
 import 'package:constraint_view/component_action/commands/get_existing_value_from_list_command.dart';
 import 'package:constraint_view/component_action/commands/get_existing_values_command.dart';
+import 'package:constraint_view/component_action/commands/launch_url_command.dart';
+import 'package:constraint_view/component_action/commands/listen_to_constraint_config_action_command.dart';
+import 'package:constraint_view/component_action/commands/parse_map_command.dart';
 import 'package:constraint_view/component_action/commands/propeitry/is_constraint_required_command.dart';
+import 'package:constraint_view/component_action/commands/propeitry/remove_constraint_from_selection_command.dart';
 import 'package:constraint_view/component_action/commands/propeitry/submit_registration_data_command.dart';
+import 'package:constraint_view/component_action/commands/propeitry/submit_task_registration_data_command.dart';
 import 'package:constraint_view/component_action/commands/replace_component_with_text_component_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_command.dart';
 import 'package:constraint_view/component_action/commands/save_existing_value_to_list_command.dart';
 import 'package:constraint_view/component_action/commands/save_multiple_key_value_command.dart';
 import 'package:constraint_view/component_action/commands/save_multiple_key_values_to_key_command.dart';
 import 'package:constraint_view/component_action/commands/send_data_to_ws_server_command.dart';
+import 'package:constraint_view/component_action/commands/send_listen_data_command.dart';
 import 'package:constraint_view/component_action/commands/set_component_value_command.dart';
+import 'package:constraint_view/component_action/commands/set_text_component_value_command.dart';
 import 'package:constraint_view/component_action/commands/show_constraint_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_command.dart';
+import 'package:constraint_view/component_action/commands/show_dialog_for_single_choice_command.dart';
 import 'package:constraint_view/component_action/commands/show_dialog_with_inputs_command.dart';
+import 'package:constraint_view/component_action/commands/show_time_picker_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/terminal_print_command.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/models/component_model.dart';
@@ -28,6 +38,7 @@ import 'package:constraint_view/view_controller.dart';
 import 'commands/inequaliy_condition_command.dart';
 
 class ComponentAction {
+  ComponentActionCommand initialCommand;
   ComponentActionCommand command;
   Map jsonCommand;
   ViewControllerState viewControllerState;
@@ -40,15 +51,16 @@ class ComponentAction {
       Component commandInitiator, Map jsonCommand) {
     this.viewControllerState = viewControllerState;
     this.commandInitiator = commandInitiator;
+    this.initialCommand = command;
     this.command = buildCommandFromJSON(jsonCommand);
   }
 
   ComponentActionCommand buildCommandFromJSON(Map data) {
     String name = data["commandName"];
-    Map successData = data["success"];
-    Map failureData = data["failure"];
+    final Map successData = jsonDecode(jsonEncode(data["success"]));
+    final Map failureData = jsonDecode(jsonEncode(data["failure"]));
     bool usePrevResult = data["usePrevResult"];
-    List value = data["value"];
+    final List value = jsonDecode(jsonEncode(data["value"]));
 
     if (successData == null) {
       if (failureData == null) {
@@ -171,6 +183,46 @@ class ComponentAction {
         return SubmitRegistrationDataCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
+      case "rcfs":
+        return RemoveConstraintFromSelectionCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "strd":
+        return SubmitTaskRegistrationDataCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "lu":
+        return LaunchUrlCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "stpd":
+        return ShowTimePickerDialogCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "stcv":
+        return SetTextComponentValueCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "sdfsc":
+        return ShowDialogForSingleChoiceCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "ltcca":
+        return ListenToConstraintConfigActionCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "pmc":
+        return ParseMapCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "sld":
+        return SendListenDataCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "ctc":
+        return ChangeTextColorCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
 
       default:
         return null;
@@ -181,5 +233,10 @@ class ComponentAction {
     if (command != null) {
       command.run(null);
     }
+  }
+
+  void reset() {
+    this.command = null;
+    print(this.command);
   }
 }

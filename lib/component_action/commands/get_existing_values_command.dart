@@ -17,8 +17,8 @@ class GetExistingValuesCommand extends ComponentActionCommand {
     super.run(result);
     try {
       if (value != null) {
-        List data = value[0];
-        bool temp = value[1];
+        List data = getValue()[0];
+        bool temp = getValue()[1];
 
         var storageUsing = temp
             ? componentAction.viewControllerState.tempValues

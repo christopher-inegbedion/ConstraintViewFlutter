@@ -20,6 +20,8 @@ class ConfigurationModel {
   double draggableSheetMaxHeight;
   List<ConfigEntry> topSection;
   List<ConfigEntry> bottomSection;
+  List<Map> topViewCommand = [];
+  List<Map> bottomViewCommand = [];
 
   ViewController topViewController;
   ViewController bottomViewController;
@@ -37,7 +39,9 @@ class ConfigurationModel {
       this.bottomSection,
       this.bottomSectionCanOpen,
       this.bottomSectionCanExpand,
-      {this.draggableSheetMaxHeight = 0.7,
+      {this.topViewCommand,
+      this.bottomViewCommand,
+      this.draggableSheetMaxHeight = 0.7,
       this.bgColor = "#ffffff",
       this.bottomSheetColor = "#ffffff",
       this.stageName,
@@ -46,8 +50,8 @@ class ConfigurationModel {
       this.userID,
       this.configurationInputs});
 
-  ViewController buildTopView() {
-    topViewController = ViewController(this, "top");
+  ViewController buildTopView([bool isDialog = false]) {
+    topViewController = ViewController(this, "top", isDialog = isDialog);
     return topViewController;
   }
 
@@ -234,7 +238,9 @@ class ConfigurationModel {
       "center_top_section_data": this.centerTopSectionData ? "1" : "0",
       "draggable_sheet_max_height": this.draggableSheetMaxHeight,
       "top_section": topSectionData,
-      "bottom_section": bottomSectionData
+      "bottom_section": bottomSectionData,
+      "top_view_command": topViewCommand,
+      "bottom_view_command": bottomViewCommand
     };
   }
 }

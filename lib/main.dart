@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:constraint_view/component_action/commands/show_constraint_dialog_command.dart';
 import 'package:constraint_view/components/live_model_component.dart';
 import 'package:constraint_view/custom_views/task_view.dart';
 import 'package:constraint_view/enums/component_type.dart';
@@ -23,14 +24,17 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: ComponentsTestPage());
+        home: MainApp());
   }
 }
 
 class MainApp extends StatelessWidget {
   GlobalKey<FormState> formKey = GlobalKey();
   String userID = Uuid().v4();
-  String taskID = "66188990-2761-4bf7-b92f-09700b48212c";
+  String taskID = "11845457-c87a-4eda-9024-1b52fc6c313e";
+
+  double screenHeight;
+  double screenWidth;
 
   Future<dynamic> getAllConstraints() async {
     Future<dynamic> data = NetworkUtils.performNetworkAction(
@@ -208,7 +212,6 @@ class MainApp extends StatelessWidget {
                                                   });
                                                 }
                                               });
-                                              print(stageSelecting);
                                             },
                                             selected: selected,
                                             title: Text(
@@ -380,147 +383,6 @@ class MainApp extends StatelessWidget {
     );
   }
 
-  void createTaskDialog(BuildContext context) {
-    List selectedConstraints = [];
-    bool formSubmitted = false;
-    String formSubmittedMsg = "";
-    TextEditingController taskNameController = TextEditingController();
-    TextEditingController taskDescController = TextEditingController();
-    TextEditingController stageGroupIDController = TextEditingController();
-    Future<dynamic> data;
-    String taskID = "";
-
-    showDialog<void>(
-      context: context,
-      barrierDismissible: true, // user must tap button!
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setstate) {
-            return AlertDialog(
-              title: Text(
-                "Create new task",
-                style: TextStyle(
-                    fontFamily: "JetBrainMono", fontWeight: FontWeight.bold),
-              ),
-              content: !formSubmitted
-                  ? Container(
-                      width: double.maxFinite,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Form(
-                              key: formKey,
-                              child: Column(
-                                children: [
-                                  TextField(
-                                    controller: taskNameController,
-                                    style:
-                                        TextStyle(fontFamily: "JetBrainMono"),
-                                    decoration:
-                                        InputDecoration(hintText: "Task name"),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 10),
-                                    child: TextField(
-                                      controller: taskDescController,
-                                      style:
-                                          TextStyle(fontFamily: "JetBrainMono"),
-                                      decoration: InputDecoration(
-                                          hintText: "Task description"),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 10),
-                                    child: TextField(
-                                      controller: stageGroupIDController,
-                                      style:
-                                          TextStyle(fontFamily: "JetBrainMono"),
-                                      decoration: InputDecoration(
-                                          hintText: "Stage group Id"),
-                                    ),
-                                  ),
-                                ],
-                              )),
-                        ],
-                      ))
-                  : FutureBuilder(
-                      future: data,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          Map<String, dynamic> decodedData =
-                              jsonDecode(snapshot.data);
-
-                          if (decodedData != null) {
-                            taskID = decodedData["task_id"];
-                            return Container(
-                              height: 100,
-                              child: Center(
-                                child: SelectableText(
-                                    "Task with ID: $taskID created",
-                                    style:
-                                        TextStyle(fontFamily: "JetBrainMono")),
-                              ),
-                            );
-                          } else {
-                            return Container(
-                              height: 100,
-                              child: Center(
-                                child: Text("An error occured",
-                                    style:
-                                        TextStyle(fontFamily: "JetBrainMono")),
-                              ),
-                            );
-                          }
-                        } else {
-                          return SizedBox(
-                              height: 10, child: LinearProgressIndicator());
-                        }
-                      },
-                    ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text("New stage group"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    createStageGroupDialog(context);
-                  },
-                ),
-                TextButton(
-                    child: const Text('Next'),
-                    onPressed: () {
-                      if (!formSubmitted) {
-                        var dataToSend = {
-                          "task_name": taskNameController.text,
-                          "task_desc": taskDescController.text,
-                          "stage_group_id": stageGroupIDController.text
-                        };
-
-                        data = NetworkUtils.performNetworkAction(
-                            NetworkUtils.serverAddr + NetworkUtils.portNum,
-                            "/create_task",
-                            "post",
-                            data: dataToSend);
-
-                        setstate(() {
-                          formSubmitted = true;
-                        });
-                      } else {
-                        if (taskID != "") {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return TaskView(taskID, userID);
-                          }));
-                        }
-                      }
-                    }),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
   void loadTaskDialog(BuildContext context) {
     TaskView taskView = TaskView(taskID, userID);
 
@@ -565,6 +427,65 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration.zero, () {
+      screenHeight = MediaQuery.of(context).size.height;
+      screenWidth = MediaQuery.of(context).size.width;
+    });
+
+    Future<void> showConstraintInDialog(
+        String constraintName, String stageName) async {
+      Future<SectionData> sectionData = SectionData.forStatic(
+              stageName, constraintName, "taskID", "userID", null)
+          .fromConstraint(constraintName);
+      sectionData.then((value) {
+        print(value);
+      });
+      SectionData sData;
+
+      return showDialog<void>(
+          builder: (BuildContext context) {
+            return StatefulBuilder(builder: (context, setState) {
+              return AlertDialog(
+                scrollable: true,
+                content: Container(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Container(
+                        width: screenWidth,
+                        height: screenHeight / 2,
+                        child: FutureBuilder(
+                            future: sectionData,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                sData = snapshot.data;
+                                sData.setInitialState("1");
+                                return sData.state.buildTopView();
+                              } else {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
+                            }))
+                  ]),
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        if (sData.state.topViewController.state
+                                .savedValues["config_inputs"] !=
+                            null) {
+                          Navigator.pop(context, [
+                            sData.state.topViewController.state
+                                .savedValues["config_inputs"]
+                          ]);
+                        }
+                      },
+                      child: Text("Done"))
+                ],
+              );
+            });
+          },
+          context: context);
+    }
+
     return SafeArea(
         child: Scaffold(
             body: Container(
@@ -581,7 +502,7 @@ class MainApp extends StatelessWidget {
               )),
           InkWell(
             onTap: () {
-              createTaskDialog(context);
+              showConstraintInDialog("Create task_config", "");
             },
             child: Container(
                 padding:

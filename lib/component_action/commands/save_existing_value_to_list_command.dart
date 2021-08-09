@@ -17,9 +17,10 @@ class SaveExistingValueToListCommand extends ComponentActionCommand {
   run(dynamic result) {
     super.run(result);
     try {
-      String key = value[0];
-      dynamic data = value[1];
-      bool temp = value[2];
+      String key = getValue()[0];
+      dynamic data = getValue()[1];
+      bool temp = getValue()[2];
+      print(data);
 
       var storageUsing = temp
           ? componentAction.viewControllerState.tempValues
@@ -27,16 +28,29 @@ class SaveExistingValueToListCommand extends ComponentActionCommand {
 
       if (storageUsing.containsKey(key)) {
         if (data != null) {
-          storageUsing[key].add(data);
+          if (data is List) {
+            for (dynamic i in data) {
+              storageUsing[key].add(i);
+            }
+          } else {
+            storageUsing[key].add(data);
+          }
         }
       } else {
         storageUsing[key] = [];
         if (data != null) {
-          storageUsing[key].add(data);
+          if (data is List) {
+            for (dynamic i in data) {
+              storageUsing[key].add(i);
+            }
+          } else {
+            storageUsing[key].add(data);
+          }
         }
       }
 
       this.result = [data];
+
       runSuccess();
     } catch (e, stacktrace) {
       print(stacktrace);

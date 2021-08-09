@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:constraint_view/component_action/commands/terminal_print_command.dart';
+import 'package:constraint_view/components/color_block_component.dart';
 import 'package:constraint_view/components/dropdown_component.dart';
+import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/list_component.dart';
+import 'package:constraint_view/components/list_tile_component.dart';
 import 'package:constraint_view/custom_views/constraint_view.dart';
 import 'package:constraint_view/custom_views/draggable_sheet.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +39,11 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
   GlobalKey key = GlobalKey();
   UniqueKey key1 = UniqueKey();
 
-  List<ConfigurationModel> configModels, configModels2, configModels3;
+  List<ConfigurationModel> configModels,
+      configModels2,
+      configModels3,
+      configModels4,
+      configModel5;
   ComponentsTestPageState() {
     optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
         "Option name", ComponentAlign.left, 20, "#000000");
@@ -183,6 +190,12 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                   "#263238"),
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
+              ListComponent("list", ViewMargin(0, 0, 0, 0), [],
+                  [optionName, variantsList, newVariantBtn])
+            ], ViewMargin(0, 0, 0, 0)),
+          ],
+          [
+            ConfigEntry([
               ButtonComponent(
                 "ID",
                 ViewMargin(20, 0, 0, 20),
@@ -239,13 +252,8 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
                 },
               ),
             ], ViewMargin(10, 0, 0, 0)),
-            ConfigEntry([
-              ListComponent("list", ViewMargin(0, 0, 0, 0), [],
-                  [optionName, variantsList, newVariantBtn])
-            ], ViewMargin(0, 0, 0, 0)),
           ],
-          [],
-          false,
+          true,
           false,
           draggableSheetMaxHeight: 0.2,
           configurationInputs: {"result": "dsf"}),
@@ -291,532 +299,482 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           draggableSheetMaxHeight: 0.1)
     ];
 
-    ButtonComponent buttonComponent = ButtonComponent(
-        "constraint_component",
-        ViewMargin(0, 0, 20, 0),
-        "d",
-        ComponentAlign.left,
-        {
-          "commandName": "gcld",
-          "success": {
-            "commandName": "gcfl",
-            "success": {
-              "commandName": "cv",
-              "success": {
-                "commandName": "sev",
-                "success": {
-                  "commandName": "icr",
-                  "success": {
-                    "commandName": "gev",
-                    "success": {
-                      "commandName": "scd",
-                      "success": {
-                        "commandName": "sev",
-                        "success": {
-                          "commandName": "gev",
-                          "success": {
-                            "commandName": "smkvtk",
-                            "success": {
-                              "commandName": "gev",
-                              "success": {
-                                "commandName": "gev",
-                                "success": {
-                                  "commandName": "smkvtk",
-                                  "success": {
-                                    "commandName": "cv",
-                                    "success": {
-                                      "commandName": "sev",
-                                      "success": {
-                                        "commandName": "gev",
-                                        "success": {
-                                          "commandName": "gev",
-                                          "success": {
-                                            "commandName": "sevtl",
-                                            "success": null,
-                                            "failure": null,
-                                            "usePrevResult": false,
-                                            "value": ["{1}", "{0}", false]
-                                          },
-                                          "failure": null,
-                                          "usePrevResult": false,
-                                          "value": [
-                                            ["{0}", "current_stage"],
-                                            false
-                                          ]
-                                        },
-                                        "failure": null,
-                                        "usePrevResult": false,
-                                        "value": [
-                                          ["name"],
-                                          true
-                                        ]
-                                      },
-                                      "failure": null,
-                                      "usePrevResult": false,
-                                      "value": ["current_stage", "{0}", false]
-                                    },
-                                    "failure": null,
-                                    "usePrevResult": false,
-                                    "value": ["dropdown"]
-                                  },
-                                  "failure": null,
-                                  "usePrevResult": false,
-                                  "value": [
-                                    "{0}",
-                                    [
-                                      ["constraint_name", "{0}"],
-                                      ["config_inputs", "{1}"]
-                                    ],
-                                    false
-                                  ]
-                                },
-                                "failure": null,
-                                "usePrevResult": false,
-                                "value": [
-                                  ["name", "{0}"],
-                                  true
-                                ]
-                              },
-                              "failure": null,
-                              "usePrevResult": false,
-                              "value": [
-                                ["name"],
-                                true
-                              ]
-                            },
-                            "failure": null,
-                            "usePrevResult": false,
-                            "value": [
-                              "{0}",
-                              [
-                                ["config_inputs", "{1}"]
-                              ],
-                              true
-                            ]
-                          },
-                          "failure": null,
-                          "usePrevResult": false,
-                          "value": [
-                            ["name", "config_value"],
-                            true
-                          ]
-                        },
-                        "failure": null,
-                        "usePrevResult": false,
-                        "value": ["config_value", "{0}", true]
-                      },
-                      "failure": null,
-                      "usePrevResult": false,
-                      "value": ["{0}", "ds"]
-                    },
-                    "failure": null,
-                    "usePrevResult": false,
-                    "value": [
-                      ["name"],
-                      true
-                    ]
-                  },
-                  "failure": {
-                    "commandName": "gev",
-                    "success": {
-                      "commandName": "smkvtk",
-                      "success": {
-                        "commandName": "gev",
-                        "success": {
-                          "commandName": "gev",
-                          "success": {
-                            "commandName": "smkvtk",
-                            "success": {
-                              "commandName": "cv",
-                              "success": {
-                                "commandName": "sev",
-                                "success": {
-                                  "commandName": "gev",
-                                  "success": {
-                                    "commandName": "gev",
-                                    "success": {
-                                      "commandName": "sevtl",
-                                      "success": null,
-                                      "failure": null,
-                                      "usePrevResult": false,
-                                      "value": ["{1}", "{0}", false]
-                                    },
-                                    "failure": null,
-                                    "usePrevResult": false,
-                                    "value": [
-                                      ["{0}", "current_stage"],
-                                      false
-                                    ]
-                                  },
-                                  "failure": null,
-                                  "usePrevResult": false,
-                                  "value": [
-                                    ["name"],
-                                    true
-                                  ]
-                                },
-                                "failure": null,
-                                "usePrevResult": false,
-                                "value": ["current_stage", "{0}", false]
-                              },
-                              "failure": null,
-                              "usePrevResult": false,
-                              "value": ["dropdown"]
-                            },
-                            "failure": null,
-                            "usePrevResult": false,
-                            "value": [
-                              "{0}",
-                              [
-                                ["constraint_name", "{0}"],
-                                ["config_inputs", "{1}"]
-                              ],
-                              false
-                            ]
-                          },
-                          "failure": null,
-                          "usePrevResult": false,
-                          "value": [
-                            ["name", "{0}"],
-                            true
-                          ]
-                        },
-                        "failure": null,
-                        "usePrevResult": false,
-                        "value": [
-                          ["name"],
-                          true
-                        ]
-                      },
-                      "failure": null,
-                      "usePrevResult": false,
-                      "value": [
-                        "{0}",
-                        [
-                          ["config_inputs", null]
-                        ],
-                        true
-                      ]
-                    },
-                    "failure": null,
-                    "usePrevResult": false,
-                    "value": [
-                      ["name"],
-                      true
-                    ]
-                  },
-                  "usePrevResult": false,
-                  "value": ["{0}"]
-                },
-                "failure": null,
-                "usePrevResult": false,
-                "value": ["name", "{0}", true]
-              },
-              "failure": null,
-              "usePrevResult": false,
-              "value": ["{0}"]
-            },
-            "failure": null,
-            "usePrevResult": false,
-            "value": ["list", "{0}", "{1}"]
-          },
-          "failure": null,
-          "usePrevResult": false,
-          "value": []
-        },
-        color: "#000000");
-
-    configModels2 = [
-      ConfigurationModel(
-          "1",
-          false,
-          [
-            ConfigEntry([
-              TextComponent(
-                  "toptext",
-                  ViewMargin(0, 0, 0, 0),
-                  "Select constraints for your task",
-                  ComponentAlign.left,
-                  25,
-                  "#000000")
-            ], ViewMargin(40, 0, 30, 0)),
-            ConfigEntry([
-              TextComponent(
-                  "toptext",
-                  ViewMargin(0, 0, 0, 0),
-                  "The constraints you select will be part of your task",
-                  ComponentAlign.left,
-                  18,
-                  "#000000")
-            ], ViewMargin(10, 0, 30, 30)),
-            ConfigEntry([
-              TextComponent("toptext", ViewMargin(0, 0, 0, 0), "Stages:",
-                  ComponentAlign.left, 16, "#000000")
-            ], ViewMargin(30, 0, 30, 0)),
-            ConfigEntry([
-              DropdownComponent(
-                  "dropdown",
-                  ViewMargin(0, 0, 30, 50),
-                  ["Pending", "Active", "Complete"],
-                  "Pending",
-                  ComponentAlign.left,
-                  {
-                    "commandName": "cv",
-                    "success": {
-                      "commandName": "tp",
-                      "success": null,
-                      "failure": null,
-                      "usePrevResult": true,
-                      "value": ["dropdown"]
-                    },
-                    "failure": null,
-                    "usePrevResult": false,
-                    "value": ["dropdown"]
-                  })
-            ], ViewMargin(0, 0, 0, 0)),
-            ConfigEntry([
-              TextComponent("toptext", ViewMargin(0, 0, 0, 0),
-                  "Available constraints:", ComponentAlign.left, 16, "#000000")
-            ], ViewMargin(30, 0, 30, 0)),
-            ConfigEntry([
-              ListComponent("list", ViewMargin(0, 0, 0, 0), [
-                ["Exchange rate"],
-                ["Pause"],
-                ["Product description"]
-              ], [
-                buttonComponent
-              ])
-            ], ViewMargin(0, 0, 0, 0)),
-            ConfigEntry([
-              ButtonComponent("complete", ViewMargin(0, 0, 0, 0), "Complete",
-                  ComponentAlign.right, {
-                "commandName": "gev",
-                "success": {
-                  "commandName": "smkvtk",
-                  "success": {
-                    "commandName": "gev",
-                    "success": {
-                      "commandName": "smkvtk",
-                      "success": {
-                        "commandName": "gev",
-                        "success": {
-                          "commandName": "smkvtk",
-                          "success": {
-                            "commandName": "gev",
-                            "success": {
-                              "commandName": "sevtl",
-                              "success": {
-                                "commandName": "gev",
-                                "success": {
-                                  "commandName": "sevtl",
-                                  "success": {
-                                    "commandName": "gev",
-                                    "success": {
-                                      "commandName": "sevtl",
-                                      "success": {
-                                        "commandName": "gev",
-                                        "success": {
-                                          "commandName": "srd",
-                                          "success": null,
-                                          "failure": null,
-                                          "usePrevResult": false,
-                                          "value": ["{0}"]
-                                        },
-                                        "failure": null,
-                                        "usePrevResult": false,
-                                        "value": [
-                                          ["stages"],
-                                          false
-                                        ]
-                                      },
-                                      "failure": null,
-                                      "usePrevResult": false,
-                                      "value": ["stages", "{0}", false]
-                                    },
-                                    "failure": null,
-                                    "usePrevResult": false,
-                                    "value": [
-                                      ["Complete_data"],
-                                      false
-                                    ]
-                                  },
-                                  "failure": null,
-                                  "usePrevResult": false,
-                                  "value": ["stages", "{0}", false]
-                                },
-                                "failure": null,
-                                "usePrevResult": false,
-                                "value": [
-                                  ["Active_data"],
-                                  false
-                                ]
-                              },
-                              "failure": null,
-                              "usePrevResult": false,
-                              "value": ["stages", "{0}", false]
-                            },
-                            "failure": null,
-                            "usePrevResult": false,
-                            "value": [
-                              ["Pending_data"],
-                              false
-                            ]
-                          },
-                          "failure": null,
-                          "usePrevResult": false,
-                          "value": [
-                            "Complete_data",
-                            [
-                              ["stage_name", "Complete"],
-                              ["constraints", "{0}"]
-                            ],
-                            false
-                          ]
-                        },
-                        "failure": null,
-                        "usePrevResult": false,
-                        "value": [
-                          ["Complete"],
-                          false
-                        ]
-                      },
-                      "failure": null,
-                      "usePrevResult": false,
-                      "value": [
-                        "Active_data",
-                        [
-                          ["stage_name", "Active"],
-                          ["constraints", "{0}"]
-                        ],
-                        false
-                      ]
-                    },
-                    "failure": null,
-                    "usePrevResult": false,
-                    "value": [
-                      ["Active"],
-                      false
-                    ]
-                  },
-                  "failure": null,
-                  "usePrevResult": false,
-                  "value": [
-                    "Pending_data",
-                    [
-                      ["stage_name", "Pending"],
-                      ["constraints", "{0}"]
-                    ],
-                    false
-                  ]
-                },
-                "failure": null,
-                "usePrevResult": false,
-                "value": [
-                  ["Pending"],
-                  false
-                ]
-              })
-            ], ViewMargin(50, 0, 0, 30))
-          ],
-          [],
-          false,
-          false,
-          draggableSheetMaxHeight: 0.1)
-    ];
-
-    sectionData2 = SectionData(configModels2, true, "stage",
-        "Product description", 'kln', 'kn', {"Product name": "Jet engine"});
-    configModels3 = [
+    configModels4 = [
       ConfigurationModel(
           "1",
           true,
           [
             ConfigEntry([
-              TextComponent("text1", ViewMargin(0, 0, 30, 0),
-                  "Product description", ComponentAlign.left, 25, "#000000")
+              TextComponent("", ViewMargin(0, 0, 30, 30), "Delivery status",
+                  ComponentAlign.left, 20, "#000000")
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
               TextComponent(
-                  "text2",
-                  ViewMargin(5, 0, 0, 0),
-                  "Enter your product description details",
+                  "ID",
+                  ViewMargin(5, 0, 30, 30),
+                  "Track the status of the task real-time.",
                   ComponentAlign.left,
-                  18,
-                  "#000000")
-            ], ViewMargin(0, 0, 30, 0)),
-            ConfigEntry([
-              TextComponent(
-                  "text3",
-                  ViewMargin(50, 0, 30, 0),
-                  "The name of your product",
-                  ComponentAlign.left,
-                  18,
-                  "#000000")
+                  16,
+                  "#616161")
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
-              InputFieldComponent("input1", ViewMargin(5, 0, 0, 0),
-                  "Product name", "Please enter the product name")
-            ], ViewMargin(0, 0, 30, 30)),
-            ConfigEntry([
-              TextComponent(
-                  "text4",
-                  ViewMargin(50, 0, 30, 0),
-                  "The description of your product",
-                  ComponentAlign.left,
-                  18,
-                  "#000000")
+              TextComponent("started", ViewMargin(30, 0, 30, 30), "Started",
+                  ComponentAlign.left, 16, "#F44336")
             ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
-              InputFieldComponent("input2", ViewMargin(5, 0, 0, 0),
-                  "Product description", "Please describe your product")
-            ], ViewMargin(0, 0, 30, 30)),
+              TextComponent("started_msg", ViewMargin(5, 0, 30, 30), "-",
+                  ComponentAlign.left, 14, "#616161")
+            ], ViewMargin(0, 0, 0, 0)),
             ConfigEntry([
-              ButtonComponent("complete_btn", ViewMargin(0, 0, 0, 0), "Save",
-                  ComponentAlign.right, {
-                "commandName": "cv",
+              TextComponent("preping", ViewMargin(30, 0, 30, 0), "Preparing",
+                  ComponentAlign.left, 16, "#F44336")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("preping_msg", ViewMargin(5, 0, 30, 30), "-",
+                  ComponentAlign.left, 14, "#616161")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("en_route", ViewMargin(30, 0, 30, 0), "En-route",
+                  ComponentAlign.left, 16, "#F44336")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("en_route_msg", ViewMargin(5, 0, 30, 30), "-",
+                  ComponentAlign.left, 14, "#616161")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("delivered", ViewMargin(30, 0, 30, 0), "Delivered",
+                  ComponentAlign.left, 16, "#F44336")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("delivered_msg", ViewMargin(5, 0, 30, 30), "-",
+                  ComponentAlign.left, 14, "#616161")
+            ], ViewMargin(0, 0, 0, 0)),
+          ],
+          [],
+          false,
+          false,
+          draggableSheetMaxHeight: 0.12,
+          topViewCommand: [
+            {
+              "commandName": "ltcca",
+              "success": {
+                "commandName": "sev",
                 "success": {
-                  "commandName": "sevtl",
+                  "commandName": "gev",
                   "success": {
-                    "commandName": "cv",
+                    "commandName": "pmc",
                     "success": {
-                      "commandName": "sevtl",
-                      "success": null,
-                      "failure": null,
+                      "commandName": "eq",
+                      "success": {
+                        "commandName": "ctc",
+                        "success": {
+                          "commandName": "gev",
+                          "success": {
+                            "commandName": "pmc",
+                            "success": {
+                              "commandName": "stcv",
+                              "success": null,
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": [
+                                ["{0}"],
+                                "started_msg"
+                              ]
+                            },
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": [
+                              ["data", "msg"],
+                              "{0}"
+                            ]
+                          },
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": [
+                            ["status"],
+                            false
+                          ]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": ["started", "#4CAF50"]
+                      },
+                      "failure": {
+                        "commandName": "gev",
+                        "success": {
+                          "commandName": "pmc",
+                          "success": {
+                            "commandName": "eq",
+                            "success": {
+                              "commandName": "ctc",
+                              "success": {
+                                "commandName": "gev",
+                                "success": {
+                                  "commandName": "pmc",
+                                  "success": {
+                                    "commandName": "stcv",
+                                    "success": null,
+                                    "failure": null,
+                                    "usePrevResult": false,
+                                    "value": [
+                                      ["{0}"],
+                                      "preping_msg"
+                                    ]
+                                  },
+                                  "failure": null,
+                                  "usePrevResult": false,
+                                  "value": [
+                                    ["data", "msg"],
+                                    "{0}"
+                                  ]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": [
+                                  ["status"],
+                                  false
+                                ]
+                              },
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": ["preping", "#4CAF50"]
+                            },
+                            "failure": {
+                              "commandName": "gev",
+                              "success": {
+                                "commandName": "pmc",
+                                "success": {
+                                  "commandName": "eq",
+                                  "success": {
+                                    "commandName": "ctc",
+                                    "success": {
+                                      "commandName": "gev",
+                                      "success": {
+                                        "commandName": "pmc",
+                                        "success": {
+                                          "commandName": "stcv",
+                                          "success": null,
+                                          "failure": null,
+                                          "usePrevResult": false,
+                                          "value": [
+                                            ["{0}"],
+                                            "en_route_msg"
+                                          ]
+                                        },
+                                        "failure": null,
+                                        "usePrevResult": false,
+                                        "value": [
+                                          ["data", "msg"],
+                                          "{0}"
+                                        ]
+                                      },
+                                      "failure": null,
+                                      "usePrevResult": false,
+                                      "value": [
+                                        ["status"],
+                                        false
+                                      ]
+                                    },
+                                    "failure": null,
+                                    "usePrevResult": false,
+                                    "value": ["en_route", "#4CAF50"]
+                                  },
+                                  "failure": {
+                                    "commandName": "gev",
+                                    "success": {
+                                      "commandName": "pmc",
+                                      "success": {
+                                        "commandName": "eq",
+                                        "success": {
+                                          "commandName": "ctc",
+                                          "success": {
+                                            "commandName": "gev",
+                                            "success": {
+                                              "commandName": "pmc",
+                                              "success": {
+                                                "commandName": "stcv",
+                                                "success": null,
+                                                "failure": null,
+                                                "usePrevResult": false,
+                                                "value": [
+                                                  ["{0}"],
+                                                  "delivered_msg"
+                                                ]
+                                              },
+                                              "failure": null,
+                                              "usePrevResult": false,
+                                              "value": [
+                                                ["data", "msg"],
+                                                "{0}"
+                                              ]
+                                            },
+                                            "failure": null,
+                                            "usePrevResult": false,
+                                            "value": [
+                                              ["status"],
+                                              false
+                                            ]
+                                          },
+                                          "failure": null,
+                                          "usePrevResult": false,
+                                          "value": ["delivered", "#4CAF50"]
+                                        },
+                                        "failure": null,
+                                        "usePrevResult": false,
+                                        "value": ["{0}", "done"]
+                                      },
+                                      "failure": null,
+                                      "usePrevResult": false,
+                                      "value": [
+                                        ["data", "stage"],
+                                        "{0}"
+                                      ]
+                                    },
+                                    "failure": null,
+                                    "usePrevResult": false,
+                                    "value": [
+                                      ["status"],
+                                      false
+                                    ]
+                                  },
+                                  "usePrevResult": false,
+                                  "value": ["{0}", "en_route"]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": [
+                                  ["data", "stage"],
+                                  "{0}"
+                                ]
+                              },
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": [
+                                ["status"],
+                                false
+                              ]
+                            },
+                            "usePrevResult": false,
+                            "value": ["{0}", "prep"]
+                          },
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": [
+                            ["data", "stage"],
+                            "{0}"
+                          ]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": [
+                          ["status"],
+                          false
+                        ]
+                      },
                       "usePrevResult": false,
-                      "value": ["config_inputs", "{0}", false]
+                      "value": ["{0}", "start"]
                     },
                     "failure": null,
                     "usePrevResult": false,
-                    "value": ["input2"]
+                    "value": [
+                      ["data", "stage"],
+                      "{0}"
+                    ]
                   },
                   "failure": null,
                   "usePrevResult": false,
-                  "value": ["config_inputs", "{0}", false]
+                  "value": [
+                    ["status"],
+                    false
+                  ]
+                },
+                "failure": null,
+                "usePrevResult": false,
+                "value": ["status", "{0}", false]
+              },
+              "failure": null,
+              "usePrevResult": false,
+              "value": []
+            },
+          ])
+    ];
+
+    configModel5 = [
+      ConfigurationModel(
+          "1",
+          true,
+          [
+            ConfigEntry([
+              TextComponent("", ViewMargin(0, 0, 30, 30), "Delivery status",
+                  ComponentAlign.left, 20, "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("ID", ViewMargin(5, 0, 30, 30),
+                  "Set the current status", ComponentAlign.left, 16, "#616161")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent("current_stage", ViewMargin(0, 0, 0, 0),
+                  "Not started", ComponentAlign.left, 15, "#000000"),
+              InputFieldComponent("ID", ViewMargin(0, 0, 15, 0),
+                  "Status message", "Please enter a status message")
+            ], ViewMargin(30, 0, 30, 30)),
+            ConfigEntry([
+              TextComponent("next_status", ViewMargin(0, 0, 30, 0),
+                  "Next stage: Stage", ComponentAlign.left, 14, "#757575"),
+              ButtonComponent("update", ViewMargin(0, 0, 0, 30), "UPDATE",
+                  ComponentAlign.right, {
+                "commandName": "gev",
+                "success": {
+                  "commandName": "eq",
+                  "success": {
+                    "commandName": "sev",
+                    "success": {
+                      "commandName": "sld",
+                      "success": null,
+                      "failure": null,
+                      "usePrevResult": false,
+                      "value": ["start", "custom msg", null, "Delivery"]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": ["status", "started", false]
+                  },
+                  "failure": {
+                    "commandName": "gev",
+                    "success": {
+                      "commandName": "eq",
+                      "success": {
+                        "commandName": "gev",
+                        "success": {
+                          "commandName": "sld",
+                          "success": null,
+                          "failure": null,
+                          "usePrevResult": false,
+                          "value": ["prep", "custom msg", null, "Delivery"]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": [
+                          ["status"],
+                          false
+                        ]
+                      },
+                      "failure": {
+                        "commandName": "gev",
+                        "success": {
+                          "commandName": "eq",
+                          "success": {
+                            "commandName": "gev",
+                            "success": {
+                              "commandName": "sld",
+                              "success": null,
+                              "failure": null,
+                              "usePrevResult": false,
+                              "value": [
+                                "en_route",
+                                "custom msg",
+                                null,
+                                "Delivery"
+                              ]
+                            },
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": ["status", "prep", false]
+                          },
+                          "failure": {
+                            "commandName": "gev",
+                            "success": {
+                              "commandName": "eq",
+                              "success": {
+                                "commandName": "gev",
+                                "success": {
+                                  "commandName": "sld",
+                                  "success": null,
+                                  "failure": null,
+                                  "usePrevResult": false,
+                                  "value": [
+                                    "done",
+                                    "custom msg",
+                                    null,
+                                    "Delivery"
+                                  ]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": ["status", "done", false]
+                              },
+                              "failure": {
+                                "commandName": "gev",
+                                "success": {
+                                  "commandName": "eq",
+                                  "success": null,
+                                  "failure": null,
+                                  "usePrevResult": false,
+                                  "value": ["{0}", "done"]
+                                },
+                                "failure": null,
+                                "usePrevResult": false,
+                                "value": [
+                                  ["status"],
+                                  false
+                                ]
+                              },
+                              "usePrevResult": false,
+                              "value": ["{0}", "en_route"]
+                            },
+                            "failure": null,
+                            "usePrevResult": false,
+                            "value": [
+                              ["status"],
+                              false
+                            ]
+                          },
+                          "usePrevResult": false,
+                          "value": ["{0}", "prep"]
+                        },
+                        "failure": null,
+                        "usePrevResult": false,
+                        "value": [
+                          ["status"],
+                          false
+                        ]
+                      },
+                      "usePrevResult": false,
+                      "value": ["{0}", "started"]
+                    },
+                    "failure": null,
+                    "usePrevResult": false,
+                    "value": [
+                      ["status"],
+                      false
+                    ]
+                  },
+                  "usePrevResult": false,
+                  "value": ["{0}", null]
                 },
                 "failure": null,
                 "usePrevResult": false,
                 "value": [
-                  "input1",
+                  ["status"],
+                  false
                 ]
               })
-            ], ViewMargin(40, 0, 0, 30))
+            ], ViewMargin(20, 0, 0, 0)),
           ],
           [],
           false,
-          false)
+          false,
+          draggableSheetMaxHeight: 0.12,
+          topViewCommand: [])
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    SectionData sectionData = SectionData(configModels, true, "stage",
-        "constraintName", "taskID", "userID", {"result": "dsf"});
-    sectionData.setInitialState("1");
-
-    SectionData sectionData3 = SectionData(configModels3, true, "null",
-        "Product description_config", "null", "null", null);
-    sectionData2.setCurrentConfig("1");
-    // log(jsonEncode(sectionData2.toJson()).toString());
+    SectionData sectionData4 = SectionData(
+        configModels4, true, "stage", "Delivery_admin", "", "", null);
+    sectionData4.setCurrentConfig("1");
+    log(jsonEncode(sectionData4.toJson()).toString());
 
     return SafeArea(
         child: Scaffold(
@@ -826,13 +784,13 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
         children: [
           ///Top section
           Container(
-              color: HexColor(sectionData2.state.bgColor),
+              color: HexColor(sectionData4.state.bgColor),
               // height: MediaQuery.of(context).size.height,
               key: key,
-              child: sectionData2.state.buildTopView()),
+              child: sectionData4.state.buildTopView()),
 
           ///Draggable bottom section
-          Container(key: key1, child: ConstraintDraggableSheet(sectionData2)),
+          Container(key: key1, child: ConstraintDraggableSheet(sectionData4)),
         ],
       ),
     )));

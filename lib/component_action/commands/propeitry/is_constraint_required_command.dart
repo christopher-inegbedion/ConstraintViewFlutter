@@ -28,7 +28,7 @@ class IsConstraintRequiredCommand extends ComponentActionCommand {
     super.run(result);
 
     try {
-      String constraintName = value[0];
+      String constraintName = getValue()[0];
 
       getAllConstraints().then((value) {
         List allConstraints = value["constraints"];

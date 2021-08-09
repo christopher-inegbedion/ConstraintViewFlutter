@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
 import 'package:constraint_view/components/button_component.dart';
+import 'package:constraint_view/components/color_block_component.dart';
 import 'package:constraint_view/components/dropdown_component.dart';
 import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
+import 'package:constraint_view/components/list_tile_component.dart';
 import 'package:constraint_view/components/live_model_component.dart';
 import 'package:constraint_view/components/text_component.dart';
 import 'package:constraint_view/enums/component_type.dart';
@@ -27,10 +29,12 @@ import 'models/section_data.dart';
 class ViewController extends StatefulWidget {
   ConfigurationModel configurationModel;
   final String section;
+  bool isDialog = false;
   ViewControllerState state;
 
-  ViewController(this.configurationModel, this.section) {
-    state = ViewControllerState(configurationModel, section);
+  ViewController(this.configurationModel, this.section, [this.isDialog]) {
+    state =
+        ViewControllerState(configurationModel, section, isDialog: isDialog);
   }
 
   void notifyChange() {
@@ -50,13 +54,15 @@ class ViewControllerState extends State<ViewController> {
   List<ConfigEntry> sectionToUse;
   bool ignoreScoll = false;
   bool initialised = false;
+  bool isDialog = false;
   BuildContext dialogContext;
+  SectionData sData;
   double screenHeight;
   double screenWidth;
 
   Widget view;
 
-  ViewControllerState(this.configurationModel, this.section);
+  ViewControllerState(this.configurationModel, this.section, {this.isDialog});
 
   Future<void> showDialogWithMsg(String title, String msg) async {
     return showDialog<void>(
@@ -67,7 +73,7 @@ class ViewControllerState extends State<ViewController> {
         return AlertDialog(
           title: Text(title),
           content: Container(
-            child: Text(msg),
+            child: SelectableText(msg),
           ),
         );
       },
@@ -75,10 +81,14 @@ class ViewControllerState extends State<ViewController> {
   }
 
   Future showConstraintInDialog(String constraintName, String stageName) async {
+    print("sdf");
     Future<SectionData> sectionData = SectionData.forStatic(
             stageName, constraintName, "taskID", "userID", null)
         .fromConstraint(constraintName);
-    SectionData sData;
+
+    sectionData.then((value) {
+      print("sd");
+    });
 
     return showDialog(
         context: context,
@@ -90,6 +100,7 @@ class ViewControllerState extends State<ViewController> {
               content: Container(
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Container(
+                      width: screenWidth,
                       height: screenHeight / 2,
                       child: FutureBuilder(
                           future: sectionData,
@@ -97,7 +108,7 @@ class ViewControllerState extends State<ViewController> {
                             if (snapshot.hasData) {
                               sData = snapshot.data;
                               sData.setInitialState("1");
-                              return sData.state.buildTopView();
+                              return sData.state.buildTopView(isDialog = true);
                             } else {
                               return Center(child: CircularProgressIndicator());
                             }
@@ -121,6 +132,11 @@ class ViewControllerState extends State<ViewController> {
             );
           });
         });
+  }
+
+  Future<TimeOfDay> showTimeSelector() async {
+    TimeOfDay _time = TimeOfDay(hour: 10, minute: 0);
+    return await showTimePicker(context: context, initialTime: _time);
   }
 
   Future<dynamic> showDialogWithButtons(
@@ -175,8 +191,36 @@ class ViewControllerState extends State<ViewController> {
         });
   }
 
+  Future showDialogForSingleChoice(String title, List<String> options) async {
+    List<Widget> widgets = [];
+    for (String i in options) {
+      widgets.add(
+        TextButton(
+          child: Text(i),
+          onPressed: () {
+            Navigator.pop(context, i);
+          },
+        ),
+      );
+    }
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text(title),
+            children: widgets,
+          );
+        });
+  }
+
   void closeDialog() {
-    Navigator.of(context).pop();
+    if (sData.state.topViewController.state.savedValues["config_inputs"] !=
+        null) {
+      Navigator.pop(dialogContext,
+          [sData.state.topViewController.state.savedValues["config_inputs"]]);
+    } else {
+      Navigator.of(dialogContext).pop();
+    }
   }
 
   Widget buildView() {
@@ -254,6 +298,19 @@ class ViewControllerState extends State<ViewController> {
 
             components.add(builtComponent);
             break;
+          case ComponentType.ListTile:
+            ListTileComponent listTileComponent = component;
+            Widget builtComponent = buildListTileComponent(listTileComponent);
+
+            components.add(builtComponent);
+            break;
+          case ComponentType.ColorBlock:
+            ColorBlockComponent colorBlockComponent = component;
+            Widget builtComponent =
+                buildColorBlockComponent(colorBlockComponent);
+
+            components.add(builtComponent);
+            break;
           default:
             throw Exception("Component ${component.type} cannot be rendered");
         }
@@ -281,7 +338,7 @@ class ViewControllerState extends State<ViewController> {
           ? Container(
               width: screenWidth,
               color: HexColor(configurationModel.bgColor),
-              height: screenHeight,
+              height: isDialog ? null : MediaQuery.of(context).size.height,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: configurationModel.centerTopSectionData
@@ -298,6 +355,22 @@ class ViewControllerState extends State<ViewController> {
               children: entries,
             ),
     );
+  }
+
+  Widget buildColorBlockComponent(ColorBlockComponent colorBlockComponent) {
+    ViewMargin componentMargin = colorBlockComponent.margin;
+    Container widget = colorBlockComponent.buildComponentView();
+    builtComponents[colorBlockComponent.ID] = colorBlockComponent;
+
+    return Expanded(
+        child: Container(
+      margin: EdgeInsets.only(
+          top: componentMargin.top,
+          bottom: componentMargin.bottom,
+          left: componentMargin.left,
+          right: componentMargin.right),
+      child: widget,
+    ));
   }
 
   Widget buildDropdownComponent(DropdownComponent dropdownComponent) {
@@ -325,99 +398,126 @@ class ViewControllerState extends State<ViewController> {
   Widget buildListComponent(ListComponent listComponent) {
     List<Widget> views = [];
     List listData = listComponent.data;
-    List<Component> listComponents = listComponent.initialComponents;
+    List<Component> listComponents = listComponent.componentsTemplate;
     for (int i = 0; i < listData.length; i++) {
       for (int j = 0; j < listData[i].length; j++) {
         dynamic componentData = listData[i][j];
 
-        switch (listComponents[j].type) {
-          case ComponentType.Text:
-            if (!(componentData is List)) {
-              TextComponent templateComponent = listComponents[j];
-              TextComponent textComponent = TextComponent(
-                  "${templateComponent.ID}-${(i)}-$j",
-                  templateComponent.margin,
-                  templateComponent.placeholder,
-                  templateComponent.textComponentAlign,
-                  templateComponent.textSize,
-                  templateComponent.textColor);
-              textComponent.parentListIndex = listComponent.dataIndex;
-              textComponent.dataIndex = i;
-              textComponent.componentIndex = j;
-              textComponent.inList = true;
-              textComponent.setValue(componentData);
-              builtComponents[textComponent.ID] = textComponent;
+        if (componentData != null) {
+          switch (listComponents[j].type) {
+            case ComponentType.Text:
+              if (!(componentData is List)) {
+                TextComponent templateComponent = listComponents[j];
+                TextComponent textComponent = TextComponent(
+                    "${templateComponent.ID}-${(i)}-$j",
+                    templateComponent.margin,
+                    templateComponent.placeholder,
+                    templateComponent.textComponentAlign,
+                    templateComponent.textSize,
+                    templateComponent.textColor);
+                textComponent.parentListIndex = listComponent.dataIndex;
+                textComponent.dataIndex = i;
+                textComponent.componentIndex = j;
+                textComponent.inList = true;
+                textComponent.setValue(componentData);
+                builtComponents[textComponent.ID] = textComponent;
 
-              views.add(buildTextComponent(textComponent));
+                views.add(buildTextComponent(textComponent));
 
-              listComponent.componentViews.add(textComponent);
-            }
-            break;
-          case ComponentType.List:
-            if ((componentData is List)) {
-              ListComponent templateComponent = listComponents[j];
-              ListComponent listComponent1 = ListComponent(
-                  "${templateComponent.ID}-${(i)}-$j",
-                  templateComponent.margin,
-                  templateComponent.data,
-                  templateComponent.initialComponents);
-              listComponent1.parentListIndex = listComponent.dataIndex;
-              listComponent1.dataIndex = i;
-              listComponent1.componentIndex = j;
-              listComponent1.inList = true;
-              listComponent1.setValue(componentData);
-              builtComponents[listComponent1.ID] = listComponent1;
+                listComponent.componentViews.add(textComponent);
+              }
+              break;
+            case ComponentType.List:
+              if ((componentData is List)) {
+                ListComponent templateComponent = listComponents[j];
+                ListComponent listComponent1 = ListComponent(
+                    "${templateComponent.ID}-${(i)}-$j",
+                    templateComponent.margin,
+                    templateComponent.data,
+                    templateComponent.componentsTemplate);
+                listComponent1.parentListIndex = listComponent.dataIndex;
+                listComponent1.dataIndex = i;
+                listComponent1.componentIndex = j;
+                listComponent1.inList = true;
+                listComponent1.setValue(componentData);
+                builtComponents[listComponent1.ID] = listComponent1;
 
-              views.add(buildListComponent(listComponent1));
-              listComponent.componentViews.add(listComponent1);
-            }
-            break;
-          case ComponentType.Button:
-            if (!(componentData is List)) {
-              ButtonComponent templateComponent = listComponents[j];
-              ButtonComponent buttonComponent = ButtonComponent(
-                  "${templateComponent.ID}-${(i)}-$j",
-                  templateComponent.margin,
-                  templateComponent.text,
-                  templateComponent.alignment,
-                  templateComponent.actionCommand);
-              buttonComponent.parentListIndex = listComponent.dataIndex;
-              buttonComponent.dataIndex = i;
-              buttonComponent.componentIndex = j;
-              buttonComponent.inList = true;
-              buttonComponent.setValue(componentData);
-              builtComponents[buttonComponent.ID] = buttonComponent;
+                views.add(buildListComponent(listComponent1));
+                listComponent.componentViews.add(listComponent1);
+              }
+              break;
+            case ComponentType.Button:
+              if (!(componentData is List)) {
+                ButtonComponent templateComponent = listComponents[j];
+                ButtonComponent buttonComponent = ButtonComponent(
+                    "${templateComponent.ID}-${(i)}-$j",
+                    templateComponent.margin,
+                    templateComponent.text,
+                    templateComponent.alignment,
+                    templateComponent.actionCommand);
+                buttonComponent.parentListIndex = listComponent.dataIndex;
+                buttonComponent.dataIndex = i;
+                buttonComponent.componentIndex = j;
+                buttonComponent.inList = true;
+                buttonComponent.setValue(componentData);
+                builtComponents[buttonComponent.ID] = buttonComponent;
 
-              views.add(buildButtonComponent(buttonComponent));
-              listComponent.componentViews.add(buttonComponent);
-            }
-            break;
-          case ComponentType.Input:
-            if (!(componentData is List)) {
-              InputFieldComponent templateComponent = listComponents[j];
-              InputFieldComponent inputFieldComponent = InputFieldComponent(
-                  "${templateComponent.ID}-${(i)}-$j",
-                  templateComponent.margin,
-                  templateComponent.hintText,
-                  templateComponent.errorText);
+                views.add(buildButtonComponent(buttonComponent));
+                listComponent.componentViews.add(buttonComponent);
+              }
+              break;
+            case ComponentType.Input:
+              if (!(componentData is List)) {
+                InputFieldComponent templateComponent = listComponents[j];
+                InputFieldComponent inputFieldComponent = InputFieldComponent(
+                    "${templateComponent.ID}-${(i)}-$j",
+                    templateComponent.margin,
+                    templateComponent.hintText,
+                    templateComponent.errorText);
 
-              inputFieldComponent.parentListIndex = listComponent.dataIndex;
-              inputFieldComponent.dataIndex = i;
-              inputFieldComponent.componentIndex = j;
-              inputFieldComponent.inList = true;
-              builtComponents[inputFieldComponent.ID] = inputFieldComponent;
+                inputFieldComponent.parentListIndex = listComponent.dataIndex;
+                inputFieldComponent.dataIndex = i;
+                inputFieldComponent.componentIndex = j;
+                inputFieldComponent.inList = true;
+                builtComponents[inputFieldComponent.ID] = inputFieldComponent;
 
-              views.add(buildInputFieldComponent(inputFieldComponent));
-              listComponent.componentViews.add(inputFieldComponent);
-            }
-            break;
-          default:
-            break;
+                views.add(buildInputFieldComponent(inputFieldComponent));
+                listComponent.componentViews.add(inputFieldComponent);
+              }
+              break;
+            case ComponentType.ListTile:
+              if (!(componentData is List)) {
+                ListTileComponent templateComponent = listComponents[j];
+                ListTileComponent listTileComponent = ListTileComponent(
+                    "${templateComponent.ID}-${(i)}-$j",
+                    templateComponent.margin,
+                    templateComponent.fontSize,
+                    templateComponent.miniFontSize,
+                    templateComponent.text,
+                    templateComponent.miniText,
+                    templateComponent.alignment,
+                    templateComponent.selectActionCommand,
+                    templateComponent.unSelectActionCommand);
+                listTileComponent.parentListIndex = listComponent.dataIndex;
+                listTileComponent.dataIndex = i;
+                listTileComponent.componentIndex = j;
+                listTileComponent.inList = true;
+                listTileComponent.setValue(componentData);
+                builtComponents[listTileComponent.ID] = listTileComponent;
+
+                views.add(buildListTileComponent(listTileComponent));
+                listComponent.componentViews.add(listTileComponent);
+              }
+              break;
+            default:
+              break;
+          }
         }
       }
     }
 
     Widget listWidget = ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: views.length,
         itemBuilder: (context, index) {
@@ -458,6 +558,41 @@ class ViewControllerState extends State<ViewController> {
     );
   }
 
+  Widget buildListTileComponent(ListTileComponent listTileComponent) {
+    ViewMargin componentMargin = listTileComponent.margin;
+    listTileComponent.text = formatText(listTileComponent.text);
+    listTileComponent.miniText = formatText(listTileComponent.miniText);
+    listTileComponent.selectFunc = () {
+      processActionCommand(
+          listTileComponent, listTileComponent.selectActionCommand);
+    };
+    listTileComponent.unSelectFunc = () {
+      processActionCommand(
+          listTileComponent, listTileComponent.unSelectActionCommand);
+    };
+    Widget listTileWidget = listTileComponent.buildComponentView();
+
+    builtComponents[listTileComponent.ID] = listTileComponent;
+
+    return Expanded(
+        key: GlobalKey(),
+        child: Container(
+          margin: EdgeInsets.only(
+              top: componentMargin.top,
+              bottom: componentMargin.bottom,
+              left: componentMargin.left,
+              right: componentMargin.right),
+          alignment: listTileComponent.alignment == ComponentAlign.center
+              ? Alignment.center
+              : listTileComponent.alignment == ComponentAlign.left
+                  ? Alignment.centerLeft
+                  : listTileComponent.alignment == ComponentAlign.right
+                      ? Alignment.centerRight
+                      : Alignment.center,
+          child: listTileWidget,
+        ));
+  }
+
   Widget buildInputFieldComponent(InputFieldComponent inputFieldComponent) {
     ViewMargin componentMargin = inputFieldComponent.margin;
 
@@ -482,7 +617,7 @@ class ViewControllerState extends State<ViewController> {
     double imageHeight = imageComponent.height;
     double imageWidth = imageComponent.width;
 
-    Image imageWidget = imageComponent.buildComponentView();
+    Image imageWidget = imageComponent.buildComponentView(context: context);
 
     builtComponents[imageComponent.ID] = imageComponent;
 
@@ -492,14 +627,13 @@ class ViewControllerState extends State<ViewController> {
           bottom: componentMargin.bottom,
           left: componentMargin.left,
           right: componentMargin.right),
-      width: imageWidth,
-      height: imageHeight,
       child: imageWidget,
     );
   }
 
   Widget buildButtonComponent(ButtonComponent buttonComponent) {
     ViewMargin componentMargin = buttonComponent.margin;
+    buttonComponent.text = formatText(buttonComponent.text);
     TextButton textButton = buttonComponent.buildComponentView(function: () {
       processActionCommand(buttonComponent, buttonComponent.actionCommand);
     });
@@ -557,9 +691,7 @@ class ViewControllerState extends State<ViewController> {
 
   void processActionCommand(Component commandInitiator, Map command) {
     if (command != null) {
-      ComponentAction componentAction =
-          ComponentAction.fromJson(this, commandInitiator, command);
-      componentAction.start();
+      ComponentAction.fromJson(this, commandInitiator, command).start();
     } else {
       print("No command");
     }
@@ -598,7 +730,8 @@ class ViewControllerState extends State<ViewController> {
 
             isLeftBracketFound = false;
             String word = string.substring(startIndex, endIndex - 1);
-            print(configurationModel.configurationInputs);
+            // print(msg);
+            // print(configurationModel.configurationInputs);
 
             if (configurationModel.configurationInputs != null) {
               if (configurationModel.configurationInputs.containsKey(word)) {
@@ -712,6 +845,10 @@ class ViewControllerState extends State<ViewController> {
     notifyChange();
   }
 
+  void changeComponentValue(String id) {
+    setComponentValue(id, 'value');
+  }
+
   void notifyChange() {
     if (mounted) {
       setState(() {});
@@ -740,12 +877,28 @@ class ViewControllerState extends State<ViewController> {
     notifyChange();
   }
 
+  void setTextColor(TextComponent component, String color) {
+    component.textColor = color;
+    notifyChange();
+  }
+
+  void runCommand() {
+    if (configurationModel.topViewCommand != null) {
+      if (this.section == "top") {
+        for (Map command in configurationModel.topViewCommand) {
+          processActionCommand(null, command);
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
       screenHeight = MediaQuery.of(context).size.height;
       screenWidth = MediaQuery.of(context).size.width;
+      runCommand();
     });
   }
 

@@ -1,33 +1,41 @@
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
+import 'package:flutter/material.dart';
 
-class ShowDialogWithInputsCommand extends ComponentActionCommand {
-  ShowDialogWithInputsCommand(
+class ShowTimePickerDialogCommand extends ComponentActionCommand {
+  ShowTimePickerDialogCommand(
       String id,
       ComponentAction componentAction,
       ComponentActionCommand success,
       ComponentActionCommand failure,
       bool usePrevResult,
       List value)
-      : super(id, componentAction, "ShowDialogWithInputs", "sdwi", success,
+      : super(id, componentAction, "ShowTimePickerDialog", "stpd", success,
             failure, usePrevResult, value);
 
   @override
   run(dynamic result) {
     super.run(result);
+    int hour;
+    int minute;
+    String period;
     try {
-      String title = getValue()[0];
-      List inputFields = getValue()[1];
       componentAction.viewControllerState
-          .showDialogWithButtons(title, inputFields)
-          .then((value) {
-        this.result = value;
-
+          .showTimeSelector()
+          .then((TimeOfDay value) {
+        hour = value.hour;
+        minute = value.minute;
+        if (value.period == DayPeriod.am) {
+          period = "am";
+        } else {
+          period = "pm";
+        }
+        this.result = [hour, minute, period];
         runSuccess();
       });
     } catch (e, stacktrace) {
       print(stacktrace);
-      print("ShowDialogWithInputs error: $e");
+      print("ShowTimePickerDialog error $e");
       runFailure();
     }
   }

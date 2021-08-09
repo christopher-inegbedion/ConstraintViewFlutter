@@ -1,7 +1,11 @@
 import 'dart:convert';
 
 import 'package:constraint_view/components/button_component.dart';
+import 'package:constraint_view/components/dropdown_component.dart';
+import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
+import 'package:constraint_view/components/list_component.dart';
+import 'package:constraint_view/components/list_tile_component.dart';
 import 'package:constraint_view/components/text_component.dart';
 import 'package:constraint_view/enums/component_align.dart';
 import 'package:constraint_view/models/component_model.dart';
@@ -76,30 +80,11 @@ class SectionData {
 
       List<ConfigEntry> topSection = [];
       for (Map topSectionEntry in configModelMap["top_section"]) {
-        List entryMarginArray = topSectionEntry["margin"].split(",");
-        ViewMargin margin = ViewMargin(
-          double.parse("${entryMarginArray[0]}"),
-          double.parse("${entryMarginArray[1]}"),
-          double.parse("${entryMarginArray[2]}"),
-          double.parse("${entryMarginArray[3]}"),
-        );
+        ViewMargin margin = ViewMargin.fromString(topSectionEntry["margin"]);
+
         List<Component> components = [];
         for (Map component in topSectionEntry["components"]) {
-          switch (component["type"]) {
-            case "text":
-              components.add(TextComponent.forStatic()
-                  .buildComponent(component["component_properties"], true));
-              break;
-            case "input":
-              components.add(InputFieldComponent.forStatic()
-                  .buildComponent(component["component_properties"], true));
-              break;
-            case "button":
-              components.add(ButtonComponent.forStatic()
-                  .buildComponent(component["component_properties"], true));
-              break;
-            default:
-          }
+          components.add(parseComponentFromList(component));
         }
         ConfigEntry entry = ConfigEntry(components, margin);
         topSection.add(entry);
@@ -107,35 +92,37 @@ class SectionData {
 
       List<ConfigEntry> bottomSection = [];
       for (Map bottomSectionEntry in configModelMap["bottom_section"]) {
-        List entryMarginArray = bottomSectionEntry["margin"].split(",");
+        // List entryMarginArray = bottomSectionEntry["margin"].split(",");
         // print(entryMarginArray[0]);
-        ViewMargin margin = ViewMargin(
-          double.parse("${entryMarginArray[0]}"),
-          double.parse("${entryMarginArray[1]}"),
-          double.parse("${entryMarginArray[2]}"),
-          double.parse("${entryMarginArray[3]}"),
-        );
+        ViewMargin margin = ViewMargin.fromString(bottomSectionEntry["margin"]);
         List<Component> components = [];
         for (Map component in bottomSectionEntry["components"]) {
-          switch (component["type"]) {
-            case "text":
-              components.add(TextComponent.forStatic()
-                  .buildComponent(component["component_properties"], true));
-              break;
-            case "input":
-              components.add(InputFieldComponent.forStatic()
-                  .buildComponent(component["component_properties"], true));
-              break;
-            case "button":
-              components.add(ButtonComponent.forStatic()
-                  .buildComponent(component["component_properties"], true));
-              break;
-            default:
-          }
+          components.add(parseComponentFromList(component));
         }
         ConfigEntry entry = ConfigEntry(components, margin);
         bottomSection.add(entry);
       }
+
+      List<Map> topViewCommand = [];
+      if (configModelMap["top_view_command"] != null) {
+        for (Map function in configModelMap["top_view_command"]) {
+          topViewCommand.add(function);
+        }
+      } else {
+        topViewCommand = null;
+      }
+
+      List<Map> bottomViewCommand = [];
+      if (configModelMap["bottom_view_command"] != null) {
+        for (Map function in configModelMap["bottom_view_command"]) {
+          bottomViewCommand.add(function);
+        }
+      } else {
+        bottomViewCommand = null;
+      }
+
+      // List bottomViewCommand = configModelMap["bottom_view_command"];
+      print("topViewCommand $topViewCommand");
 
       ConfigurationModel configurationModel = ConfigurationModel(
           id,
@@ -144,6 +131,8 @@ class SectionData {
           bottomSection,
           bottomSectionCanOpen,
           bottomSectionCanExpand,
+          topViewCommand: topViewCommand,
+          bottomViewCommand: bottomViewCommand,
           draggableSheetMaxHeight: draggableSheetMaxHeight,
           bgColor: bgColor,
           bottomSheetColor: bottomSheetColor,
@@ -157,6 +146,44 @@ class SectionData {
 
     return SectionData(configModel, true, stage, constraintName, taskID, userID,
         configurationInputs);
+  }
+
+  static Component parseComponentFromList(Map component) {
+    switch (component["type"]) {
+      case "text":
+        return TextComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+      case "input":
+        return InputFieldComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+      case "image":
+        return ImageComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+
+      case "button":
+        return ButtonComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+      case "list":
+        return ListComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+      case "list_tile":
+        return ListTileComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+      case "dropdown":
+        return DropdownComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+
+      default:
+        throw Exception(
+            "Component with ID: [${component['component_properties'][0]}] of type: [${component["type"]}] has not been built from SectionData");
+    }
   }
 
   void setCurrentConfig(String configID, {ConfigurationModel model}) {

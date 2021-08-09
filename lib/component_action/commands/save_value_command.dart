@@ -14,7 +14,7 @@ class SaveValueCommand extends ComponentActionCommand {
 
   run(dynamic result) {
     super.run(result);
-    dynamic valueToSave = value[0];
+    dynamic valueToSave = getValue()[0];
     componentAction.viewControllerState.savedValues["value"] = valueToSave;
     print(componentAction.viewControllerState.savedValues);
     runSuccess();

@@ -62,4 +62,10 @@ class LiveModelComponent extends Component {
   setValue(value) {
     this.url = value;
   }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    throw UnimplementedError();
+  }
 }

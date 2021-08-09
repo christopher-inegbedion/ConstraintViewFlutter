@@ -16,8 +16,8 @@ class EqualityConditionCommand extends ComponentActionCommand {
     super.run(result);
 
     try {
-      dynamic value1 = value[0];
-      dynamic value2 = value[1];
+      dynamic value1 = getValue()[0];
+      dynamic value2 = getValue()[1];
 
       if (value1 == value2) {
         this.result = [true];

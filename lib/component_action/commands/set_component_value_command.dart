@@ -14,8 +14,8 @@ class SetComponentValueCommand extends ComponentActionCommand {
 
   @override
   run(dynamic result) {
-    String id = value[0];
-    String valueToSet = value[1];
+    String id = getValue()[0];
+    String valueToSet = getValue()[1];
 
     componentAction.viewControllerState.setComponentValue(id, valueToSet);
   }

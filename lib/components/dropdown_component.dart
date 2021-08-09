@@ -25,8 +25,20 @@ class DropdownComponent extends Component {
 
   @override
   buildComponent(List componentParams, bool fromConstraint) {
-    // TODO: implement toJson
-    throw UnimplementedError();
+    String ID = componentParams[0];
+    ViewMargin margin = fromConstraint
+        ? ViewMargin.fromString(componentParams[1])
+        : componentParams[1];
+    ComponentAlign align = componentParams[2];
+    List<String> data = [];
+
+    for (dynamic i in componentParams[3]) {
+      data.add(i);
+    }
+    String initialItem = componentParams[4];
+    Map command = componentParams[5];
+
+    return DropdownComponent(ID, margin, data, initialItem, align, command);
   }
 
   @override
@@ -65,7 +77,22 @@ class DropdownComponent extends Component {
 
   @override
   Map<String, dynamic> toJson() {
-    // TODO: implement toJson
+    return {
+      "type": "dropdown",
+      "component_properties": [
+        ID,
+        margin.toString(),
+        alignment,
+        data,
+        initialItem,
+        command
+      ]
+    };
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
     throw UnimplementedError();
   }
 }

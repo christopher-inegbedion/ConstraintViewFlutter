@@ -12,7 +12,13 @@ class ColorBlockComponent extends Component {
 
   ColorBlockComponent(
       String ID, ViewMargin margin, String color, double width, double height)
-      : super(ID, margin, ComponentType.ColorBlock);
+      : super(ID, margin, ComponentType.ColorBlock) {
+    this.ID = ID;
+    this.margin = margin;
+    this.color = color;
+    this.width = width;
+    this.height = height;
+  }
 
   @override
   ColorBlockComponent buildComponent(
@@ -53,5 +59,11 @@ class ColorBlockComponent extends Component {
   @override
   setValue(value) {
     this.color = value;
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    throw UnimplementedError();
   }
 }

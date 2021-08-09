@@ -80,33 +80,10 @@ class _ConstraintsListState extends State<ConstraintsListView> {
 
   void startConstraint(String constraintName) {
     if (stageStarted) {
-      final channel = IOWebSocketChannel.connect(
-          "ws://192.168.1.129:4321/start_constraint1");
-
-      channel.sink.add(jsonEncode({
-        "user_id": userID,
-        "task_id": taskID,
-        "constraint_name": constraintName,
-        "stage_name": currentStage
-      }));
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$constraintName has started. Loading')));
-
-      channel.stream.first.then((event) {
-        // the first response from the websocket server is an input request
-        Map<String, dynamic> recvData = jsonDecode(event);
-        String eventData = recvData["event"];
-
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
           return ConstraintView(
-              constraintName, currentStage, stageGroupID, taskID, userID);
+              constraintName, currentStage, stageGroupID, taskID, userID, false);
         }));
-        // else if (eventData == "STAGE_CONSTRAINT_COMPLETED") {
-        //   String constraintMsg = recvData["msg"];
-        //   showConstraintCompleteDialog(constraintMsg);
-        // }
-      });
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Constraint has not started')));
