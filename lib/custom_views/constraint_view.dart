@@ -25,13 +25,14 @@ class ConstraintView extends StatefulWidget {
   String userID;
   String customViewName = "";
   bool admin = false;
+  bool alreadyActive = false;
 
   ConstraintView(this.constraintName, this.stageName, this.stageGroupID,
       this.taskID, this.userID, this.admin,
-      {this.customViewName}) {
+      {this.customViewName, this.alreadyActive}) {
     state = _ConstraintViewState(
         constraintName, stageName, stageGroupID, taskID, userID, admin,
-        customViewName: customViewName);
+        customViewName: customViewName, alreadyActive: alreadyActive);
   }
 
   @override
@@ -41,6 +42,7 @@ class ConstraintView extends StatefulWidget {
 class _ConstraintViewState extends State<ConstraintView> {
   bool isConstraintComplete = false;
   bool canSkip = false;
+  bool alreadyActive = false;
   Future<dynamic> constraintData;
   String constraintName;
   String nextConstraintName;
@@ -55,7 +57,7 @@ class _ConstraintViewState extends State<ConstraintView> {
 
   _ConstraintViewState(this.constraintName, this.stageName, this.stageGroupID,
       this.taskID, this.userID, this.admin,
-      {this.customViewName});
+      {this.customViewName, this.alreadyActive});
 
   Future getConstraintConfigurationInputs() async {
     Future<dynamic> data = NetworkUtils.performNetworkAction(
@@ -125,12 +127,14 @@ class _ConstraintViewState extends State<ConstraintView> {
       "task_id": taskID,
       "user_id": userID
     }));
-    startCurrentConstraint();
+
+    if (!alreadyActive) {
+      startCurrentConstraint();
+    }
 
     channel.stream.listen((event) {
       Map<String, dynamic> recvData = jsonDecode(event);
       String eventData = recvData["event"];
-      print(eventData);
       if (eventData == "CONSTRAINT_COMPLETED") {
         setState(() {
           isConstraintComplete = true;
@@ -196,8 +200,15 @@ class _ConstraintViewState extends State<ConstraintView> {
       String eventData = recvData["event"];
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return ConstraintView(nextConstraintName, nextStageName, stageGroupID,
-            taskID, userID, admin);
+        return ConstraintView(
+          nextConstraintName,
+          nextStageName,
+          stageGroupID,
+          taskID,
+          userID,
+          admin,
+          alreadyActive: false,
+        );
       }));
       // else if (eventData == "STAGE_CONSTRAINT_COMPLETED") {
       //   String constraintMsg = recvData["msg"];
@@ -233,10 +244,6 @@ class _ConstraintViewState extends State<ConstraintView> {
             stageName, constraintName, taskID, userID, configurationInputs)
         .fromConstraint(
             customViewName == null ? constraintName : customViewName);
-
-    constraintData.then((value) {
-      print("sd");
-    });
 
     return WillPopScope(
       onWillPop: () {
@@ -429,12 +436,14 @@ class _ConstraintViewState extends State<ConstraintView> {
                                                               builder:
                                                                   (context) {
                                                         return ConstraintView(
-                                                            nextConstraintName,
-                                                            nextStageName,
-                                                            stageGroupID,
-                                                            taskID,
-                                                            userID,
-                                                            admin);
+                                                          nextConstraintName,
+                                                          nextStageName,
+                                                          stageGroupID,
+                                                          taskID,
+                                                          userID,
+                                                          admin,
+                                                          alreadyActive: false,
+                                                        );
                                                       }));
                                                     },
                                                     child: Container(

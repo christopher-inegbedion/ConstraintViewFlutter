@@ -304,9 +304,12 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             );
           }
         } else if (snapshot.hasError) {
-          return Center(
-            child:
-                Text("An error occured", style: TextStyle(color: Colors.black)),
+          return Container(
+            child: Text("An error occured",
+                style: TextStyle(
+                    color: Colors.red,
+                    fontFamily: "JetBrainMono",
+                    fontSize: 12)),
           );
         } else {
           return Center(
@@ -509,7 +512,11 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             pendingUsers.length == 0
                 ? Container(
                     margin: EdgeInsets.only(top: 5),
-                    child: Text("No user in pending stage"))
+                    child: Text("No user in pending stage",
+                        style: TextStyle(
+                            fontFamily: "JetBrainMono",
+                            color: Colors.red,
+                            fontSize: 12)))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: pendingUsers.length,
@@ -558,7 +565,11 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             activeUsers.length == 0
                 ? Container(
                     margin: EdgeInsets.only(top: 5),
-                    child: Text("No user in active stage"))
+                    child: Text("No user in active stage",
+                        style: TextStyle(
+                            fontFamily: "JetBrainMono",
+                            color: Colors.red,
+                            fontSize: 12)))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: activeUsers.length,
@@ -608,7 +619,11 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             completeUsers.length == 0
                 ? Container(
                     margin: EdgeInsets.only(top: 5, bottom: 20),
-                    child: Text("No user in complete stage"))
+                    child: Text("No user in complete stage",
+                        style: TextStyle(
+                            fontFamily: "JetBrainMono",
+                            color: Colors.red,
+                            fontSize: 12)))
                 : ListView.builder(
                     shrinkWrap: true,
                     itemCount: completeUsers.length,

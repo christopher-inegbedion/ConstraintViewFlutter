@@ -81,14 +81,10 @@ class ViewControllerState extends State<ViewController> {
   }
 
   Future showConstraintInDialog(String constraintName, String stageName) async {
-    print("sdf");
     Future<SectionData> sectionData = SectionData.forStatic(
             stageName, constraintName, "taskID", "userID", null)
         .fromConstraint(constraintName);
 
-    sectionData.then((value) {
-      print("sd");
-    });
 
     return showDialog(
         context: context,
@@ -730,8 +726,6 @@ class ViewControllerState extends State<ViewController> {
 
             isLeftBracketFound = false;
             String word = string.substring(startIndex, endIndex - 1);
-            // print(msg);
-            // print(configurationModel.configurationInputs);
 
             if (configurationModel.configurationInputs != null) {
               if (configurationModel.configurationInputs.containsKey(word)) {

@@ -13,17 +13,28 @@ class ConstraintsListView extends StatefulWidget {
   String taskID;
   String userID;
   String currentStage;
+  String activeConstraint;
   bool stageStarted;
   _ConstraintsListState state;
 
-  ConstraintsListView(this.viewMode, this.taskID, this.userID,
-      this.stageGroupID, this.currentStage, this.stageStarted) {
-    state = _ConstraintsListState(
-        viewMode, taskID, userID, stageGroupID, currentStage, stageStarted);
+  ConstraintsListView(
+      this.viewMode,
+      this.taskID,
+      this.userID,
+      this.stageGroupID,
+      this.currentStage,
+      this.stageStarted,
+      this.activeConstraint) {
+    state = _ConstraintsListState(viewMode, taskID, userID, stageGroupID,
+        currentStage, stageStarted, activeConstraint);
   }
 
   void setStageStarted(bool val) {
     state.setStageStarted(val);
+  }
+
+  void setActiveConstraint(String constraint) {
+    state.setActiveConstraint(constraint);
   }
 
   void setCurrentStage(String stageName) {
@@ -45,13 +56,20 @@ class ConstraintsListView extends StatefulWidget {
 class _ConstraintsListState extends State<ConstraintsListView> {
   String viewMode;
   String currentStage;
+  String activeConstraint;
   String taskID;
   String userID;
   String stageGroupID;
   bool stageStarted;
 
-  _ConstraintsListState(this.viewMode, this.taskID, this.userID,
-      this.stageGroupID, this.currentStage, this.stageStarted);
+  _ConstraintsListState(
+      this.viewMode,
+      this.taskID,
+      this.userID,
+      this.stageGroupID,
+      this.currentStage,
+      this.stageStarted,
+      this.activeConstraint);
 
   Future getStageGroupData(String stageGroupId) {
     return NetworkUtils.performNetworkAction(
@@ -62,6 +80,12 @@ class _ConstraintsListState extends State<ConstraintsListView> {
 
   void setStageStarted(bool val) {
     stageStarted = val;
+  }
+
+  void setActiveConstraint(String constraint) {
+    setState(() {
+      activeConstraint = constraint;
+    });
   }
 
   void setCurrentStage(String stageName) {
@@ -78,12 +102,13 @@ class _ConstraintsListState extends State<ConstraintsListView> {
     stageGroupID = id;
   }
 
-  void startConstraint(String constraintName) {
+  void startConstraint(String constraintName, bool alreadyActive) {
     if (stageStarted) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return ConstraintView(
-              constraintName, currentStage, stageGroupID, taskID, userID, false);
-        }));
+        return ConstraintView(
+            constraintName, currentStage, stageGroupID, taskID, userID, false,
+            alreadyActive: alreadyActive);
+      }));
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Constraint has not started')));
@@ -170,7 +195,17 @@ class _ConstraintsListState extends State<ConstraintsListView> {
         String constraintName, String constraintDesc, bool isRequired) {
       return InkWell(
         onTap: () {
-          startConstraint(constraintName);
+          if (activeConstraint == "") {
+            startConstraint(constraintName, false);
+          } else {
+            if (activeConstraint == constraintName) {
+              startConstraint(constraintName, true);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Constraint is not active"),
+              ));
+            }
+          }
         },
         splashColor: Colors.black,
         child: Container(

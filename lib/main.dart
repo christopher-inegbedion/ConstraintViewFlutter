@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
 class MainApp extends StatelessWidget {
   GlobalKey<FormState> formKey = GlobalKey();
   String userID = Uuid().v4();
-  String taskID = "11845457-c87a-4eda-9024-1b52fc6c313e";
+  String taskID = "a64f69c2-f212-42e8-9e94-e0d7ad27637f";
 
   double screenHeight;
   double screenWidth;
@@ -437,9 +437,6 @@ class MainApp extends StatelessWidget {
       Future<SectionData> sectionData = SectionData.forStatic(
               stageName, constraintName, "taskID", "userID", null)
           .fromConstraint(constraintName);
-      sectionData.then((value) {
-        print(value);
-      });
       SectionData sData;
 
       return showDialog<void>(

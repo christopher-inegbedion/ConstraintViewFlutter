@@ -23,6 +23,8 @@ class _TaskViewState extends State<TaskView> {
   String taskID = "";
   String userID = "";
   String currentStage = "";
+  String currentConstraint = "";
+  bool constraintRunning = false;
   bool pipelineRunning = false;
   bool stageComplete = false;
   bool stageRunning = false;
@@ -66,23 +68,37 @@ class _TaskViewState extends State<TaskView> {
 
       if (value == "complete") {
         setState(() {
+          currentConstraint = "";
           stageRunning = false;
           stageComplete = true;
+          constraintRunning = false;
         });
-        constraintsListView.setStageStarted(stageRunning);
       } else if (value == "not_started") {
         setState(() {
+          currentConstraint = "";
           stageRunning = false;
           stageComplete = false;
+          constraintRunning = false;
         });
-        constraintsListView.setStageStarted(stageRunning);
       } else if (value == "running") {
         setState(() {
+          currentConstraint = "";
           stageComplete = false;
           stageRunning = true;
+          constraintRunning = false;
         });
-        constraintsListView.setStageStarted(stageRunning);
+      } else if (value == "constraint_active") {
+        setState(() {
+          currentConstraint = recvData["constraint"];
+          stageComplete = false;
+          stageRunning = true;
+          constraintRunning = true;
+        });
       }
+
+      constraintsListView.setActiveConstraint(currentConstraint);
+      constraintsListView.setStageStarted(stageRunning);
+
       channel.sink.close();
     });
   }
@@ -125,7 +141,7 @@ class _TaskViewState extends State<TaskView> {
             }
 
             constraintsListView = ConstraintsListView("normal", taskID, userID,
-                stageGroupID, currentStage, stageRunning);
+                stageGroupID, currentStage, stageRunning, currentConstraint);
           });
         }
       }).whenComplete(() {
@@ -318,28 +334,60 @@ class _TaskViewState extends State<TaskView> {
                 margin: EdgeInsets.only(right: 20),
                 child: pipelineRunning
                     ? stageRunning
-                        ? Container(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.toggle_on,
-                                  size: 13,
-                                  color: Colors.redAccent,
+                        ? constraintRunning
+                            ? Container(
+                                // color: Colors.red,
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  // crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(),
+                                      child: Text(
+                                        "CONSTRAINT ACTIVE",
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontFamily: "JetBrainMono",
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(),
+                                      child: Text(
+                                        currentConstraint,
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontFamily: "JetBrainMono",
+                                            color: Colors.greenAccent),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Container(
-                                  margin: EdgeInsets.only(left: 5),
-                                  child: Text(
-                                    "LIVE",
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontFamily: "JetBrainMono",
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                              )
+                            : Container(
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.toggle_on,
+                                      size: 13,
+                                      color: Colors.redAccent,
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      child: Text(
+                                        "LIVE",
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontFamily: "JetBrainMono",
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          )
+                              )
                         : stageComplete
                             ? Container(
                                 child: Row(
