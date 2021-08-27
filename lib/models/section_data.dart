@@ -122,7 +122,6 @@ class SectionData {
       }
 
       // List bottomViewCommand = configModelMap["bottom_view_command"];
-      print("topViewCommand $topViewCommand");
 
       ConfigurationModel configurationModel = ConfigurationModel(
           id,

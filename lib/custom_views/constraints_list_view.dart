@@ -71,10 +71,10 @@ class _ConstraintsListState extends State<ConstraintsListView> {
       this.stageStarted,
       this.activeConstraint);
 
-  Future getStageGroupData(String stageGroupId) {
+  Future getStageGroupData(String stageGroupId, String taskID) {
     return NetworkUtils.performNetworkAction(
         NetworkUtils.serverAddr + NetworkUtils.portNum,
-        "/stage_group/" + stageGroupId + "/" + currentStage,
+        "/task/" + taskID + "/stage_group/" + stageGroupId + "/" + currentStage,
         "get");
   }
 
@@ -296,7 +296,7 @@ class _ConstraintsListState extends State<ConstraintsListView> {
     }
 
     return FutureBuilder(
-      future: getStageGroupData(stageGroupID),
+      future: getStageGroupData(stageGroupID, taskID),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           Map<String, dynamic> data = jsonDecode(snapshot.data);

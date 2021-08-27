@@ -50,7 +50,7 @@ class ConfigurationModel {
       this.userID,
       this.configurationInputs});
 
-  ViewController buildTopView([bool isDialog = false]) {
+  ViewController buildTopView({bool isDialog = false}) {
     topViewController = ViewController(this, "top", isDialog = isDialog);
     return topViewController;
   }
