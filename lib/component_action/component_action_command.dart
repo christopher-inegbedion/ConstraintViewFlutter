@@ -70,7 +70,6 @@ abstract class ComponentActionCommand {
 
   dynamic getValue() {
     bool allDataIsString = true;
-
     for (dynamic i in value) {
       dynamic formattedData = formatText(i, result);
       if (!(formattedData is String)) {

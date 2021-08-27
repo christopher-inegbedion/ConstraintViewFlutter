@@ -43,7 +43,8 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
       configModels2,
       configModels3,
       configModels4,
-      configModel5;
+      configModel5,
+      configModel6;
   ComponentsTestPageState() {
     optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
         "Option name", ComponentAlign.left, 20, "#000000");
@@ -767,12 +768,57 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
           draggableSheetMaxHeight: 0.12,
           topViewCommand: [])
     ];
+
+    configModel6 = [
+      ConfigurationModel(
+          "1",
+          false,
+          [
+            ConfigEntry([
+              ImageComponent(
+                  "image",
+                  ViewMargin(40, 0, 0, 0),
+                  "https://images.unsplash.com/photo-1540319585560-a4fcf1810366?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2250&q=80",
+                  200,
+                  0,
+                  true),
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              ListComponent("list", ViewMargin(0, 0, 0, 0), [], [
+                TextComponent("title", ViewMargin(0, 0, 30, 0), "",
+                    ComponentAlign.left, 14, "#9E9E9E"),
+                TextComponent("value", ViewMargin(0, 30, 30, 0), "",
+                    ComponentAlign.left, 20, "#000000")
+              ])
+            ], ViewMargin(30, 0, 0, 0)),
+          ],
+          [],
+          false,
+          false,
+          topViewCommand: [
+            {
+              "commandName": "gcci",
+              "success": {
+                "commandName": "adtlc",
+                "success": null,
+                "failure": null,
+                "usePrevResult": false,
+                "value": ["list", "{0}"]
+              },
+              "failure": null,
+              "usePrevResult": false,
+              "value": [
+                // {"data": "sd", "data2": "sd"}
+              ]
+            }
+          ])
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     SectionData sectionData4 = SectionData(
-        configModels4, true, "stage", "Delivery_admin", "", "", null);
+        configModel6, true, "stage", "Product description", "", "", null);
     sectionData4.setCurrentConfig("1");
     log(jsonEncode(sectionData4.toJson()).toString());
 

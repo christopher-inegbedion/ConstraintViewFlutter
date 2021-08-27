@@ -266,8 +266,9 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
   }
 
   Widget showConstraintsForStage(String stageName) {
+    print(taskID);
     return FutureBuilder(
-      future: getStageGroupData(stageName),
+      future: getStageGroupData(stageName, taskID),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           Map<String, dynamic> data = jsonDecode(snapshot.data);
@@ -362,11 +363,11 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
     return data["stage_group_id"];
   }
 
-  Future getStageGroupData(String stage) async {
+  Future getStageGroupData(String stage, String taskID) async {
     String stageGroupID = await getStageGroupID();
     return NetworkUtils.performNetworkAction(
         NetworkUtils.serverAddr + NetworkUtils.portNum,
-        "/stage_group/" + stageGroupID + "/" + stage,
+        "/task/" + taskID + "/stage_group/" + stageGroupID + "/" + stage,
         "get");
   }
 
