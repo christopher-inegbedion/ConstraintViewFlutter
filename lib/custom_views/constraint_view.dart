@@ -60,19 +60,32 @@ class _ConstraintViewState extends State<ConstraintView> {
       {this.customViewName, this.alreadyActive});
 
   Future getConstraintConfigurationInputs() async {
-    Future<dynamic> data = NetworkUtils.performNetworkAction(
-        NetworkUtils.serverAddr + NetworkUtils.portNum,
-        "/stage_group/" + stageGroupID + "/" + stageName,
-        "get");
+    IOWebSocketChannel channel1 = IOWebSocketChannel.connect(
+        "ws://192.168.1.129:4321/constraint_config_inputs");
+    channel1.sink.add(jsonEncode({
+      "constraint_name": constraintName,
+      "stage_name": stageName,
+      "task_id": taskID,
+      "user_id": userID
+    }));
 
-    Map<String, dynamic> parsedData = jsonDecode(await data);
-    for (Map constraint in parsedData["constraints"]) {
-      if (constraint["constraint_name"] == constraintName) {
-        setState(() {
-          configurationInputs = constraint["config_inputs"];
-        });
-      }
-    }
+    channel1.stream.first.then((value) {
+      Map<String, dynamic> data = jsonDecode(value);
+      print("data $data");
+      setState(() {
+        configurationInputs = data;
+      });
+    });
+
+    // Map<String, dynamic> parsedData = jsonDecode(await data);
+    // for (Map constraint in parsedData["constraints"]) {
+    //   if (constraint["constraint_name"] == constraintName) {
+    //     setState(() {
+    //       configurationInputs = constraint["config_inputs"];
+    //     });
+    //     print(configurationInputs);
+    //   }
+    // }
   }
 
   void getConstraintDetails() {
@@ -113,7 +126,6 @@ class _ConstraintViewState extends State<ConstraintView> {
       getNextConstraintDetails();
       listenOnConstraintComplete();
     }
-    getConstraintConfigurationInputs();
     listenForExternalAction();
   }
 
@@ -177,6 +189,8 @@ class _ConstraintViewState extends State<ConstraintView> {
     channel.stream.first.then((event) {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$constraintName has started.')));
+    }).then((value) {
+      getConstraintConfigurationInputs();
     });
   }
 
@@ -274,14 +288,11 @@ class _ConstraintViewState extends State<ConstraintView> {
                   child: Stack(
                     children: [
                       ///Top section
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        child: Container(
-                            color: HexColor(sectionData.state.bgColor),
-                            // height: MediaQuery.of(context).size.height,
-                            key: UniqueKey(),
-                            child: sectionData.state.buildTopView()),
-                      ),
+                      Container(
+                          color: HexColor(sectionData.state.bgColor),
+                          // height: MediaQuery.of(context).size.height,
+                          key: UniqueKey(),
+                          child: sectionData.state.buildTopView()),
 
                       ///Draggable bottom section
                       Container(
@@ -291,182 +302,199 @@ class _ConstraintViewState extends State<ConstraintView> {
                       ///This section displays options to skip, continue, or view all the constraints
                       Visibility(
                         visible: !admin,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            //Current stage
-                            Visibility(
-                              visible: isConstraintComplete,
-                              child: Container(
-                                margin: EdgeInsets.only(left: 20, top: 20),
-                                child: Text(
-                                  stageName,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: stageName == "Pending"
-                                        ? Colors.red[600].withOpacity(0.9)
-                                        : stageName == "Active"
-                                            ? Colors.green[600].withOpacity(0.9)
-                                            : stageName == "Complete"
-                                                ? Colors.blue[600]
-                                                    .withOpacity(0.9)
-                                                : Colors.grey[600]
-                                                    .withOpacity(0.9),
-                                    fontFamily: "JetBrainMono",
+                        child: Container(
+                          padding: EdgeInsets.only(top: 20, bottom: 20),
+                          color: Colors.grey.withOpacity(0.025),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              //Current stage
+                              Visibility(
+                                visible: isConstraintComplete,
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 20),
+                                  child: Text(
+                                    stageName,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                      fontFamily: "JetBrainMono",
+                                    ),
                                   ),
+                                  decoration: BoxDecoration(
+                                      color: stageName == "Pending"
+                                          ? Colors.red[600].withOpacity(0.9)
+                                          : stageName == "Active"
+                                              ? Colors.green[600]
+                                                  .withOpacity(0.9)
+                                              : stageName == "Complete"
+                                                  ? Colors.blue[600]
+                                                      .withOpacity(0.9)
+                                                  : Colors.grey[600]
+                                                      .withOpacity(0.9),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border:
+                                          Border.all(color: Colors.grey[100])),
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
                                 ),
-                                decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border:
-                                        Border.all(color: Colors.grey[300])),
-                                padding: EdgeInsets.only(
-                                    left: 10, right: 10, top: 5, bottom: 5),
                               ),
-                            ),
 
-                            //Menu, Skip, Continue/Finish
-                            Container(
-                              margin: EdgeInsets.only(right: 20, top: 20),
-                              child: Row(
-                                children: [
-                                  //Menu button
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context)
-                                          .push(MaterialPageRoute(
-                                              builder: (context) => TaskView(
-                                                    taskID,
-                                                    userID,
-                                                    currentStage: stageName,
-                                                  )));
-                                    },
-                                    child: Container(
-                                      margin: EdgeInsets.only(right: 10),
+                              //Menu, Skip, Continue/Finish
+                              Container(
+                                margin: EdgeInsets.only(
+                                  right: 20,
+                                ),
+                                child: Row(
+                                  children: [
+                                    //Menu button
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                                builder: (context) => TaskView(
+                                                      taskID,
+                                                      userID,
+                                                      currentStage: stageName,
+                                                    )));
+                                      },
+                                      child: Container(
+                                        margin: EdgeInsets.only(right: 10),
+                                        padding: EdgeInsets.only(
+                                            top: 5,
+                                            bottom: 5,
+                                            left: 5,
+                                            right: 5),
+                                        decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.9),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                                color: Colors.grey[300])),
+                                        child: Icon(Icons.grid_view,
+                                            size: 12, color: Colors.black),
+                                      ),
+                                    ),
+
+                                    Container(
                                       padding: EdgeInsets.only(
-                                          top: 5, bottom: 5, left: 5, right: 5),
+                                          top: 5,
+                                          bottom: 5,
+                                          left: 10,
+                                          right: 10),
                                       decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.9),
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           border: Border.all(
                                               color: Colors.grey[300])),
-                                      child: Icon(Icons.grid_view,
-                                          size: 12, color: Colors.black),
-                                    ),
-                                  ),
-
-                                  Container(
-                                    padding: EdgeInsets.only(
-                                        top: 5, bottom: 5, left: 10, right: 10),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.9),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            color: Colors.grey[300])),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        //Skip button
-                                        Container(
-                                          margin: EdgeInsets.only(left: 0),
-                                          child: sectionData.isRequired
-                                              ? GestureDetector(
-                                                  onTap: canSkip
-                                                      ? () {
-                                                          startNextConstraint();
-                                                        }
-                                                      : () {},
-                                                  child: Container(
-                                                      child: Text(
-                                                    "SKIP",
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontFamily:
-                                                            "JetBrainMono",
-                                                        color: canSkip
-                                                            ? Colors.blue
-                                                            : Colors.grey),
-                                                  )),
-                                                )
-                                              : Container(
-                                                  child: Text(
-                                                  "",
-                                                  style: TextStyle(
-                                                      color: Colors.grey),
-                                                )),
-                                        ),
-
-                                        //Continue button
-                                        Visibility(
-                                          visible: isConstraintComplete,
-                                          child: Container(
-                                            margin: EdgeInsets.only(left: 10),
-                                            child: nextStageName == null
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          //Skip button
+                                          Container(
+                                            margin: EdgeInsets.only(left: 0),
+                                            child: sectionData.isRequired
                                                 ? GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.of(context).push(
-                                                          MaterialPageRoute(
-                                                              builder:
-                                                                  (context) =>
-                                                                      TaskView(
-                                                                        taskID,
-                                                                        userID,
-                                                                        currentStage:
-                                                                            stageName,
-                                                                      )));
-                                                    },
+                                                    onTap: canSkip
+                                                        ? () {
+                                                            startNextConstraint();
+                                                          }
+                                                        : () {},
                                                     child: Container(
-                                                        child: Text("FINISH",
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                fontFamily:
-                                                                    "JetBrainMono",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color: Colors
-                                                                    .green))),
+                                                        child: Text(
+                                                      "SKIP",
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontFamily:
+                                                              "JetBrainMono",
+                                                          color: canSkip
+                                                              ? Colors.blue
+                                                              : Colors.grey),
+                                                    )),
                                                   )
-                                                : GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.push(context,
-                                                          MaterialPageRoute(
-                                                              builder:
-                                                                  (context) {
-                                                        return ConstraintView(
-                                                          nextConstraintName,
-                                                          nextStageName,
-                                                          stageGroupID,
-                                                          taskID,
-                                                          userID,
-                                                          admin,
-                                                          alreadyActive: false,
-                                                        );
-                                                      }));
-                                                    },
-                                                    child: Container(
-                                                        child: Text("CONTINUE",
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                fontFamily:
-                                                                    "JetBrainMono",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color: Colors
-                                                                    .green))),
-                                                  ),
+                                                : Container(
+                                                    child: Text(
+                                                    "",
+                                                    style: TextStyle(
+                                                        color: Colors.grey),
+                                                  )),
                                           ),
-                                        )
-                                      ],
+
+                                          //Continue button
+                                          Visibility(
+                                            visible: isConstraintComplete,
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 10),
+                                              child: nextStageName == null
+                                                  ? GestureDetector(
+                                                      onTap: () {
+                                                        Navigator.of(context).push(
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        TaskView(
+                                                                          taskID,
+                                                                          userID,
+                                                                          currentStage:
+                                                                              stageName,
+                                                                        )));
+                                                      },
+                                                      child: Container(
+                                                          child: Text("FINISH",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  fontFamily:
+                                                                      "JetBrainMono",
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .green))),
+                                                    )
+                                                  : GestureDetector(
+                                                      onTap: () {
+                                                        Navigator.push(context,
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) {
+                                                          return ConstraintView(
+                                                            nextConstraintName,
+                                                            nextStageName,
+                                                            stageGroupID,
+                                                            taskID,
+                                                            userID,
+                                                            admin,
+                                                            alreadyActive:
+                                                                false,
+                                                          );
+                                                        }));
+                                                      },
+                                                      child: Container(
+                                                          child: Text(
+                                                              "CONTINUE",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  fontFamily:
+                                                                      "JetBrainMono",
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .green))),
+                                                    ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       )
                     ],
