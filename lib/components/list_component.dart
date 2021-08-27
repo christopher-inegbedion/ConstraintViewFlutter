@@ -67,7 +67,23 @@ class ListComponent extends Component {
   }
 
   addValue(dynamic value) {
-    this.data.add(value);
+    //sometimes more than 1 value might be passed, eg: [[value1], [value2]]
+    if (value is List) {
+      bool areAllValsLists = true;
+      for (dynamic val in value) {
+        if (!(val is List)) {
+          areAllValsLists = false;
+        }
+      }
+
+      if (areAllValsLists) {
+        for (var val in value) {
+          this.data.add(val);
+        }
+      }
+    } else {
+      this.data.add(value);
+    }
   }
 
   @override
