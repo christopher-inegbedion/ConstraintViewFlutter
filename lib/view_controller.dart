@@ -85,7 +85,6 @@ class ViewControllerState extends State<ViewController> {
             stageName, constraintName, "taskID", "userID", null)
         .fromConstraint(constraintName);
 
-
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -104,7 +103,7 @@ class ViewControllerState extends State<ViewController> {
                             if (snapshot.hasData) {
                               sData = snapshot.data;
                               sData.setInitialState("1");
-                              return sData.state.buildTopView(isDialog = true);
+                              return sData.state.buildTopView(isDialog: true);
                             } else {
                               return Center(child: CircularProgressIndicator());
                             }
@@ -223,6 +222,7 @@ class ViewControllerState extends State<ViewController> {
     if (this.configurationModel == null) {
       return SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
                 child: Center(
@@ -334,9 +334,13 @@ class ViewControllerState extends State<ViewController> {
           ? Container(
               width: screenWidth,
               color: HexColor(configurationModel.bgColor),
-              height: isDialog ? null : MediaQuery.of(context).size.height,
+              height: isDialog
+                  ? null
+                  : configurationModel.centerTopSectionData
+                      ? MediaQuery.of(context).size.height
+                      : null,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: configurationModel.centerTopSectionData
                     ? MainAxisAlignment.center
                     : MainAxisAlignment.start,
