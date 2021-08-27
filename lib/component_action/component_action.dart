@@ -4,6 +4,7 @@ import 'package:constraint_view/component_action/commands/add_data_to_list_compo
 import 'package:constraint_view/component_action/commands/change_text_color_command.dart';
 import 'package:constraint_view/component_action/commands/close_dialog_command.dart';
 import 'package:constraint_view/component_action/commands/component_value_command.dart';
+import 'package:constraint_view/component_action/commands/convert_map_to_list_command.dart';
 import 'package:constraint_view/component_action/commands/equality_conition_command.dart';
 import 'package:constraint_view/component_action/commands/get_component_from_list_command.dart';
 import 'package:constraint_view/component_action/commands/get_component_list_details.dart';
@@ -12,6 +13,7 @@ import 'package:constraint_view/component_action/commands/get_existing_values_co
 import 'package:constraint_view/component_action/commands/launch_url_command.dart';
 import 'package:constraint_view/component_action/commands/listen_to_constraint_config_action_command.dart';
 import 'package:constraint_view/component_action/commands/parse_map_command.dart';
+import 'package:constraint_view/component_action/commands/propeitry/get_constraint_config_inputs_command.dart';
 import 'package:constraint_view/component_action/commands/propeitry/is_constraint_required_command.dart';
 import 'package:constraint_view/component_action/commands/propeitry/remove_constraint_from_selection_command.dart';
 import 'package:constraint_view/component_action/commands/propeitry/submit_registration_data_command.dart';
@@ -221,6 +223,14 @@ class ComponentAction {
         break;
       case "ctc":
         return ChangeTextColorCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "gcci":
+        return GetConstraintConfigInputsCommand(
+            id, componentAction, success, failure, usePrevResult, value);
+        break;
+      case "cmtl":
+        return ConvertMapToListCommand(
             id, componentAction, success, failure, usePrevResult, value);
         break;
 
