@@ -18,7 +18,6 @@ class ParseMapCommand extends ComponentActionCommand {
     try {
       List<String> keys = getValue()[0];
       Map data = getValue()[1];
-      print(data);
 
       dynamic tempData = data;
       for (String key in keys) {
