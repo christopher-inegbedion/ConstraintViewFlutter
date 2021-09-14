@@ -66,7 +66,40 @@ class ViewControllerState extends State<ViewController> {
 
   ViewControllerState(this.configurationModel, this.section, {this.isDialog});
 
- 
+  void loadState(Map state) {
+    //TODO: Add extra features to loading the state
+    Map components = state["component_values"];
+    Map savedValues = state["saved_values"];
+    Map tempValues = state["temp_values"];
+    setState(() {
+      components.forEach((key, value) {
+        if (builtComponents.containsKey(key)) {
+          getComponentFromID(key).buildComponent(
+              value["component_properties"], true,
+              replaceComponent: true);
+        }
+      });
+      this.savedValues = savedValues;
+      this.tempValues = tempValues;
+    });
+    print("new state loaded");
+  }
+
+  Map saveState() {
+    //TODO: Capture other information
+    Map componentValues = {};
+    builtComponents.forEach((key, value) {
+      Component i = value;
+      componentValues[key] = i.toJson();
+    });
+
+    Map state = {
+      "component_values": componentValues,
+      "saved_values": savedValues,
+      "temp_values": tempValues
+    };
+    return state;
+  }
 
   Future<void> showDialogWithMsg(String title, String msg) async {
     return showDialog<void>(

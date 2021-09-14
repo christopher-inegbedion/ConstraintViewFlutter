@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:constraint_view/components/text_component.dart';
 import 'package:constraint_view/custom_views/draggable_sheet.dart';
@@ -9,8 +10,10 @@ import 'package:constraint_view/models/configuration_model.dart';
 import 'package:constraint_view/models/section_data.dart';
 import 'package:constraint_view/task_detail_page.dart';
 import 'package:constraint_view/utils/network_functions.dart';
+import 'package:constraint_view/view_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/io.dart';
 
 import '../enums/component_align.dart';
@@ -39,7 +42,10 @@ class ConstraintView extends StatefulWidget {
   _ConstraintViewState createState() => state;
 }
 
-class _ConstraintViewState extends State<ConstraintView> {
+class _ConstraintViewState extends State<ConstraintView>
+    with WidgetsBindingObserver {
+  SectionData sectionData;
+  bool sectionDataBuilt = false;
   bool isConstraintComplete = false;
   bool canSkip = false;
   bool alreadyActive = false;
@@ -61,7 +67,7 @@ class _ConstraintViewState extends State<ConstraintView> {
 
   Future getConstraintConfigurationInputs() async {
     IOWebSocketChannel channel1 = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/constraint_config_inputs");
+        "ws://192.168.1.129:4321/get_constraint_config_inputs");
     channel1.sink.add(jsonEncode({
       "constraint_name": constraintName,
       "stage_name": stageName,
@@ -88,23 +94,6 @@ class _ConstraintViewState extends State<ConstraintView> {
     // }
   }
 
-  void getConstraintDetails() {
-    IOWebSocketChannel channel1 =
-        IOWebSocketChannel.connect("ws://192.168.1.129:4321/constraint_detail");
-    channel1.sink.add(jsonEncode({
-      "constraint_name": constraintName,
-      "stage_name": stageName,
-      "task_id": taskID,
-      "user_id": userID
-    }));
-    channel1.stream.first.then((value) {
-      Map<String, dynamic> data = jsonDecode(value);
-      setState(() {
-        canSkip = !data["required"];
-      });
-    });
-  }
-
   void listenForExternalAction() {
     IOWebSocketChannel channel = IOWebSocketChannel.connect(
         "ws://192.168.1.129:4321/listen_external_action");
@@ -122,11 +111,39 @@ class _ConstraintViewState extends State<ConstraintView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     if (!admin) {
+      registerUserAsActive();
       getNextConstraintDetails();
       listenOnConstraintComplete();
+      WidgetsBinding.instance.addPostFrameCallback((_) {});
     }
     listenForExternalAction();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    //App has been moved to the background
+    if (state == AppLifecycleState.paused) {
+      unRegisterUserAsActive();
+      saveSectionState();
+    }
+
+    //App is in the foreground
+    if (state == AppLifecycleState.resumed) {
+      registerUserAsActive();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+
+    unRegisterUserAsActive();
   }
 
   void listenOnConstraintComplete() {
@@ -152,6 +169,7 @@ class _ConstraintViewState extends State<ConstraintView> {
           isConstraintComplete = true;
           canSkip = true;
         });
+        unRegisterUserAsActive();
         showConstraintCompleteDialog(recvData["msg"]);
       }
     });
@@ -159,7 +177,7 @@ class _ConstraintViewState extends State<ConstraintView> {
 
   void getNextConstraintDetails() {
     IOWebSocketChannel channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/next_constraint_or_stage");
+        "ws://192.168.1.129:4321/get_next_constraint_or_stage");
     channel.sink.add(jsonEncode({
       "user_id": userID,
       "task_id": taskID,
@@ -252,13 +270,91 @@ class _ConstraintViewState extends State<ConstraintView> {
     );
   }
 
+  void registerUserAsActive() {
+    final channel = IOWebSocketChannel.connect(
+        "ws://192.168.1.129:4321/register_active_user");
+
+    channel.sink.add(jsonEncode({
+      "user_id": userID,
+      "task_id": taskID,
+      "constraint_name": constraintName,
+      "stage_name": stageName
+    }));
+
+    channel.stream.first.then((value) {
+      Map<String, dynamic> recvData = jsonDecode(value);
+      if (recvData["msg"] == "done") {
+        print("Live session active");
+      } else if (recvData["msg"] == "error") {
+        print("Live session error");
+      }
+    });
+  }
+
+  void unRegisterUserAsActive() {
+    final channel = IOWebSocketChannel.connect(
+        "ws://192.168.1.129:4321/unregister_active_user");
+
+    channel.sink.add(jsonEncode({
+      "user_id": userID,
+      "task_id": taskID,
+      "constraint_name": constraintName,
+      "stage_name": stageName
+    }));
+
+    channel.stream.first.then((value) {
+      Map<String, dynamic> recvData = jsonDecode(value);
+      if (recvData["msg"] == "done") {
+        print("Live session active");
+      } else if (recvData["msg"] == "error") {
+        print("Live session error");
+      }
+    });
+  }
+
+  void saveSectionState() async {
+    Map topViewData = sectionData.state.topViewController.state.saveState();
+    Map bottomViewData =
+        sectionData.state.bottomViewController.state.saveState();
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(
+        "$userID-$constraintName-$stageName-top", jsonEncode(topViewData));
+    prefs.setString("$userID-$constraintName-$stageName-bottom",
+        jsonEncode(bottomViewData));
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('State saved')));
+  }
+
+  void removeSectionStateData() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove("$userID-$constraintName-$stageName-top");
+    prefs.remove("$userID-$constraintName-$stageName-bottom");
+  }
+
+  Future<Map> loadTopSectionsState() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map topSectionStateData =
+        jsonDecode(prefs.getString("$userID-$constraintName-$stageName-top"));
+
+    return topSectionStateData;
+  }
+
+  Future<Map> loadBottomSectionsState() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map bottomSectionStateData = jsonDecode(
+        prefs.getString("$userID-$constraintName-$stageName-bottom"));
+
+    return bottomSectionStateData;
+  }
+
   @override
   Widget build(BuildContext context) {
     constraintData = SectionData.forStatic(
             stageName, constraintName, taskID, userID, configurationInputs)
         .fromConstraint(
             customViewName == null ? constraintName : customViewName);
-
     return WillPopScope(
       onWillPop: () {
         if (admin) {
@@ -281,8 +377,15 @@ class _ConstraintViewState extends State<ConstraintView> {
             future: constraintData,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                SectionData sectionData = snapshot.data;
+                sectionData = snapshot.data;
                 sectionData.setInitialState("1");
+                loadTopSectionsState().then((topSectionData) {
+                  loadBottomSectionsState().then((bottomSectionData) {
+                    if (topSectionData != null && bottomSectionData != null)
+                      sectionData.loadState(topSectionData, bottomSectionData);
+                  });
+                });
+
                 return Container(
                   color: Colors.white,
                   child: Stack(
@@ -318,7 +421,6 @@ class _ConstraintViewState extends State<ConstraintView> {
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.white,
-                                      fontFamily: "JetBrainMono",
                                     ),
                                   ),
                                   decoration: BoxDecoration(
@@ -350,6 +452,9 @@ class _ConstraintViewState extends State<ConstraintView> {
                                     //Menu button
                                     GestureDetector(
                                       onTap: () {
+                                        unRegisterUserAsActive();
+                                        saveSectionState();
+
                                         Navigator.of(context)
                                             .push(MaterialPageRoute(
                                                 builder: (context) => TaskView(
@@ -510,10 +615,5 @@ class _ConstraintViewState extends State<ConstraintView> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

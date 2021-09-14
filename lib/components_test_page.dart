@@ -7,6 +7,7 @@ import 'package:constraint_view/components/dropdown_component.dart';
 import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/list_component.dart';
 import 'package:constraint_view/components/list_tile_component.dart';
+import 'package:constraint_view/components/rating_component.dart';
 import 'package:constraint_view/custom_views/constraint_view.dart';
 import 'package:constraint_view/custom_views/draggable_sheet.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,9 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
       configModels3,
       configModels4,
       configModel5,
-      configModel6;
+      configModel6,
+      configModel7,
+      configModel8;
   ComponentsTestPageState() {
     optionName = TextComponent("option_name", ViewMargin(20, 10, 30, 0),
         "Option name", ComponentAlign.left, 20, "#000000");
@@ -813,14 +816,96 @@ class ComponentsTestPageState extends State<ComponentsTestPage> {
             }
           ])
     ];
+
+    configModel7 = [
+      ConfigurationModel(
+          "1",
+          true,
+          [
+            ConfigEntry([
+              TextComponent("text1", ViewMargin(0, 0, 0, 0),
+                  "Face-To-Face payment", ComponentAlign.center, 23, "#000000"),
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              TextComponent(
+                  "text1",
+                  ViewMargin(10, 0, 30, 30),
+                  "Tap the button below when the customer pays you",
+                  ComponentAlign.center,
+                  16,
+                  "#9E9E9E")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              ButtonComponent("btn", ViewMargin(0, 0, 0, 0), "Payment received",
+                  ComponentAlign.center, {
+                "commandName": "sld",
+                "success": null,
+                "failure": null,
+                "usePrevResult": false,
+                "value": ["paid", "", null, "Face-To-Face payment"]
+              })
+            ], ViewMargin(0, 0, 0, 0))
+          ],
+          [],
+          false,
+          false)
+    ];
+
+    configModel8 = [
+      ConfigurationModel(
+          "1",
+          true,
+          [
+            ConfigEntry([
+              TextComponent("text", ViewMargin(0, 0, 0, 0), "Rate this service",
+                  ComponentAlign.center, 25, "#000000"),
+            ], ViewMargin(0, 0, 0, 0)),
+            // ConfigEntry([
+            //   TextComponent("text", ViewMargin(5, 0, 0, 0),
+            //       "Submit your review", ComponentAlign.center, 20, "#9E9E9E")
+            // ], ViewMargin(0, 0, 0, 0))
+          ],
+          [
+            ConfigEntry([
+              TextComponent(
+                  "sd",
+                  ViewMargin(20, 0, 30, 20),
+                  "Tell the service provider what you think",
+                  ComponentAlign.left,
+                  16,
+                  "#000000")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              InputFieldComponent("input", ViewMargin(10, 0, 30, 30),
+                  "Write a review", "Please enter your review message")
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              RatingComponent(
+                  "rating", ViewMargin(30, 0, 0, 0), ComponentAlign.center, 30)
+            ], ViewMargin(0, 0, 0, 0)),
+            ConfigEntry([
+              ButtonComponent("sumbit", ViewMargin(0, 0, 0, 0), "Submit",
+                  ComponentAlign.right, {
+                "commandName": "tp",
+                "success": null,
+                "failure": null,
+                "usePrevResult": false,
+                "value": ["input", "rating"]
+              })
+            ], ViewMargin(0, 0, 0, 30))
+          ],
+          true,
+          true,
+          draggableSheetMaxHeight: 0.4)
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    SectionData sectionData4 = SectionData(
-        configModel6, true, "stage", "Product description", "", "", null);
+    SectionData sectionData4 =
+        SectionData(configModel8, true, "stage", "Rating and Review", "", "", null);
     sectionData4.setCurrentConfig("1");
-    log(jsonEncode(sectionData4.toJson()).toString());
+    // log(jsonEncode(sectionData4.toJson()).toString());
 
     return SafeArea(
         child: Scaffold(

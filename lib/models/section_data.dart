@@ -217,6 +217,11 @@ class SectionData {
     // print(this.configurationInputs);
   }
 
+  void loadState(Map topSectionData, Map bottomSectionData) {
+    state.topViewController.state.loadState(topSectionData);
+    state.bottomViewController.state.loadState(bottomSectionData);
+  }
+
   Map<String, dynamic> toJson() {
     List view = [];
     for (ConfigurationModel configurationModel in allStates) {

@@ -34,6 +34,10 @@ dependencies:
   json_serializable: 
   url_launcher:
   uuid: 3.0.4
+  flutter_rating_bar: ^4.0.0
+  shared_preferences: ^2.0.7
+  google_fonts:
+
 
 dev_dependencies:
   json_annotation:
@@ -54,7 +58,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - assets/fonts/
+    # - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -68,15 +72,15 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
 
-  fonts:
-    - family: JetBrainMono
-      fonts:
-        - asset: assets/fonts/JetBrainsMono-Regular.ttf
-          style: normal
+  # fonts:
+    # - family: JetBrainMono
+    #   fonts:
+    #     - asset: assets/fonts/JetBrainsMono-Regular.ttf
+    #       style: normal
       
-        - asset: assets/fonts/JetBrainsMono-Regular.ttf
-        - asset: assets/fonts/JetBrainsMono-Bold.ttf
-          weight: 700
+    #     - asset: assets/fonts/JetBrainsMono-Regular.ttf
+    #     - asset: assets/fonts/JetBrainsMono-Bold.ttf
+    #       weight: 700
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

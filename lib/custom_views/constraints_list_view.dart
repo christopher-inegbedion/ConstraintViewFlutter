@@ -230,10 +230,7 @@ class _ConstraintsListState extends State<ConstraintsListView> {
                       margin: EdgeInsets.only(right: 20),
                       child: Text(
                         constraintName,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "JetBrainMono",
-                            fontSize: 20),
+                        style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ),
                     Container(
@@ -338,8 +335,9 @@ class _ConstraintsListState extends State<ConstraintsListView> {
               return Center(
                   child: Text(
                 "No data",
-                style:
-                    TextStyle(color: Colors.white, fontFamily: "JetBrainMono"),
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ));
             }
           } else {
@@ -347,7 +345,8 @@ class _ConstraintsListState extends State<ConstraintsListView> {
               child: Center(
                 child: Text("There are no constraints for this stage",
                     style: TextStyle(
-                        color: Colors.white, fontFamily: "JetBrainMono")),
+                      color: Colors.white,
+                    )),
               ),
             );
           }

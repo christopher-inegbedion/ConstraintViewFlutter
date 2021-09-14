@@ -54,7 +54,7 @@ class _TaskViewState extends State<TaskView> {
 
   void listenToPipelineChanges() {
     IOWebSocketChannel channel =
-        IOWebSocketChannel.connect("ws://192.168.1.129:4321/is_stage_running");
+        IOWebSocketChannel.connect("ws://192.168.1.129:4321/get_stage_status");
     channel.sink.add(jsonEncode({
       "stage_name": currentStage,
       "user_id": userID,
@@ -189,14 +189,13 @@ class _TaskViewState extends State<TaskView> {
           return AlertDialog(
               title: Text(
                 "Select a stage",
-                style: TextStyle(
-                    fontFamily: "JetBrainMono", fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
               content: Column(mainAxisSize: MainAxisSize.min, children: [
                 ListTile(
                   title: Text(
                     "Pending",
-                    style: TextStyle(fontFamily: "JetBrainMono"),
+                    style: TextStyle(),
                   ),
                   onTap: () {
                     setState(() {
@@ -210,7 +209,7 @@ class _TaskViewState extends State<TaskView> {
                 ListTile(
                   title: Text(
                     "Active",
-                    style: TextStyle(fontFamily: "JetBrainMono"),
+                    style: TextStyle(),
                   ),
                   onTap: () {
                     setState(() {
@@ -224,7 +223,7 @@ class _TaskViewState extends State<TaskView> {
                 ListTile(
                   title: Text(
                     "Complete",
-                    style: TextStyle(fontFamily: "JetBrainMono"),
+                    style: TextStyle(),
                   ),
                   onTap: () {
                     setState(() {
@@ -322,9 +321,7 @@ class _TaskViewState extends State<TaskView> {
                     child: Text(
                       currentStage == null ? "Loading" : currentStage,
                       style: TextStyle(
-                          fontFamily: "JetBrainMono",
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                          fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                   ),
                 ],
@@ -348,7 +345,6 @@ class _TaskViewState extends State<TaskView> {
                                         "CONSTRAINT ACTIVE",
                                         style: TextStyle(
                                             fontSize: 13,
-                                            fontFamily: "JetBrainMono",
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -359,7 +355,6 @@ class _TaskViewState extends State<TaskView> {
                                         currentConstraint,
                                         style: TextStyle(
                                             fontSize: 13,
-                                            fontFamily: "JetBrainMono",
                                             color: Colors.greenAccent),
                                       ),
                                     ),
@@ -380,7 +375,6 @@ class _TaskViewState extends State<TaskView> {
                                         "LIVE",
                                         style: TextStyle(
                                             fontSize: 13,
-                                            fontFamily: "JetBrainMono",
                                             color: Colors.red,
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -401,7 +395,6 @@ class _TaskViewState extends State<TaskView> {
                                         style: TextStyle(
                                             fontSize: 13,
                                             color: Colors.green,
-                                            fontFamily: "JetBrainMono",
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
@@ -420,7 +413,6 @@ class _TaskViewState extends State<TaskView> {
                                         style: TextStyle(
                                             fontSize: 13,
                                             color: Colors.grey,
-                                            fontFamily: "JetBrainMono",
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
@@ -441,9 +433,7 @@ class _TaskViewState extends State<TaskView> {
                                 child: CircularProgressIndicator())
                             : Text("START",
                                 style: TextStyle(
-                                    fontFamily: "JetBrainMono",
-                                    color: Colors.black,
-                                    fontSize: 12)),
+                                    color: Colors.black, fontSize: 12)),
                       ))
           ],
         ),
@@ -479,7 +469,6 @@ class _TaskViewState extends State<TaskView> {
                                     style: TextStyle(
                                         fontSize: 30,
                                         color: Colors.white,
-                                        fontFamily: "JetBrainMono",
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
