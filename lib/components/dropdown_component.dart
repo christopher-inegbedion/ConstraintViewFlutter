@@ -24,7 +24,7 @@ class DropdownComponent extends Component {
   DropdownComponent.forStatic() : super.forStatic();
 
   @override
-  buildComponent(List componentParams, bool fromConstraint) {
+  buildComponent(List componentParams, bool fromConstraint, {bool replaceComponent=false}) {
     String ID = componentParams[0];
     ViewMargin margin = fromConstraint
         ? ViewMargin.fromString(componentParams[1])

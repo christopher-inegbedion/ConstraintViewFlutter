@@ -21,7 +21,7 @@ class LiveModelComponent extends Component {
   LiveModelComponent.forStatic() : super.forStatic();
 
   @override
-  LiveModelComponent buildComponent(List componentParams, bool fromConstraint) {
+  LiveModelComponent buildComponent(List componentParams, bool fromConstraint, {bool replaceComponent=false}) {
     String ID = componentParams[0];
     ViewMargin margin = fromConstraint
         ? ViewMargin.fromString(componentParams[1])

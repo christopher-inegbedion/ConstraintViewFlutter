@@ -43,7 +43,7 @@ class ButtonComponent extends Component {
   }
 
   @override
-  ButtonComponent buildComponent(List componentParams, bool fromConstraint) {
+  ButtonComponent buildComponent(List componentParams, bool fromConstraint, {bool replaceComponent=false}) {
     String ID = componentParams[0];
     ViewMargin margin = fromConstraint
         ? ViewMargin.fromString(componentParams[1])

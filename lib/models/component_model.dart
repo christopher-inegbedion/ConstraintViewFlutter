@@ -24,7 +24,7 @@ abstract class Component extends StatefulWidget {
 
   buildComponentView();
 
-  buildComponent(List componentParams, bool fromConstraint);
+  buildComponent(List componentParams, bool fromConstraint, {bool replaceComponent=false});
 
   setValue(dynamic value);
 

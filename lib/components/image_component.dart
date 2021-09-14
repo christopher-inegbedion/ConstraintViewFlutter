@@ -32,7 +32,7 @@ class ImageComponent extends Component {
   }
 
   @override
-  ImageComponent buildComponent(List componentParams, bool fromConstraint) {
+  ImageComponent buildComponent(List componentParams, bool fromConstraint, {bool replaceComponent=false}) {
     String ID = componentParams[0];
     ViewMargin margin = fromConstraint
         ? ViewMargin.fromString(componentParams[1])

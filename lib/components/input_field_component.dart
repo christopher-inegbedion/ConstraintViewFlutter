@@ -43,7 +43,7 @@ class InputFieldComponent extends Component {
 
   @override
   InputFieldComponent buildComponent(
-      List componentParams, bool fromConstraint) {
+      List componentParams, bool fromConstraint, {bool replaceComponent=false}) {
     String ID = componentParams[0];
     ViewMargin margin = fromConstraint
         ? ViewMargin.fromString(componentParams[1])

@@ -41,16 +41,14 @@ class TextComponent extends Component {
   Widget buildComponentView() {
     return Text(
       this.placeholder,
-      style: TextStyle(
-          fontSize: this.textSize,
-          fontFamily: "JetBrainMono",
-          color: HexColor(textColor)),
+      style: TextStyle(fontSize: this.textSize, color: HexColor(textColor)),
       textAlign: TextComponent.getTextAlignment(this.textComponentAlign),
     );
   }
 
   @override
-  TextComponent buildComponent(List componentParams, bool fromConstraint) {
+  TextComponent buildComponent(List componentParams, bool fromConstraint,
+      {bool replaceComponent = false}) {
     String ID = componentParams[0];
     ViewMargin margin;
     if (fromConstraint) {
@@ -68,6 +66,15 @@ class TextComponent extends Component {
         getComponentAlignFromString(componentParams[3]);
     double textSize = double.parse("${componentParams[4]}");
     String textColor = componentParams[5];
+
+    if (replaceComponent) {
+      this.ID = ID;
+      this.margin = margin;
+      this.placeholder = placeholder;
+      this.textComponentAlign = componentAlign;
+      this.textSize = textSize;
+      this.textColor = textColor;
+    }
 
     return TextComponent(
         ID, margin, placeholder, componentAlign, textSize, textColor);
@@ -102,7 +109,7 @@ class TextComponent extends Component {
   }
 
   void setValue(dynamic value) {
-    this.placeholder = value;
+    this.placeholder = value.toString();
   }
 
   @override
