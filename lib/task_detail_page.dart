@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -16,257 +17,39 @@ class TaskDeailPage extends StatefulWidget {
   _TaskDeailPageState createState() => _TaskDeailPageState(taskID);
 }
 
-class _TaskDeailPageState extends State<TaskDeailPage> {
+class _TaskDeailPageState extends State<TaskDeailPage>
+    with WidgetsBindingObserver {
   String taskID;
   int liveSessionCount = 0;
   List pendingUsers = [];
   List activeUsers = [];
   List completeUsers = [];
 
+  Map pendingConstraintDataLabels = {};
+  Map pendingConstraintsData = {};
+  Map activeConstraintDataLabels = {};
+  Map activeConstraintsData = {};
+  Map completeConstraintDataLabels = {};
+  Map completeConstraintsData = {};
+  Map liveStagesAndConstraints = {};
+
   _TaskDeailPageState(this.taskID);
 
-  Future getActiveConstraints(String constraintName, String stageName) async {
+
+  Stream getActiveUsersForConstraint(String stageName, String constraintName) {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/pipeline_constraint_details");
-    channel.sink.add(jsonEncode({"task_id": taskID, "stage_name": stageName}));
-    dynamic value = await channel.stream.first;
-    Map<String, dynamic> recvData = jsonDecode(value);
-    List users = recvData[stageName][constraintName];
-    return users;
-  }
+        "ws://192.168.1.129:4321/get_constraint_active_users");
 
-  void showUserSessionsDialogForConstraint(
-      String constraintName, String stageName) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-              title: Text("$constraintName sessions"),
-              content: FutureBuilder(
-                future: getActiveConstraints(constraintName, stageName),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    List data = snapshot.data;
-                    List<Widget> widgets = [];
-                    for (String i in data) {
-                      widgets.add(TextButton(
-                        onPressed: (() {
-                          loadAdminConstraintViews(
-                              constraintName, stageName, i);
-                        }),
-                        child: Text(i),
-                      ));
-                    }
-                    return Column(
-                        mainAxisSize: MainAxisSize.min, children: widgets);
-                  } else if (snapshot.hasError) {
-                    return Container(
-                      height: 40,
-                      child: Center(
-                        child: Text("An error occured",
-                            style: TextStyle(fontFamily: "JetBrainMono")),
-                      ),
-                    );
-                  } else {
-                    return Container(
-                        height: 40,
-                        child: Center(
-                            child: Text("No data",
-                                style: TextStyle(fontFamily: "JetBrainMono"))));
-                  }
-                },
-              ));
-        });
-  }
+    channel.sink.add(jsonEncode({
+      "task_id": taskID,
+      "stage_name": stageName,
+      "constraint_name": constraintName
+    }));
 
-  void showConstraintCompleteDialog(Map msg, String userID) {
-    // for (Map data in msg["value"]) {
-    //   print(data);
-    // }
-
-    List<Widget> pendingWidgets = [];
-    pendingWidgets.add(
-      Text("Pending",
-          style: TextStyle(
-              fontFamily: "JetBrainMono",
-              fontWeight: FontWeight.bold,
-              fontSize: 18)),
-    );
-    if (msg["value"].length > 0) {
-      List pendingConstraints = msg["value"][0]["constraint_data"];
-
-      if (pendingConstraints.length > 0) {
-        for (Map constraint in pendingConstraints) {
-          pendingWidgets.add(Container(
-              margin: EdgeInsets.only(top: 5, bottom: 5),
-              child: Text("${constraint['constraint_name']}")));
-          pendingWidgets.add(Container(
-              margin: EdgeInsets.only(bottom: 15),
-              child: Text("Result: ${constraint['data']}",
-                  style: TextStyle(color: HexColor("#455A64")))));
-        }
-      } else {
-        pendingWidgets.add(Container(
-            margin: EdgeInsets.only(top: 5, bottom: 5),
-            child: Text(
-              "No pending constraints",
-              style: TextStyle(color: HexColor("#455A64")),
-            )));
-      }
-    } else {
-      pendingWidgets.add(Container(
-          margin: EdgeInsets.only(top: 5, bottom: 5),
-          child: Text(
-            "No pending constraints",
-            style: TextStyle(color: HexColor("#455A64")),
-          )));
-    }
-
-    List<Widget> activeWidgets = [];
-    activeWidgets.add(
-      Container(
-        margin: EdgeInsets.only(top: 20),
-        child: Text("Active",
-            style: TextStyle(
-                fontFamily: "JetBrainMono",
-                fontWeight: FontWeight.bold,
-                fontSize: 16)),
-      ),
-    );
-    if (msg["value"].length > 1) {
-      List activeConstraints = msg["value"][1]["constraint_data"];
-      if (activeConstraints.length > 0) {
-        for (Map constraint in activeConstraints) {
-          activeWidgets.add(Container(
-              margin: EdgeInsets.only(top: 5, bottom: 5),
-              child: Text("${constraint['constraint_name']}")));
-          activeWidgets.add(Container(
-              margin: EdgeInsets.only(bottom: 15),
-              child: Text("Result: ${constraint['data']}",
-                  style: TextStyle(color: HexColor("#455A64")))));
-        }
-      } else {
-        activeWidgets.add(Container(
-            margin: EdgeInsets.only(top: 5, bottom: 5),
-            child: Text(
-              "No active constraints",
-              style: TextStyle(color: HexColor("#455A64")),
-            )));
-      }
-    } else {
-      activeWidgets.add(Container(
-          margin: EdgeInsets.only(top: 5, bottom: 5),
-          child: Text(
-            "No active constraints",
-            style: TextStyle(color: HexColor("#455A64")),
-          )));
-    }
-
-    List<Widget> completeWidgets = [];
-    completeWidgets.add(
-      Container(
-        margin: EdgeInsets.only(top: 20),
-        child: Text("Complete",
-            style: TextStyle(
-                fontFamily: "JetBrainMono",
-                fontWeight: FontWeight.bold,
-                fontSize: 16)),
-      ),
-    );
-    if (msg["value"].length > 2) {
-      List completeConstraints = msg["value"][2]["constraint_data"];
-      if (completeConstraints.length > 0) {
-        for (Map constraint in completeConstraints) {
-          completeWidgets.add(Container(
-              margin: EdgeInsets.only(top: 5, bottom: 5),
-              child: Text("${constraint['constraint_name']}")));
-          completeWidgets.add(Container(
-              margin: EdgeInsets.only(bottom: 15),
-              child: Text("Result: ${constraint['data']}",
-                  style: TextStyle(color: HexColor("#455A64")))));
-        }
-      } else {
-        completeWidgets.add(Container(
-            margin: EdgeInsets.only(top: 5, bottom: 5),
-            child: Text(
-              "No complete constraints",
-              style: TextStyle(color: HexColor("#455A64")),
-            )));
-      }
-    } else {
-      completeWidgets.add(Container(
-          margin: EdgeInsets.only(top: 5, bottom: 5),
-          child: Text(
-            "No complete constraints",
-            style: TextStyle(color: HexColor("#455A64")),
-          )));
-    }
-
-    showDialog<void>(
-      context: context,
-      barrierDismissible: true, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Constraint complete",
-                style: TextStyle(
-                    fontFamily: "JetBrainMono",
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 10),
-                child: Text(
-                  "User ID: $userID",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-              ),
-            ],
-          ),
-          content: Container(
-              // height: 300,
-              width: double.maxFinite,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: pendingWidgets),
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: activeWidgets),
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: completeWidgets),
-                  ],
-                ),
-              )),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Done'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    return channel.stream;
   }
 
   Widget showConstraintsForStage(String stageName) {
-    print(taskID);
     return FutureBuilder(
       future: getStageGroupData(stageName, taskID),
       builder: (context, snapshot) {
@@ -276,20 +59,90 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             String stageName = data["stage_name"];
             List constraints = data["constraints"];
             List<Widget> widgets = [];
+            liveStagesAndConstraints[stageName] = [];
             for (Map constraint in constraints) {
+              List constraintsForStage = liveStagesAndConstraints[stageName];
+
               String constraintName = constraint["constraint_name"];
+              constraintsForStage.add(constraintName);
+
               widgets.add(Container(
-                margin: EdgeInsets.only(top: 5, bottom: 10),
-                child: GestureDetector(
-                    onTap: () {
-                      showUserSessionsDialogForConstraint(
-                          constraintName, stageName);
-                    },
-                    child: Text(constraint["constraint_name"],
-                        style: TextStyle(
-                            color: Colors.blue,
-                            fontFamily: "JetBrainMono",
-                            fontSize: 12))),
+                // color: Colors.black,
+                // padding: EdgeInsets.only(left: 7, right: 7, top: 5, bottom: 5),
+                margin: EdgeInsets.only(
+                  top: 5,
+                ),
+                child: Text(constraint["constraint_name"],
+                    style: TextStyle(
+                      fontSize: 13,
+                    )),
+              ));
+
+              widgets.add(StreamBuilder(
+                stream: getActiveUsersForConstraint(stageName, constraintName),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List activeUsers =
+                        jsonDecode(snapshot.data)["active_users"];
+                    if (activeUsers.length > 0) {
+                      return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: activeUsers.length,
+                          itemBuilder: (context, i) {
+                            return Row(
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton(
+                                      onPressed: () {
+                                        loadAdminConstraintViews(constraintName,
+                                            stageName, activeUsers[i]);
+                                      },
+                                      child: Text(
+                                        activeUsers[i],
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                        ),
+                                      )),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 2, bottom: 2),
+                                  color: Colors.red,
+                                  child: Text("LIVE",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      )),
+                                )
+                              ],
+                            );
+                          });
+                    } else {
+                      return Container(
+                        margin: EdgeInsets.only(top: 7, bottom: 15),
+                        child: Text(
+                          "No active users",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.red[200],
+                          ),
+                        ),
+                      );
+                    }
+                  } else if (snapshot.hasError) {
+                    return Container(
+                      margin: EdgeInsets.only(top: 5, bottom: 15),
+                      child: Text(
+                        "An error occured",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
               ));
             }
             return Column(
@@ -300,17 +153,15 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
               child: Center(
                 child: Text("There are no constraints for this stage",
                     style: TextStyle(
-                        color: Colors.white, fontFamily: "JetBrainMono")),
+                      color: Colors.white,
+                    )),
               ),
             );
           }
         } else if (snapshot.hasError) {
           return Container(
             child: Text("An error occured",
-                style: TextStyle(
-                    color: Colors.red,
-                    fontFamily: "JetBrainMono",
-                    fontSize: 12)),
+                style: TextStyle(color: Colors.red, fontSize: 12)),
           );
         } else {
           return Center(
@@ -371,23 +222,59 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
         "get");
   }
 
-  @override
-  void initState() {
-    super.initState();
-    initTaskDetails();
+  Future getConstraintsInStage(String stage) async {
+    String stageGroupId = await getStageGroupID();
+    Future data = NetworkUtils.performNetworkAction(
+        NetworkUtils.serverAddr + NetworkUtils.portNum,
+        "/stage_group/" + stageGroupId,
+        "get");
+    Map val = jsonDecode(await data);
+    if (stage == "Pending") {
+      return val["stages"][0]["constraints"];
+    } else if (stage == "Active") {
+      return val["stages"][1]["constraints"];
+    } else if (stage == "Complete") {
+      return val["stages"][2]["constraints"];
+    }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future getConstraintCompletionInputLabels(String constraintName) async {
+    Future data = NetworkUtils.performNetworkAction(
+        NetworkUtils.serverAddr + NetworkUtils.portNum,
+        "/constraint/" + constraintName + "/data_labels",
+        "get");
+    return jsonDecode(await data)["labels"];
+  }
+
+  void disconnectTaskDetails() {
     final channel = IOWebSocketChannel.connect(
         "ws://192.168.1.129:4321/disconnect_task_details");
 
     channel.sink.add(jsonEncode({"task_id": taskID}));
   }
 
+  void disconnectConstraintActiveUserNotifier() {
+    liveStagesAndConstraints.forEach((sName, value) {
+      List constraints = value;
+      constraints.forEach((cName) {
+        final channel = IOWebSocketChannel.connect(
+            "ws://192.168.1.129:4321/disconnect_from_constraint_active_users");
+
+        channel.sink.add(jsonEncode({
+          "task_id": taskID,
+          "constraint_name": cName,
+          "stage_name": sName
+        }));
+      });
+    });
+  }
+
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    initTaskDetails();
     final channel = IOWebSocketChannel.connect(
         "ws://192.168.1.129:4321/connect_task_details");
 
@@ -422,10 +309,128 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
       }
     });
 
+    Future.delayed(Duration.zero, () {
+      getConstraintsInStage("Pending").then((value) {
+        List constraints = value;
+        constraints.forEach((constraintName) {
+          pendingConstraintsData[constraintName] = <DataRow>[];
+          getConstraintCompletionInputLabels(constraintName).then((labels) {
+            int numberOfLabels = labels.length;
+
+            pendingUsers.forEach((userId) {
+              final channel = IOWebSocketChannel.connect(
+                  "ws://192.168.1.129:4321/pipeline_details");
+
+              channel.sink
+                  .add(jsonEncode({"task_id": taskID, "user_id": userId}));
+
+              channel.stream.first.then((value) {
+                List stageConstraints =
+                    jsonDecode(value)["value"][0]["constraint_data"];
+
+                Map userConstraintData = stageConstraints.firstWhere(
+                    (element) =>
+                        element["constraint_name"] == constraintName)["data"];
+                if (userConstraintData.isNotEmpty) {
+                  List<DataCell> dataCells = [];
+                  dataCells.add(DataCell(Text(
+                    userId,
+                  )));
+                  for (int i = 0; i < numberOfLabels; i++) {
+                    dataCells.add(DataCell(Text(
+                      userConstraintData.entries.elementAt(i).value.toString(),
+                    )));
+                  }
+                  setState(() {
+                    pendingConstraintsData[constraintName].add(
+                      DataRow(
+                        cells: dataCells,
+                      ),
+                    );
+                  });
+                }
+              });
+            });
+          });
+        });
+      });
+      getConstraintsInStage("Complete").then((value) {
+        List constraints = value;
+        constraints.forEach((constraintName) {
+          completeConstraintsData[constraintName] = <DataRow>[];
+          getConstraintCompletionInputLabels(constraintName).then((labels) {
+            int numberOfLabels = labels.length;
+
+            completeUsers.forEach((userId) {
+              final channel = IOWebSocketChannel.connect(
+                  "ws://192.168.1.129:4321/pipeline_details");
+
+              channel.sink
+                  .add(jsonEncode({"task_id": taskID, "user_id": userId}));
+
+              channel.stream.first.then((value) {
+                List stageConstraints =
+                    jsonDecode(value)["value"][2]["constraint_data"];
+                print("stageConstraints $stageConstraints");
+
+                Map userConstraintData = stageConstraints.firstWhere(
+                    (element) =>
+                        element["constraint_name"] == constraintName)["data"];
+                if (userConstraintData.isNotEmpty) {
+                  List<DataCell> dataCells = [];
+                  dataCells.add(DataCell(Text(
+                    userId,
+                  )));
+                  for (int i = 0; i < numberOfLabels; i++) {
+                    dataCells.add(DataCell(Text(
+                      userConstraintData.entries.elementAt(i).value.toString(),
+                    )));
+                  }
+                  setState(() {
+                    completeConstraintsData[constraintName].add(
+                      DataRow(
+                        cells: dataCells,
+                      ),
+                    );
+                  });
+                  print(completeConstraintDataLabels);
+                }
+              });
+            });
+          });
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+
+    disconnectTaskDetails();
+    disconnectConstraintActiveUserNotifier();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      disconnectTaskDetails();
+      disconnectConstraintActiveUserNotifier();
+    }
+    if (state == AppLifecycleState.resumed) {
+      // setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
             body: Container(
-      margin: EdgeInsets.only(top: 20, left: 20, right: 20),
+      margin: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(top: 20, left: 20, right: 20),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,10 +438,8 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             Container(
                 child: Text(
               "Task ID:",
-              style: TextStyle(
-                  fontFamily: "JetBrainMono",
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
+              style:
+                  GoogleFonts.sora(fontSize: 20, fontWeight: FontWeight.bold),
             )),
             Container(
                 child: Text(
@@ -444,20 +447,22 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
               style: TextStyle(fontSize: 20),
             )),
             Container(
-              margin: EdgeInsets.only(top: 20, bottom: 5),
-              child: Text("Constraint sessions",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20)),
+              margin: EdgeInsets.only(top: 20),
+              child: Text("Constraint interactions",
+                  style: GoogleFonts.sora(
+                      fontWeight: FontWeight.bold, fontSize: 22)),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 5, bottom: 20),
+              child: Text(
+                  "Some constraints allow for you to interact with your customers. You can start the admin version of the constraint started by the customer",
+                  style: TextStyle(fontSize: 15, color: Colors.grey[600])),
             ),
             Container(
               margin: EdgeInsets.only(top: 5, bottom: 5),
               child: Text("Pending Constraints",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15)),
+                  style: GoogleFonts.sora(
+                      fontWeight: FontWeight.bold, fontSize: 15)),
             ),
             Container(
               child: showConstraintsForStage("Pending"),
@@ -465,10 +470,8 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             Container(
               margin: EdgeInsets.only(top: 15, bottom: 5),
               child: Text("Active Constraints",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15)),
+                  style: GoogleFonts.sora(
+                      fontWeight: FontWeight.bold, fontSize: 15)),
             ),
             Container(
               child: showConstraintsForStage("Active"),
@@ -476,193 +479,337 @@ class _TaskDeailPageState extends State<TaskDeailPage> {
             Container(
               margin: EdgeInsets.only(top: 15, bottom: 5),
               child: Text("Complete Constraints",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15)),
+                  style: GoogleFonts.sora(
+                      fontWeight: FontWeight.bold, fontSize: 15)),
             ),
             Container(
               child: showConstraintsForStage("Complete"),
             ),
             Container(
-              margin: EdgeInsets.only(top: 40, bottom: 5),
-              child: Text("Completed users",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20)),
+              margin: EdgeInsets.only(top: 20),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[400], width: 0.125)),
             ),
+
+            Container(
+              margin: EdgeInsets.only(
+                top: 40,
+              ),
+              child: Text("Constraint data",
+                  style: GoogleFonts.sora(
+                      fontWeight: FontWeight.bold, fontSize: 22)),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 5, bottom: 20),
+              child: Text("View the data for each user for each constraint",
+                  style: TextStyle(fontSize: 15, color: Colors.grey[600])),
+            ),
+
             Container(
               margin: EdgeInsets.only(top: 5),
               child: Text(
                 "Completed sessions: $liveSessionCount",
-                style: TextStyle(
-                    fontFamily: "JetBrainMono",
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: 20, bottom: 5),
-              child: Text("Pending users",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15)),
+              margin: EdgeInsets.only(top: 20, bottom: 15),
+              child: Text("Pending Constraints",
+                  style: GoogleFonts.sora(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
             ),
-            pendingUsers.length == 0
-                ? Container(
-                    margin: EdgeInsets.only(top: 5),
-                    child: Text("No user in pending stage",
-                        style: TextStyle(
-                            fontFamily: "JetBrainMono",
-                            color: Colors.red,
-                            fontSize: 12)))
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: pendingUsers.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                          margin: EdgeInsets.only(bottom: 15),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(pendingUsers[index]),
-                              GestureDetector(
-                                  onTap: () {
-                                    final channel = IOWebSocketChannel.connect(
-                                        "ws://192.168.1.129:4321/pipeline_details");
+            FutureBuilder(
+              future: getConstraintsInStage("Pending"),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List constraints = snapshot.data;
+                  return ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: constraints.length,
+                      itemBuilder: (context, i) {
+                        return FutureBuilder(
+                          future: getConstraintCompletionInputLabels(
+                              constraints[i]),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List<DataColumn> columns = [];
+                              List labels = snapshot.data;
 
-                                    channel.sink.add(jsonEncode({
-                                      "task_id": taskID,
-                                      "user_id": pendingUsers[index]
-                                    }));
+                              labels.forEach((element) {
+                                columns.add(DataColumn(
+                                  label: Text(
+                                    element,
+                                  ),
+                                ));
+                              });
+                              columns.insert(
+                                  0,
+                                  DataColumn(
+                                    label: Text(
+                                      "ID",
+                                    ),
+                                  ));
 
-                                    channel.stream.first.then((event) {
-                                      Map<String, dynamic> data =
-                                          jsonDecode(event);
-                                      showConstraintCompleteDialog(
-                                          data, pendingUsers[index]);
-                                    });
-                                  },
-                                  child: Text(
-                                    "view data",
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontFamily: "JetBrainMono",
-                                        fontSize: 14),
-                                  ))
-                            ],
-                          ));
-                    }),
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                      child: Text(
+                                    constraints[i],
+                                    style: TextStyle(fontSize: 13),
+                                  )),
+                                  labels.isNotEmpty
+                                      ? SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: DataTable(
+                                            showBottomBorder: true,
+                                            columns: columns,
+                                            rows: pendingConstraintsData[
+                                                        constraints[i]] ==
+                                                    null
+                                                ? []
+                                                : pendingConstraintsData[
+                                                    constraints[i]],
+                                          ),
+                                        )
+                                      : Container(
+                                          margin: EdgeInsets.only(
+                                              bottom: 30, top: 5),
+                                          child: Text("No data",
+                                              style: TextStyle(
+                                                  color: Colors.red[200],
+                                                  fontSize: 12))),
+                                ],
+                              );
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          },
+                        );
+                      });
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            ),
             Container(
-              margin: EdgeInsets.only(top: 20, bottom: 5),
-              child: Text("Active users",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15)),
+              margin: EdgeInsets.only(top: 5, bottom: 15),
+              child: Text("Active Constraints",
+                  style: GoogleFonts.sora(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
             ),
-            activeUsers.length == 0
-                ? Container(
-                    margin: EdgeInsets.only(top: 5),
-                    child: Text("No user in active stage",
-                        style: TextStyle(
-                            fontFamily: "JetBrainMono",
-                            color: Colors.red,
-                            fontSize: 12)))
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: activeUsers.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                          margin: EdgeInsets.only(bottom: 15),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(activeUsers[index]),
-                              GestureDetector(
-                                  onTap: () {
-                                    final channel = IOWebSocketChannel.connect(
-                                        "ws://192.168.1.129:4321/pipeline_details");
+            FutureBuilder(
+              future: getConstraintsInStage("Active"),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List constraints = snapshot.data;
+                  return ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: constraints.length,
+                      itemBuilder: (context, i) {
+                        return FutureBuilder(
+                          future: getConstraintCompletionInputLabels(
+                              constraints[i]),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List<DataColumn> columns = [];
+                              List labels = snapshot.data;
 
-                                    channel.sink.add(jsonEncode({
-                                      "task_id": taskID,
-                                      "user_id": activeUsers[index]
-                                    }));
+                              labels.forEach((element) {
+                                columns.add(DataColumn(
+                                  label: Text(
+                                    element,
+                                  ),
+                                ));
+                              });
+                              columns.insert(
+                                  0,
+                                  DataColumn(
+                                    label: Text(
+                                      "ID",
+                                    ),
+                                  ));
 
-                                    channel.stream.first.then((event) {
-                                      Map<String, dynamic> data =
-                                          jsonDecode(event);
-
-                                      showConstraintCompleteDialog(
-                                          data, activeUsers[index]);
-                                    });
-                                  },
-                                  child: Text(
-                                    "view data",
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontFamily: "JetBrainMono",
-                                        fontSize: 14),
-                                  ))
-                            ],
-                          ));
-                    }),
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                      child: Text(
+                                    constraints[i],
+                                    style: TextStyle(fontSize: 13),
+                                  )),
+                                  labels.isNotEmpty
+                                      ? SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: DataTable(
+                                            showBottomBorder: true,
+                                            columns: columns,
+                                            rows: activeConstraintsData[
+                                                        constraints[i]] ==
+                                                    null
+                                                ? []
+                                                : activeConstraintsData[
+                                                    constraints[i]],
+                                          ),
+                                        )
+                                      : Container(
+                                          margin: EdgeInsets.only(
+                                              bottom: 30, top: 5),
+                                          child: Text("No data",
+                                              style: TextStyle(
+                                                  color: Colors.red[200],
+                                                  fontSize: 12))),
+                                ],
+                              );
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          },
+                        );
+                      });
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            ),
             Container(
-              margin: EdgeInsets.only(top: 20, bottom: 5),
-              child: Text("Completed users",
-                  style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15)),
+              margin: EdgeInsets.only(top: 5, bottom: 15),
+              child: Text("Complete Constraints",
+                  style: GoogleFonts.sora(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
             ),
-            completeUsers.length == 0
-                ? Container(
-                    margin: EdgeInsets.only(top: 5, bottom: 20),
-                    child: Text("No user in complete stage",
-                        style: TextStyle(
-                            fontFamily: "JetBrainMono",
-                            color: Colors.red,
-                            fontSize: 12)))
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: completeUsers.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(completeUsers[index]),
-                            GestureDetector(
-                                onTap: () {
-                                  final channel = IOWebSocketChannel.connect(
-                                      "ws://192.168.1.129:4321/pipeline_details");
+            FutureBuilder(
+              future: getConstraintsInStage("Complete"),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List constraints = snapshot.data;
+                  return ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: constraints.length,
+                      itemBuilder: (context, i) {
+                        return FutureBuilder(
+                          future: getConstraintCompletionInputLabels(
+                              constraints[i]),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List<DataColumn> columns = [];
+                              List labels = snapshot.data;
 
-                                  channel.sink.add(jsonEncode({
-                                    "task_id": taskID,
-                                    "user_id": completeUsers[index]
-                                  }));
+                              labels.forEach((element) {
+                                columns.add(DataColumn(
+                                  label: Text(
+                                    element,
+                                  ),
+                                ));
+                              });
+                              columns.insert(
+                                  0,
+                                  DataColumn(
+                                    label: Text(
+                                      "ID",
+                                    ),
+                                  ));
 
-                                  channel.stream.first.then((event) {
-                                    Map<String, dynamic> data =
-                                        jsonDecode(event);
-                                    showConstraintCompleteDialog(
-                                        data, completeUsers[index]);
-                                  });
-                                },
-                                child: Text(
-                                  "view data",
-                                  style: TextStyle(
-                                      color: Colors.blue,
-                                      fontFamily: "JetBrainMono",
-                                      fontSize: 14),
-                                ))
-                          ],
-                        ),
-                      );
-                    }),
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                      child: Text(
+                                    constraints[i],
+                                    style: TextStyle(fontSize: 13),
+                                  )),
+                                  labels.isNotEmpty
+                                      ? SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: DataTable(
+                                            showBottomBorder: true,
+                                            columns: columns,
+                                            rows: completeConstraintsData[
+                                                        constraints[i]] ==
+                                                    null
+                                                ? []
+                                                : completeConstraintsData[
+                                                    constraints[i]],
+                                          ),
+                                        )
+                                      : Container(
+                                          margin: EdgeInsets.only(
+                                              bottom: 30, top: 5),
+                                          child: Text("No data",
+                                              style: TextStyle(
+                                                  color: Colors.red[200],
+                                                  fontSize: 12))),
+                                ],
+                              );
+                            } else {
+                              return CircularProgressIndicator();
+                            }
+                          },
+                        );
+                      });
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            ),
+            // Container(
+            //   margin: EdgeInsets.only(top: 5, bottom: 5),
+            //   child: Text("Active Constraints",
+            //       style: TextStyle(
+            //
+            //           fontWeight: FontWeight.bold,
+            //           fontSize: 18)),
+            // ),
+            // FutureBuilder(
+            //   future: getConstraintsInStage("Active"),
+            //   builder: (context, snapshot) {
+            //     if (snapshot.hasData) {
+            //       List constraints = snapshot.data;
+            //       return ListView.builder(
+            //           shrinkWrap: true,
+            //           itemCount: constraints.length,
+            //           itemBuilder: (context, i) {
+            //             return Text(constraints[i],
+            //                 style: TextStyle(
+            //                      fontSize: 15));
+            //           });
+            //     } else {
+            //       return CircularProgressIndicator();
+            //     }
+            //   },
+            // ),
+            // Container(
+            //   margin: EdgeInsets.only(top: 5, bottom: 5),
+            //   child: Text("Complete Constraints",
+            //       style: TextStyle(
+            //
+            //           fontWeight: FontWeight.bold,
+            //           fontSize: 18)),
+            // ),
+            // FutureBuilder(
+            //   future: getConstraintsInStage("Complete"),
+            //   builder: (context, snapshot) {
+            //     if (snapshot.hasData) {
+            //       List constraints = snapshot.data;
+            //       return ListView.builder(
+            //           shrinkWrap: true,
+            //           itemCount: constraints.length,
+            //           itemBuilder: (context, i) {
+            //             return Text(constraints[i],
+            //                 style: TextStyle(
+            //                      fontSize: 15));
+            //           });
+            //     } else {
+            //       return CircularProgressIndicator();
+            //     }
+            //   },
+            // ),
           ],
         ),
       ),
