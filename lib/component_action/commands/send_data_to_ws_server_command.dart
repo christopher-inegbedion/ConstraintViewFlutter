@@ -31,7 +31,7 @@ class SendDataToWebSocketServerCommand extends ComponentActionCommand {
             componentAction.viewControllerState.configurationModel.userID,
         "task_id":
             componentAction.viewControllerState.configurationModel.taskID,
-        "data": value
+        "data": getValue()
       }));
       runSuccess();
     } catch (e, stacktrace) {

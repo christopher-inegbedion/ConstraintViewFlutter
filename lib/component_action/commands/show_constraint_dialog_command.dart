@@ -18,8 +18,9 @@ class ShowConstraintDialogCommand extends ComponentActionCommand {
     try {
       String constraintName = getValue()[0] + "_config";
       String stageName = getValue()[1];
+      bool showDoneBtn = getValue().length < 3 ? true : getValue()[2];
       componentAction.viewControllerState
-          .showConstraintInDialog(constraintName, stageName)
+          .showConstraintInDialog(constraintName, stageName, showDoneBtn)
           .then((value) {
         this.result = value;
 

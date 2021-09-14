@@ -20,7 +20,7 @@ class GetConstraintConfigInputsCommand extends ComponentActionCommand {
     super.run(result);
     try {
       final channel = IOWebSocketChannel.connect(
-          "ws://192.168.1.129:4321/constraint_config_inputs");
+          "ws://192.168.1.129:4321/get_constraint_config_inputs");
 
       channel.sink.add(jsonEncode({
         "response": "INPUT_REQUIRED",

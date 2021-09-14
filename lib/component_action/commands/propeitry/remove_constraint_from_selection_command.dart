@@ -37,6 +37,8 @@ class RemoveConstraintFromSelectionCommand extends ComponentActionCommand {
       } else {
         runFailure();
       }
+      print(componentAction.viewControllerState.savedValues);
+      print(componentAction.viewControllerState.tempValues);
     } catch (e, stacktrace) {
       print(stacktrace);
       print("RemoveConstraintFromSelection error: $e");

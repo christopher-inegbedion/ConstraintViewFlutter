@@ -1,5 +1,6 @@
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
+import 'package:constraint_view/models/component_model.dart';
 
 class TerminalPrintCommand extends ComponentActionCommand {
   String id;
@@ -18,12 +19,14 @@ class TerminalPrintCommand extends ComponentActionCommand {
   run(dynamic result) {
     super.run(result);
     try {
-      this.result = null;
-      value.forEach((element) {
-        print(element);
-      });
+      // componentAction.viewControllerState.builtComponents.forEach((key, value) {
+      //   Component val = value;
+      //   print(val.getValue());
+      // });
+
       runSuccess();
-    } catch (e) {
+    } catch (e, stacktrace) {
+      print(stacktrace);
       print("TerminalPrint error: $e");
       runFailure();
     }
