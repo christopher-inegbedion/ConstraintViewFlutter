@@ -7,5 +7,6 @@ enum ComponentType {
   LiveModel,
   List,
   ListTile,
-  DropDown
+  DropDown,
+  Rating
 }

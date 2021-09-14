@@ -9,6 +9,7 @@ import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
 import 'package:constraint_view/components/list_tile_component.dart';
 import 'package:constraint_view/components/live_model_component.dart';
+import 'package:constraint_view/components/rating_component.dart';
 import 'package:constraint_view/components/text_component.dart';
 import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/enums/component_align.dart';
@@ -19,6 +20,7 @@ import 'package:constraint_view/models/margin_model.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:model_viewer/model_viewer.dart';
 import 'package:web_socket_channel/io.dart';
@@ -49,8 +51,8 @@ class ViewControllerState extends State<ViewController> {
   ConfigurationModel configurationModel;
   String section;
   Map builtComponents = {};
-  Map<String, dynamic> savedValues = {};
-  Map<String, dynamic> tempValues = {};
+  Map savedValues = {};
+  Map tempValues = {};
   List<ConfigEntry> sectionToUse;
   bool ignoreScoll = false;
   bool initialised = false;
@@ -63,6 +65,8 @@ class ViewControllerState extends State<ViewController> {
   Widget view;
 
   ViewControllerState(this.configurationModel, this.section, {this.isDialog});
+
+ 
 
   Future<void> showDialogWithMsg(String title, String msg) async {
     return showDialog<void>(
@@ -80,7 +84,8 @@ class ViewControllerState extends State<ViewController> {
     );
   }
 
-  Future showConstraintInDialog(String constraintName, String stageName) async {
+  Future showConstraintInDialog(
+      String constraintName, String stageName, bool showDoneBtn) async {
     Future<SectionData> sectionData = SectionData.forStatic(
             stageName, constraintName, "taskID", "userID", null)
         .fromConstraint(constraintName);
@@ -111,18 +116,20 @@ class ViewControllerState extends State<ViewController> {
                 ]),
               ),
               actions: [
-                TextButton(
-                    onPressed: () {
-                      if (sData.state.topViewController.state
-                              .savedValues["config_inputs"] !=
-                          null) {
-                        Navigator.pop(context, [
-                          sData.state.topViewController.state
-                              .savedValues["config_inputs"]
-                        ]);
-                      }
-                    },
-                    child: Text("Done"))
+                showDoneBtn
+                    ? TextButton(
+                        onPressed: () {
+                          if (sData.state.topViewController.state
+                                  .savedValues["config_inputs"] !=
+                              null) {
+                            Navigator.pop(context, [
+                              sData.state.topViewController.state
+                                  .savedValues["config_inputs"]
+                            ]);
+                          }
+                        },
+                        child: Text("Done"))
+                    : Container()
               ],
             );
           });
@@ -307,6 +314,12 @@ class ViewControllerState extends State<ViewController> {
 
             components.add(builtComponent);
             break;
+          case ComponentType.Rating:
+            RatingComponent ratingComponent = component;
+            Widget builtComponent = buildRatingComponent(ratingComponent);
+
+            components.add(builtComponent);
+            break;
           default:
             throw Exception("Component ${component.type} cannot be rendered");
         }
@@ -354,6 +367,22 @@ class ViewControllerState extends State<ViewController> {
                   : MainAxisAlignment.start,
               children: entries,
             ),
+    );
+  }
+
+  Widget buildRatingComponent(RatingComponent ratingComponent) {
+    ViewMargin componentMargin = ratingComponent.margin;
+    Container widget = ratingComponent.buildComponentView();
+    builtComponents[ratingComponent.ID] = ratingComponent;
+
+    return Expanded(
+      child: Container(
+          margin: EdgeInsets.only(
+              top: componentMargin.top,
+              bottom: componentMargin.bottom,
+              left: componentMargin.left,
+              right: componentMargin.right),
+          child: widget),
     );
   }
 

@@ -6,6 +6,7 @@ import 'package:constraint_view/components/image_component.dart';
 import 'package:constraint_view/components/input_field_component.dart';
 import 'package:constraint_view/components/list_component.dart';
 import 'package:constraint_view/components/list_tile_component.dart';
+import 'package:constraint_view/components/rating_component.dart';
 import 'package:constraint_view/components/text_component.dart';
 import 'package:constraint_view/enums/component_align.dart';
 import 'package:constraint_view/models/component_model.dart';
@@ -176,6 +177,10 @@ class SectionData {
         break;
       case "dropdown":
         return DropdownComponent.forStatic()
+            .buildComponent(component["component_properties"], true);
+        break;
+      case "rating":
+        return RatingComponent.forStatic()
             .buildComponent(component["component_properties"], true);
         break;
 
