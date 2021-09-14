@@ -1,15 +1,11 @@
 import 'dart:convert';
 
-import 'package:constraint_view/component_action/commands/show_constraint_dialog_command.dart';
-import 'package:constraint_view/components/live_model_component.dart';
 import 'package:constraint_view/custom_views/task_view.dart';
-import 'package:constraint_view/enums/component_type.dart';
 import 'package:constraint_view/models/section_data.dart';
 import 'package:constraint_view/task_detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
-import 'component_action/component_action.dart';
-import 'components_test_page.dart';
 import 'utils/network_functions.dart';
 
 void main() {
@@ -23,6 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'ConstraintViewDemo',
         theme: ThemeData(
+          textTheme: GoogleFonts.jetBrainsMonoTextTheme(),
           primarySwatch: Colors.blue,
         ),
         home: MainApp());
@@ -82,7 +79,7 @@ class MainApp extends StatelessWidget {
                         ]);
                       }
                     },
-                    child: Text("Done"))
+                    child: Text("Create"))
               ],
             );
           });
@@ -97,17 +94,6 @@ class MainApp extends StatelessWidget {
     return parsedData;
   }
 
-  Widget showConstraints(String constraintName, List selectedConstraints) {
-    return FutureBuilder(
-        future: getAllConstraints(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            Map<String, dynamic> data = snapshot.data;
-            List allConstraints = data["constraints"];
-          }
-        });
-  }
-
   void createStageGroupDialog(BuildContext context) {
     List pendingConstraints = [];
     List activeConstraints = [];
@@ -120,15 +106,17 @@ class MainApp extends StatelessWidget {
 
     showDialog<void>(
       context: context,
-      barrierDismissible: true, // user must tap button!
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setstate) {
             return AlertDialog(
-              title: Text(
-                "Select stage constraints",
-                style: TextStyle(
-                    fontFamily: "JetBrainMono", fontWeight: FontWeight.bold),
+              title: Container(
+                margin: EdgeInsets.only(left: 20, top: 20),
+                child: Text(
+                  "Stage constraints",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               content: !isFormCompleted
                   ? Container(
@@ -136,34 +124,45 @@ class MainApp extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          DropdownButton<String>(
-                            value: constraintViewing,
-                            icon: const Icon(Icons.arrow_downward),
-                            iconSize: 24,
-                            elevation: 16,
-                            underline: Container(
-                              height: 2,
-                              color: Colors.blueAccent,
+                          Container(
+                            margin: EdgeInsets.only(left: 20),
+                            child: Text("Select constraints for each stage"),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 20),
+                            alignment: Alignment.centerLeft,
+                            child: DropdownButton<String>(
+                              value: constraintViewing,
+                              icon: const Icon(Icons.arrow_downward),
+                              iconSize: 24,
+                              elevation: 16,
+                              underline: Container(
+                                height: 2,
+                                color: Colors.blueAccent,
+                              ),
+                              onChanged: (String newValue) {
+                                if (newValue == "Pending") {
+                                  stageSelecting = pendingConstraints;
+                                } else if (newValue == "Active") {
+                                  stageSelecting = activeConstraints;
+                                } else if (newValue == "Complete") {
+                                  stageSelecting = completeConstraints;
+                                }
+                                setstate(() {
+                                  constraintViewing = newValue;
+                                });
+                              },
+                              items: <String>[
+                                'Pending',
+                                'Active',
+                                'Complete'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
                             ),
-                            onChanged: (String newValue) {
-                              if (newValue == "Pending") {
-                                stageSelecting = pendingConstraints;
-                              } else if (newValue == "Active") {
-                                stageSelecting = activeConstraints;
-                              } else if (newValue == "Complete") {
-                                stageSelecting = completeConstraints;
-                              }
-                              setstate(() {
-                                constraintViewing = newValue;
-                              });
-                            },
-                            items: <String>['Pending', 'Active', 'Complete']
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
                           ),
                           FutureBuilder(
                             future: getAllConstraints(),
@@ -172,8 +171,16 @@ class MainApp extends StatelessWidget {
                                 Map<String, dynamic> data = snapshot.data;
                                 List allConstraints = data["constraints"];
 
+                                //constraints for payment should not be among the constraints the user
+                                //can select
+                                allConstraints.removeWhere((constraint) {
+                                  bool isPaymentConstraint =
+                                      constraint["for_payment"];
+                                  return isPaymentConstraint;
+                                });
+
                                 return Container(
-                                  height: 200,
+                                  height: 300,
                                   margin: EdgeInsets.only(top: 30),
                                   child: ListView.builder(
                                     shrinkWrap: true,
@@ -182,26 +189,12 @@ class MainApp extends StatelessWidget {
                                       String constraintName =
                                           allConstraints[index]
                                               ["constraint_name"];
-                                      List configParams = allConstraints[index]
-                                          ["configuration_params"];
                                       bool isConstraintConfigRequired =
                                           allConstraints[index][
                                               "is_configuration_input_required"];
-                                      int constraintConfigInputsCount =
-                                          allConstraints[index]
-                                              ["configuration_input_amount"];
                                       bool selected = false;
 
-                                      GlobalKey<FormState> key = GlobalKey();
-                                      List dataInputControllers = [];
-
-                                      for (int i = 0;
-                                          i < constraintConfigInputsCount;
-                                          i++) {
-                                        dataInputControllers
-                                            .add(TextEditingController());
-                                      }
-
+                                      //highlight a constraint if selected
                                       for (Map m in stageSelecting) {
                                         if (m["constraint_name"] ==
                                             constraintName) {
@@ -214,21 +207,15 @@ class MainApp extends StatelessWidget {
                                             onTap: () {
                                               Map<String, dynamic>
                                                   configInputs = {};
-                                              if (key.currentState != null) {
-                                                if (key.currentState
-                                                    .validate()) {
-                                                  if (isConstraintConfigRequired) {
-                                                    for (int i = 0;
-                                                        i < constraintConfigInputsCount;
-                                                        i++) {
-                                                      configInputs[
-                                                              configParams[i]] =
-                                                          dataInputControllers[
-                                                                  i]
-                                                              .text;
-                                                    }
-                                                  }
-                                                }
+                                              if (isConstraintConfigRequired) {
+                                                showConstraintInDialog(
+                                                        context,
+                                                        constraintName +
+                                                            "_config",
+                                                        "")
+                                                    .then((value) {
+                                                  print(value);
+                                                });
                                               }
                                               setstate(() {
                                                 int index = 0;
@@ -269,88 +256,14 @@ class MainApp extends StatelessWidget {
                                             selected: selected,
                                             title: Text(
                                               constraintName,
-                                              style: TextStyle(
-                                                  fontFamily: "JetBrainMono"),
+                                              style: TextStyle(),
                                             ),
                                             subtitle: Text(
                                               allConstraints[index]
                                                   ["constraint_desc"],
-                                              style: TextStyle(
-                                                  fontFamily: "JetBrainMono"),
+                                              style: TextStyle(),
                                             ),
                                           ),
-                                          isConstraintConfigRequired
-                                              ? Container(
-                                                  width: double.maxFinite,
-                                                  child: Form(
-                                                    key: key,
-                                                    child: ListView.builder(
-                                                      physics:
-                                                          NeverScrollableScrollPhysics(),
-                                                      shrinkWrap: true,
-                                                      itemCount:
-                                                          constraintConfigInputsCount,
-                                                      itemBuilder:
-                                                          (context, index) {
-                                                        return Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceEvenly,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        left:
-                                                                            20,
-                                                                        right:
-                                                                            20),
-                                                                child: Text(
-                                                                  configParams[
-                                                                      index],
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          15,
-                                                                      color: Colors
-                                                                          .grey),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Expanded(
-                                                              child: Container(
-                                                                margin: EdgeInsets
-                                                                    .only(
-                                                                        right:
-                                                                            20),
-                                                                child:
-                                                                    TextFormField(
-                                                                  validator:
-                                                                      (value) {
-                                                                    if (value ==
-                                                                            null ||
-                                                                        value
-                                                                            .isEmpty) {
-                                                                      return 'Please enter some text';
-                                                                    }
-                                                                    return null;
-                                                                  },
-                                                                  controller:
-                                                                      dataInputControllers[
-                                                                          index],
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                          hintText:
-                                                                              "Data"),
-                                                                ),
-                                                              ),
-                                                            )
-                                                          ],
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                )
-                                              : Container()
                                         ],
                                       );
                                     },
@@ -377,8 +290,7 @@ class MainApp extends StatelessWidget {
                               child: Center(
                                 child: SelectableText(
                                     "Stage with ID: $stageID created",
-                                    style:
-                                        TextStyle(fontFamily: "JetBrainMono")),
+                                    style: TextStyle()),
                               ),
                             );
                           } else {
@@ -386,8 +298,7 @@ class MainApp extends StatelessWidget {
                               height: 100,
                               child: Center(
                                 child: Text("An error occured",
-                                    style:
-                                        TextStyle(fontFamily: "JetBrainMono")),
+                                    style: TextStyle()),
                               ),
                             );
                           }
@@ -439,7 +350,6 @@ class MainApp extends StatelessWidget {
   Future getAllTasks() async {
     Future<dynamic> data = NetworkUtils.performNetworkAction(
         NetworkUtils.serverAddr + NetworkUtils.portNum, "/task", "get");
-    print("parsedData");
 
     Map<String, dynamic> parsedData = jsonDecode(await data);
     return parsedData;
@@ -457,8 +367,7 @@ class MainApp extends StatelessWidget {
           return SimpleDialog(
             title: Text(
               "Load a task",
-              style: TextStyle(
-                  fontFamily: "JetBrainMono", fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
             children: [
               Container(
@@ -489,9 +398,7 @@ class MainApp extends StatelessWidget {
                           alignment: Alignment.center,
                           margin: EdgeInsets.only(top: 30, bottom: 30),
                           child: Text("There are no tasks available",
-                              style: TextStyle(
-                                fontFamily: "JetBrainMono",
-                              )),
+                              style: TextStyle()),
                         );
                       } else {
                         return Column(
@@ -500,16 +407,16 @@ class MainApp extends StatelessWidget {
                               alignment: Alignment.centerLeft,
                               margin: EdgeInsets.only(top: 20, bottom: 10),
                               child: Text("Available tasks",
-                                  style: TextStyle(
-                                      fontFamily: "JetBrainMono",
-                                      fontWeight: FontWeight.bold)),
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
                             ),
                             ListView.builder(
                               shrinkWrap: true,
                               itemCount: tasks.length,
                               itemBuilder: (context, i) {
                                 return Container(
-                                    margin: EdgeInsets.only(bottom: 20),
+                                    alignment: Alignment.centerLeft,
+                                    margin: EdgeInsets.only(bottom: 10),
                                     child: TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
@@ -600,6 +507,16 @@ class MainApp extends StatelessWidget {
     return recvData;
   }
 
+  Future<List> getTaskCurrencies() async {
+    Future<dynamic> data = NetworkUtils.performNetworkAction(
+        NetworkUtils.serverAddr + NetworkUtils.portNum,
+        "/task/currency/",
+        "get");
+
+    List recvData = jsonDecode(await data)["currencies"];
+    return recvData;
+  }
+
   Future showTaskRegisteredDialog(BuildContext context, String taskID) async {
     return showDialog(
         context: context,
@@ -611,26 +528,42 @@ class MainApp extends StatelessWidget {
                   margin: EdgeInsets.only(left: 25, right: 30),
                   child: Text(
                     "Copy the code below",
-                    style: TextStyle(fontFamily: "JetBrainMono", fontSize: 16),
+                    style: TextStyle(fontSize: 16),
                   )),
               Container(
                   margin: EdgeInsets.only(left: 25, right: 30, bottom: 10),
                   child: SelectableText(
                     taskID,
-                    style: TextStyle(
-                        fontFamily: "JetBrainMono",
-                        color: Colors.red,
-                        fontSize: 14),
+                    style: TextStyle(color: Colors.red, fontSize: 14),
                   )),
             ],
           );
         });
   }
 
+  Future getAllPaymentConstraints() async {
+    Future data = NetworkUtils.performNetworkAction(
+        NetworkUtils.serverAddr + NetworkUtils.portNum, "/constraints", "get");
+
+    List allConstraints = jsonDecode(await data)["constraints"];
+    List result = [];
+    for (Map i in allConstraints) {
+      if (i["for_payment"]) {
+        result.add(i);
+      }
+    }
+
+    return result;
+  }
+
   Future<void> createTaskDialog(BuildContext context) async {
     int _value = 1;
     List<Widget> views = [];
     List selections = [];
+    String currencySelection;
+    String priceConstraintValue;
+    String priceConstraintStage = "Pending";
+    List<bool> pricingStageSelections = [true, false, false];
 
     dynamic dataToSend = {
       "task_name": "",
@@ -646,6 +579,10 @@ class MainApp extends StatelessWidget {
     GlobalKey<FormState> stageGroupKey = GlobalKey();
     TextEditingController stageGroupIdController = TextEditingController();
 
+    GlobalKey<FormState> paymentConstraintKey = GlobalKey();
+    GlobalKey<FormState> priceConstraintKey = GlobalKey();
+    TextEditingController amountController = TextEditingController();
+
     return showDialog(
         context: context,
         builder: (context) {
@@ -656,24 +593,23 @@ class MainApp extends StatelessWidget {
                   margin: EdgeInsets.only(top: 50, left: 40),
                   child: Text(
                     "Create a task",
-                    style: TextStyle(
-                        fontFamily: "JetBrainMono",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                   ),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 5, left: 40),
                   child: Text(
                     "Complete the form to create a task",
-                    style: TextStyle(fontFamily: "JetBrainMono", fontSize: 18),
+                    style: TextStyle(fontSize: 18),
                   ),
                 ),
+
+                //Basic information
                 Container(
                   margin: EdgeInsets.only(top: 30, left: 40),
                   child: Text(
                     "Basic Information",
-                    style: TextStyle(fontFamily: "JetBrainMono", fontSize: 16),
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
                 Container(
@@ -712,21 +648,20 @@ class MainApp extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                //Properties details
                 Container(
                   margin: EdgeInsets.only(top: 30, left: 40),
                   child: Text(
                     "Properties",
-                    style: TextStyle(fontFamily: "JetBrainMono", fontSize: 16),
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 5, left: 40, right: 30),
                   child: Text(
                     "Select as many properties apply to your task",
-                    style: TextStyle(
-                        fontFamily: "JetBrainMono",
-                        color: Colors.grey,
-                        fontSize: 14),
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                 ),
                 Container(
@@ -754,7 +689,6 @@ class MainApp extends StatelessWidget {
                                           if (val) {
                                             getPropertyDenominations(e)
                                                 .then((value) {
-                                              print(value);
                                               selectedProperties[e] = {
                                                 "name": e,
                                                 "value": null,
@@ -871,26 +805,198 @@ class MainApp extends StatelessWidget {
                                   setstate(() {
                                     data["selected_denom"] = value;
                                   });
-                                  print(denoms);
                                 },
                               ),
                             ],
                           );
                         })),
+
+                //Pricing details
                 Container(
                   margin: EdgeInsets.only(top: 30, left: 40),
-                  child: Text("Stage group",
-                      style:
-                          TextStyle(fontFamily: "JetBrainMono", fontSize: 16)),
+                  child: Text(
+                    "Pricing",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 5, left: 40, right: 30),
+                  child: Text(
+                    "Enter your task's price details",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 40, right: 30, top: 10),
+                  child: Form(
+                      key: paymentConstraintKey,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.only(right: 20),
+                              child: TextFormField(
+                                  validator: (String val) {
+                                    if (val == "") {
+                                      return "";
+                                    }
+
+                                    return null;
+                                  },
+                                  controller: amountController,
+                                  keyboardType: TextInputType.number,
+                                  decoration:
+                                      InputDecoration(hintText: "Amount")),
+                            ),
+                          ),
+                          Expanded(
+                            child: FutureBuilder(
+                              future: getTaskCurrencies(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  List<String> data = [];
+
+                                  snapshot.data.forEach((element) {
+                                    data.add(element.toString());
+                                  });
+
+                                  return DropdownButtonFormField<String>(
+                                    validator: (String val) {
+                                      if (val == null) {
+                                        return "";
+                                      }
+
+                                      return null;
+                                    },
+                                    value: currencySelection,
+                                    elevation: 16,
+                                    onChanged: (String newValue) {
+                                      setstate(() {
+                                        currencySelection = newValue;
+                                      });
+                                    },
+                                    items: data.map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  );
+                                } else {
+                                  return CircularProgressIndicator();
+                                }
+                              },
+                            ),
+                          )
+                        ],
+                      )),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 30, left: 40, right: 30),
+                  child: Text(
+                    "Select the price constraint",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 40, right: 30),
+                  child: FutureBuilder(
+                    future: getAllPaymentConstraints(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        List<String> data = [];
+                        for (Map i in snapshot.data) {
+                          data.add(i["constraint_name"]);
+                        }
+
+                        return Form(
+                          key: priceConstraintKey,
+                          child: DropdownButtonFormField<String>(
+                            validator: (String value) {
+                              if (value == null) {
+                                return "";
+                              }
+
+                              return null;
+                            },
+                            value: priceConstraintValue,
+                            elevation: 16,
+                            onChanged: (String newValue) {
+                              setstate(() {
+                                priceConstraintValue = newValue;
+                              });
+                            },
+                            items: data
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      } else {
+                        return Container(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator());
+                      }
+                    },
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 20, left: 40, right: 30),
+                  child: Text(
+                    "Select the stage for the price constraint",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 40, top: 20),
+                  child: ToggleButtons(
+                    children: <Widget>[
+                      Container(
+                          margin: EdgeInsets.only(left: 10, right: 10),
+                          child: Text("Pending")),
+                      Container(
+                          margin: EdgeInsets.only(left: 10, right: 10),
+                          child: Text("Active")),
+                      Container(
+                          margin: EdgeInsets.only(left: 10, right: 10),
+                          child: Text("Complete")),
+                    ],
+                    onPressed: (int index) {
+                      setstate(() {
+                        pricingStageSelections[0] = false;
+                        pricingStageSelections[1] = false;
+                        pricingStageSelections[2] = false;
+
+                        pricingStageSelections[index] =
+                            !pricingStageSelections[index];
+
+                        if (index == 0) {
+                          priceConstraintStage = "Pending";
+                        } else if (index == 1) {
+                          priceConstraintStage = "Active";
+                        } else if (index == 2) {
+                          priceConstraintStage = "Complete";
+                        }
+                      });
+                    },
+                    isSelected: pricingStageSelections,
+                  ),
+                ),
+
+                //Stage group details
+                Container(
+                  margin: EdgeInsets.only(top: 40, left: 40),
+                  child: Text("Stage group", style: TextStyle(fontSize: 16)),
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 5, left: 40, right: 30),
                   child: Text(
                     "Click the button below, complete the form, copy the code and paste it below",
-                    style: TextStyle(
-                        fontFamily: "JetBrainMono",
-                        color: Colors.grey,
-                        fontSize: 14),
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                 ),
                 Container(
@@ -899,8 +1005,7 @@ class MainApp extends StatelessWidget {
                   child: TextButton(
                     child: Text("Create stage group"),
                     onPressed: () {
-                      showConstraintInDialog(
-                          context, "Select constraint_config", "");
+                      createStageGroupDialog(context);
                     },
                   ),
                 ),
@@ -926,10 +1031,13 @@ class MainApp extends StatelessWidget {
                   child: TextButton(
                     child: Text("Submit"),
                     onPressed: () {
+                      bool allFieldsValid = true;
                       //Verify that task name and desc are correct
                       if (taskDetailsKey.currentState.validate()) {
                         dataToSend["task_name"] = taskNameController.text;
                         dataToSend["task_desc"] = taskDescController.text;
+                      } else {
+                        allFieldsValid = false;
                       }
 
                       //Verify any property that might have been selected is set correctly
@@ -950,29 +1058,50 @@ class MainApp extends StatelessWidget {
 
                           dataToSend["properties"] =
                               jsonEncode(finalSelectedProperties);
+                        } else {
+                          allFieldsValid = false;
                         }
                       });
+
+                      //Verify pricing details are correct
+                      if (priceConstraintKey.currentState.validate()) {
+                        String amount = amountController.text;
+                        String currency = currencySelection;
+                        String priceConstraint = priceConstraintValue;
+                        String priceStage = priceConstraintStage;
+
+                        dataToSend["price"] = amount;
+                        dataToSend["currency"] = currency;
+                        dataToSend["price_constraint_name"] = priceConstraint;
+                        dataToSend["price_constraint_stage"] = priceStage;
+                      } else {
+                        allFieldsValid = false;
+                      }
+
+                      if (paymentConstraintKey.currentState.validate()) {}
 
                       //Verify that a stage group id value is set correctly
                       if (stageGroupKey.currentState.validate()) {
                         dataToSend["stage_group_id"] =
                             stageGroupIdController.text;
+                      } else {
+                        allFieldsValid = false;
                       }
 
-                      print(dataToSend);
-
                       //Send the data to the server
-                      Future response = NetworkUtils.performNetworkAction(
-                          NetworkUtils.serverAddr + NetworkUtils.portNum,
-                          "/create_task",
-                          "post",
-                          data: dataToSend);
+                      if (allFieldsValid) {
+                        Future response = NetworkUtils.performNetworkAction(
+                            NetworkUtils.serverAddr + NetworkUtils.portNum,
+                            "/create_task",
+                            "post",
+                            data: dataToSend);
 
-                      response.then((value) {
-                        Map data = jsonDecode(value);
-                        Navigator.of(context).pop();
-                        showTaskRegisteredDialog(context, data["task_id"]);
-                      });
+                        response.then((value) {
+                          Map data = jsonDecode(value);
+                          Navigator.of(context).pop();
+                          showTaskRegisteredDialog(context, data["task_id"]);
+                        });
+                      }
                     },
                   ),
                 ),
@@ -1052,7 +1181,7 @@ class MainApp extends StatelessWidget {
               margin: EdgeInsets.only(bottom: 20),
               child: SelectableText(
                 "ID: $userID",
-                style: TextStyle(fontFamily: "JetBrainMono"),
+                style: TextStyle(),
               )),
           InkWell(
             onTap: () {
@@ -1065,9 +1194,7 @@ class MainApp extends StatelessWidget {
                     BoxDecoration(border: Border.all(color: Colors.black)),
                 child: Text(
                   "🆕 CREATE TASK",
-                  style: TextStyle(
-                    fontFamily: "JetBrainMono",
-                  ),
+                  style: TextStyle(),
                 )),
           ),
           Container(
@@ -1083,9 +1210,7 @@ class MainApp extends StatelessWidget {
                       BoxDecoration(border: Border.all(color: Colors.black)),
                   child: Text(
                     "🔓 LOAD TASK",
-                    style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                    ),
+                    style: TextStyle(),
                   )),
             ),
           ),
@@ -1102,9 +1227,7 @@ class MainApp extends StatelessWidget {
                       BoxDecoration(border: Border.all(color: Colors.black)),
                   child: Text(
                     "💻 TASK ADMIN",
-                    style: TextStyle(
-                      fontFamily: "JetBrainMono",
-                    ),
+                    style: TextStyle(),
                   )),
             ),
           ),
