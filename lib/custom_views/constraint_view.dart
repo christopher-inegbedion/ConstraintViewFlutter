@@ -67,7 +67,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   Future getConstraintConfigurationInputs() async {
     IOWebSocketChannel channel1 = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/get_constraint_config_inputs");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/get_constraint_config_inputs");
     channel1.sink.add(jsonEncode({
       "constraint_name": constraintName,
       "stage_name": stageName,
@@ -96,7 +96,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   void listenForExternalAction() {
     IOWebSocketChannel channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/listen_external_action");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/listen_external_action");
     channel.sink.add(jsonEncode({
       "constraint_name": constraintName,
       "stage_name": stageName,
@@ -148,7 +148,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   void listenOnConstraintComplete() {
     IOWebSocketChannel channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/on_constraint_complete");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/on_constraint_complete");
 
     channel.sink.add(jsonEncode({
       "constraint_name": constraintName,
@@ -177,7 +177,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   void getNextConstraintDetails() {
     IOWebSocketChannel channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/get_next_constraint_or_stage");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/get_next_constraint_or_stage");
     channel.sink.add(jsonEncode({
       "user_id": userID,
       "task_id": taskID,
@@ -195,7 +195,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   void startCurrentConstraint() {
     final channel =
-        IOWebSocketChannel.connect("ws://192.168.1.129:4321/start_constraint1");
+        IOWebSocketChannel.connect("ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/start_constraint1");
 
     channel.sink.add(jsonEncode({
       "user_id": userID,
@@ -214,7 +214,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   void startNextConstraint() {
     final channel =
-        IOWebSocketChannel.connect("ws://192.168.1.129:4321/start_constraint1");
+        IOWebSocketChannel.connect("ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/start_constraint1");
 
     channel.sink.add(jsonEncode({
       "user_id": userID,
@@ -272,7 +272,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   void registerUserAsActive() {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/register_active_user");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/register_active_user");
 
     channel.sink.add(jsonEncode({
       "user_id": userID,
@@ -293,7 +293,7 @@ class _ConstraintViewState extends State<ConstraintView>
 
   void unRegisterUserAsActive() {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/unregister_active_user");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/unregister_active_user");
 
     channel.sink.add(jsonEncode({
       "user_id": userID,

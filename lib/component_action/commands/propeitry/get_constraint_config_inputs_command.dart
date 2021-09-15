@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
+import 'package:constraint_view/utils/network_functions.dart';
 import 'package:web_socket_channel/io.dart';
 
 class GetConstraintConfigInputsCommand extends ComponentActionCommand {
@@ -20,7 +21,7 @@ class GetConstraintConfigInputsCommand extends ComponentActionCommand {
     super.run(result);
     try {
       final channel = IOWebSocketChannel.connect(
-          "ws://192.168.1.129:4321/get_constraint_config_inputs");
+          "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/get_constraint_config_inputs");
 
       channel.sink.add(jsonEncode({
         "response": "INPUT_REQUIRED",

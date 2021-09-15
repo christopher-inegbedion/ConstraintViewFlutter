@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
+import 'package:constraint_view/utils/network_functions.dart';
 import 'package:web_socket_channel/io.dart';
 
 class ListenToConstraintConfigActionCommand extends ComponentActionCommand {
@@ -20,7 +21,7 @@ class ListenToConstraintConfigActionCommand extends ComponentActionCommand {
     super.run(result);
     try {
       IOWebSocketChannel channel = IOWebSocketChannel.connect(
-          "ws://192.168.1.129:4321/on_config_change");
+          "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/on_config_change");
 
       channel.sink.add(jsonEncode({
         "user_id":

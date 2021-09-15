@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
+import 'package:constraint_view/utils/network_functions.dart';
 import 'package:web_socket_channel/io.dart';
 
 class SendDataToWebSocketServerCommand extends ComponentActionCommand {
@@ -20,7 +21,7 @@ class SendDataToWebSocketServerCommand extends ComponentActionCommand {
     super.run(result);
     try {
       final channel = IOWebSocketChannel.connect(
-          "ws://192.168.1.129:4321/start_constraint2");
+          "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/start_constraint2");
       channel.sink.add(jsonEncode({
         "response": "INPUT_REQUIRED",
         "constraint_name": componentAction

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:constraint_view/component_action/component_action.dart';
 import 'package:constraint_view/component_action/component_action_command.dart';
+import 'package:constraint_view/utils/network_functions.dart';
 import 'package:web_socket_channel/io.dart';
 
 class SendListenDataCommand extends ComponentActionCommand {
@@ -23,7 +24,7 @@ class SendListenDataCommand extends ComponentActionCommand {
       dynamic commandData = getValue()[1];
 
       IOWebSocketChannel channel = IOWebSocketChannel.connect(
-          "ws://192.168.1.129:4321/send_listen_data");
+          "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/send_listen_data");
 
       channel.sink.add(jsonEncode({
         "user_id":

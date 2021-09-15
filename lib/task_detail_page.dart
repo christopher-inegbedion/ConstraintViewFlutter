@@ -38,7 +38,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
 
   Stream getActiveUsersForConstraint(String stageName, String constraintName) {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/get_constraint_active_users");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/get_constraint_active_users");
 
     channel.sink.add(jsonEncode({
       "task_id": taskID,
@@ -191,7 +191,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
 
   void initTaskDetails() {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/pipeline_session_admin_details");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/pipeline_session_admin_details");
 
     channel.sink.add(jsonEncode({"task_id": taskID}));
 
@@ -248,7 +248,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
 
   void disconnectTaskDetails() {
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/disconnect_task_details");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/disconnect_task_details");
 
     channel.sink.add(jsonEncode({"task_id": taskID}));
   }
@@ -258,7 +258,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
       List constraints = value;
       constraints.forEach((cName) {
         final channel = IOWebSocketChannel.connect(
-            "ws://192.168.1.129:4321/disconnect_from_constraint_active_users");
+            "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/disconnect_from_constraint_active_users");
 
         channel.sink.add(jsonEncode({
           "task_id": taskID,
@@ -276,7 +276,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
 
     initTaskDetails();
     final channel = IOWebSocketChannel.connect(
-        "ws://192.168.1.129:4321/connect_task_details");
+        "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/connect_task_details");
 
     channel.sink.add(jsonEncode({"task_id": taskID}));
 
@@ -319,7 +319,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
 
             pendingUsers.forEach((userId) {
               final channel = IOWebSocketChannel.connect(
-                  "ws://192.168.1.129:4321/pipeline_details");
+                  "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/pipeline_details");
 
               channel.sink
                   .add(jsonEncode({"task_id": taskID, "user_id": userId}));
@@ -363,7 +363,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
 
             completeUsers.forEach((userId) {
               final channel = IOWebSocketChannel.connect(
-                  "ws://192.168.1.129:4321/pipeline_details");
+                  "ws://${NetworkUtils.websocketAddr}:${NetworkUtils.websocketPortNum}/pipeline_details");
 
               channel.sink
                   .add(jsonEncode({"task_id": taskID, "user_id": userId}));
