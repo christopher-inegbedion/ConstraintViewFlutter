@@ -359,7 +359,7 @@ class _ConstraintViewState extends State<ConstraintView>
       onWillPop: () {
         if (admin) {
           return Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return TaskDeailPage(taskID);
+            return TaskDetailPage(taskID);
           }));
         } else {
           return Navigator.push(context, MaterialPageRoute(builder: (context) {

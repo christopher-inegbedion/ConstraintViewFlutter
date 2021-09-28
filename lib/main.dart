@@ -2,9 +2,13 @@ import 'dart:convert';
 
 import 'package:constraint_view/custom_views/task_view.dart';
 import 'package:constraint_view/models/section_data.dart';
+import 'package:constraint_view/register_account.dart';
 import 'package:constraint_view/task_detail_page.dart';
+import 'package:constraint_view/user_search.dart';
+import 'package:constraint_view/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'utils/network_functions.dart';
 
@@ -26,14 +30,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
   GlobalKey<FormState> formKey = GlobalKey();
-  String userID = Uuid().v4();
-  String taskID = "e6f4527c-1cb3-4bfb-a53c-73eb40ae9e94";
+
+  String userID;
+
   Map selectedProperties = {};
+
   Map finalSelectedProperties = {};
 
   double screenHeight;
+
   double screenWidth;
 
   Future showConstraintInDialog(
@@ -94,7 +106,8 @@ class MainApp extends StatelessWidget {
     return parsedData;
   }
 
-  void createStageGroupDialog(BuildContext context) {
+  void createStageGroupDialog(BuildContext context, String priceConstraint,
+      String priceConstraintStage) {
     List pendingConstraints = [];
     List activeConstraints = [];
     List completeConstraints = [];
@@ -329,6 +342,24 @@ class MainApp extends StatelessWidget {
                         ]
                       };
 
+                      //Add payment constraint to stage
+                      if (priceConstraintStage == "Pending") {
+                        pendingConstraints.add({
+                          "constraint_name": priceConstraint,
+                          "config_inputs": {}
+                        });
+                      } else if (priceConstraintStage == "Active") {
+                        activeConstraints.add({
+                          "constraint_name": priceConstraint,
+                          "config_inputs": {}
+                        });
+                      } else if (priceConstraintStage == "Complete") {
+                        completeConstraints.add({
+                          "constraint_name": priceConstraint,
+                          "config_inputs": {}
+                        });
+                      }
+
                       data = NetworkUtils.performNetworkAction(
                           NetworkUtils.serverAddr + NetworkUtils.portNum,
                           "/stage_group",
@@ -356,8 +387,6 @@ class MainApp extends StatelessWidget {
   }
 
   void loadTaskDialog(BuildContext context, bool admin) {
-    TaskView taskView = TaskView(taskID, userID);
-
     GlobalKey<FormState> formKey = GlobalKey();
     TextEditingController controller = TextEditingController();
 
@@ -424,7 +453,7 @@ class MainApp extends StatelessWidget {
                                           Navigator.of(context).push(
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      TaskDeailPage(
+                                                      TaskDetailPage(
                                                           tasks.elementAt(i))));
                                         } else {
                                           Navigator.push(context,
@@ -451,37 +480,6 @@ class MainApp extends StatelessWidget {
                   },
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(left: 30, right: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          if (formKey.currentState.validate()) {
-                            if (admin) {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => TaskDeailPage(taskID)));
-                            } else {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return TaskView(controller.text, userID);
-                              }));
-                            }
-                          }
-                        },
-                        child: Text("Load")),
-                    // TextButton(
-                    //     onPressed: () {
-                    //       Navigator.push(context,
-                    //           MaterialPageRoute(builder: (context) {
-                    //         return TaskView(taskID, userID);
-                    //       }));
-                    //     },
-                    //     child: Text("Load predefined")),
-                  ],
-                ),
-              )
             ],
           );
         });
@@ -569,7 +567,8 @@ class MainApp extends StatelessWidget {
       "task_name": "",
       "task_desc": "",
       "properties": jsonEncode({}),
-      "stage_group_id": ""
+      "stage_group_id": "",
+      "user_id": userID
     };
 
     GlobalKey<FormState> taskDetailsKey = GlobalKey();
@@ -1005,7 +1004,10 @@ class MainApp extends StatelessWidget {
                   child: TextButton(
                     child: Text("Create stage group"),
                     onPressed: () {
-                      createStageGroupDialog(context);
+                      if (priceConstraintKey.currentState.validate()) {
+                        createStageGroupDialog(context, priceConstraintValue,
+                            priceConstraintStage);
+                      }
                     },
                   ),
                 ),
@@ -1112,62 +1114,30 @@ class MainApp extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    //If the user is not registered, redirect them to the registration page
+    SharedPreferences.getInstance().then((prefs) {
+      String id = prefs.getString(Utils.sharedPrefsIdKey);
+      if (id == null) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return RegisterAccountPage();
+        }));
+      } else {
+        setState(() {
+          userID = id;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     Future.delayed(Duration.zero, () {
       screenHeight = MediaQuery.of(context).size.height;
       screenWidth = MediaQuery.of(context).size.width;
     });
-
-    Future<void> showConstraintInDialog(
-        String constraintName, String stageName) async {
-      Future<SectionData> sectionData = SectionData.forStatic(
-              stageName, constraintName, "taskID", "userID", null)
-          .fromConstraint(constraintName);
-      SectionData sData;
-
-      return showDialog<void>(
-          builder: (BuildContext context) {
-            return StatefulBuilder(builder: (context, setState) {
-              return AlertDialog(
-                scrollable: true,
-                content: Container(
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Container(
-                        width: screenWidth,
-                        height: screenHeight / 2,
-                        child: FutureBuilder(
-                            future: sectionData,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                sData = snapshot.data;
-                                sData.setInitialState("1");
-                                return sData.state.buildTopView();
-                              } else {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                            }))
-                  ]),
-                ),
-                actions: [
-                  TextButton(
-                      onPressed: () {
-                        if (sData.state.topViewController.state
-                                .savedValues["config_inputs"] !=
-                            null) {
-                          Navigator.pop(context, [
-                            sData.state.topViewController.state
-                                .savedValues["config_inputs"]
-                          ]);
-                        }
-                      },
-                      child: Text("Done"))
-                ],
-              );
-            });
-          },
-          context: context);
-    }
 
     return SafeArea(
         child: Scaffold(
@@ -1210,6 +1180,44 @@ class MainApp extends StatelessWidget {
                       BoxDecoration(border: Border.all(color: Colors.black)),
                   child: Text(
                     "🔓 LOAD TASK",
+                    style: TextStyle(),
+                  )),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 20),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return UserModePage();
+                }));
+              },
+              child: Container(
+                  padding:
+                      EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                  decoration:
+                      BoxDecoration(border: Border.all(color: Colors.black)),
+                  child: Text(
+                    "🔍 SEARCH",
+                    style: TextStyle(),
+                  )),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 20),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return RegisterAccountPage();
+                }));
+              },
+              child: Container(
+                  padding:
+                      EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                  decoration:
+                      BoxDecoration(border: Border.all(color: Colors.black)),
+                  child: Text(
+                    "📲 REGISTER",
                     style: TextStyle(),
                   )),
             ),

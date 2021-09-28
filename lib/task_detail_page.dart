@@ -8,16 +8,16 @@ import 'package:web_socket_channel/io.dart';
 
 import 'custom_views/constraint_view.dart';
 
-class TaskDeailPage extends StatefulWidget {
+class TaskDetailPage extends StatefulWidget {
   String taskID;
 
-  TaskDeailPage(this.taskID);
+  TaskDetailPage(this.taskID);
 
   @override
-  _TaskDeailPageState createState() => _TaskDeailPageState(taskID);
+  _TaskDetailPageState createState() => _TaskDetailPageState(taskID);
 }
 
-class _TaskDeailPageState extends State<TaskDeailPage>
+class _TaskDetailPageState extends State<TaskDetailPage>
     with WidgetsBindingObserver {
   String taskID;
   int liveSessionCount = 0;
@@ -33,7 +33,7 @@ class _TaskDeailPageState extends State<TaskDeailPage>
   Map completeConstraintsData = {};
   Map liveStagesAndConstraints = {};
 
-  _TaskDeailPageState(this.taskID);
+  _TaskDetailPageState(this.taskID);
 
 
   Stream getActiveUsersForConstraint(String stageName, String constraintName) {
