@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:constraint_view/main.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:constraint_view/utils/utils.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -113,6 +114,7 @@ class _UserModePageState extends State<UserModePage> {
   @override
   void initState() {
     super.initState();
+    
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
         userID = prefs.getString(Utils.sharedPrefsIdKey);

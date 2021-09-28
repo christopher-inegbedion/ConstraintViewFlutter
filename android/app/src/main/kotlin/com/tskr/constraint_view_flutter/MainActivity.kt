@@ -1,4 +1,4 @@
-package com.example.constraint_view
+package com.tskr.constraint_view_flutter
 
 import io.flutter.embedding.android.FlutterActivity
 

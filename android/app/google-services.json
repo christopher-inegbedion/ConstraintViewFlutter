@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:739957304807:android:3acb04ca7a2a926bf0a142",
+        "mobilesdk_app_id": "1:739957304807:android:ef88095939967ec5f0a142",
         "android_client_info": {
-          "package_name": "com.example.constraint_view"
+          "package_name": "com.tskr.constraint_view_flutter"
         }
       },
       "oauth_client": [

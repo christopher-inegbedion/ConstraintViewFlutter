@@ -6,11 +6,22 @@ import 'package:constraint_view/register_account.dart';
 import 'package:constraint_view/task_detail_page.dart';
 import 'package:constraint_view/user_search.dart';
 import 'package:constraint_view/utils/utils.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'utils/network_functions.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  print("Handling a background message: ${message.messageId}");
+}
 
 void main() {
   runApp(MyApp());
@@ -1116,6 +1127,41 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'constraint_admin_messages', // id
+      'Constraint admin messages', // title
+      'This channel is used for displaying admin messages.', // description
+      importance: Importance.max,
+    );
+
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        .createNotificationChannel(channel);
+
+    Utils.initializeFlutterFire().then((value) {
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
+
+      FirebaseMessaging.instance.subscribeToTopic('weather').whenComplete(() {
+        print("weather topic created");
+      });
+
+      FirebaseMessaging.instance.getToken().then((value) {
+        print("reg token: $value");
+      });
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+        print("message recieved");
+        print(event.notification.body);
+      });
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        print('Message clicked!');
+      });
+    });
 
     //If the user is not registered, redirect them to the registration page
     SharedPreferences.getInstance().then((prefs) {
