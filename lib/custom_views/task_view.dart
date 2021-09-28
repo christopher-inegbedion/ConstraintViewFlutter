@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:constraint_view/custom_views/constraints_list_view.dart';
 import 'package:constraint_view/main.dart';
+import 'package:constraint_view/user_search.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -286,7 +288,7 @@ class _TaskViewState extends State<TaskView> {
       return Container(
         height: 70,
         width: double.maxFinite,
-        color: Colors.black,
+        // color: Colors.black,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -297,7 +299,6 @@ class _TaskViewState extends State<TaskView> {
                   GestureDetector(
                     child: Icon(
                       Icons.grid_view,
-                      color: Colors.white,
                       size: 20,
                     ),
                     onTap: () {
@@ -431,9 +432,15 @@ class _TaskViewState extends State<TaskView> {
                                 height: 12,
                                 width: 12,
                                 child: CircularProgressIndicator())
-                            : Text("START",
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 12)),
+                            : Row(
+                                children: [
+                                  Text("START",
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 12)),
+                                  Icon(Icons.play_arrow_outlined,
+                                      color: Colors.green)
+                                ],
+                              ),
                       ))
           ],
         ),
@@ -442,7 +449,7 @@ class _TaskViewState extends State<TaskView> {
 
     return Scaffold(
       body: Container(
-        color: Colors.black,
+        color: Colors.white,
         child: FutureBuilder(
           future: getTaskData(),
           builder: (context, snapshot) {
@@ -466,9 +473,9 @@ class _TaskViewState extends State<TaskView> {
                                 Container(
                                   child: Text(
                                     data["name"],
-                                    style: TextStyle(
+                                    style: GoogleFonts.sora(
                                         fontSize: 30,
-                                        color: Colors.white,
+                                        // color: Colors.white,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -476,7 +483,7 @@ class _TaskViewState extends State<TaskView> {
                                   margin: EdgeInsets.only(top: 5, bottom: 30),
                                   child: Text(
                                     data["desc"],
-                                    style: TextStyle(
+                                    style: GoogleFonts.sora(
                                       fontSize: 20,
                                       color: Colors.grey[500],
                                     ),
@@ -485,19 +492,30 @@ class _TaskViewState extends State<TaskView> {
                               ],
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.only(
-                                top: 5, bottom: 5, left: 2, right: 2),
-                            // decoration: BoxDecoration(
-                            //     borderRadius: BorderRadius.circular(10),
-                            //     border: Border.all(color: Colors.grey[300])),
-                            margin: EdgeInsets.only(right: 30),
-                            child: GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => MainApp()));
-                                },
-                                child: Icon(Icons.home, color: Colors.white)),
+                          Row(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(right: 30),
+                                child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) => MainApp()));
+                                    },
+                                    child: Icon(Icons.developer_mode)),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(right: 30),
+                                child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  UserModePage()));
+                                    },
+                                    child: Icon(Icons.search)),
+                              ),
+                            ],
                           )
                         ],
                       ),
@@ -518,7 +536,7 @@ class _TaskViewState extends State<TaskView> {
                               EdgeInsets.only(left: 40, right: 40, bottom: 20),
                           child: Text(
                             "Task with ID: $taskID cannot be found",
-                            style: TextStyle(color: Colors.white),
+                            // style: TextStyle(color: Colors.white),
                             textAlign: TextAlign.center,
                           )),
                       newTaskIdInput
@@ -535,7 +553,7 @@ class _TaskViewState extends State<TaskView> {
                     Center(
                         child: Text(
                       "An error occured. Try again",
-                      style: TextStyle(color: Colors.white),
+                      // style: TextStyle(color: Colors.white),
                     ))
                   ],
                 ),
