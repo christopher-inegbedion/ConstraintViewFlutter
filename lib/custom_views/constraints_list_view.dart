@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -193,99 +194,83 @@ class _ConstraintsListState extends State<ConstraintsListView> {
 
     Widget buildConstraintNormalView(
         String constraintName, String constraintDesc, bool isRequired) {
-      return InkWell(
-        onTap: () {
-          if (activeConstraint == "") {
-            startConstraint(constraintName, false);
-          } else {
-            if (activeConstraint == constraintName) {
-              startConstraint(constraintName, true);
+      return Container(
+        width: 300,
+        padding: EdgeInsets.only(
+          top: 15,
+          bottom: 15,
+        ),
+        margin: EdgeInsets.only(left: 20, right: 10, bottom: 20),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey[200]),
+            borderRadius: BorderRadius.circular(7)),
+        child: InkWell(
+          onTap: () {
+            if (activeConstraint == "") {
+              startConstraint(constraintName, false);
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text("Constraint is not active"),
-              ));
+              if (activeConstraint == constraintName) {
+                startConstraint(constraintName, true);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Constraint is not active"),
+                ));
+              }
             }
-          }
-        },
-        splashColor: Colors.black,
-        child: Container(
-          width: 300,
-          margin: EdgeInsets.only(left: 20, right: 10),
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                end: Alignment(
-                    0.8, 0.0), // 10% of the width, so there are ten blinds.
-                colors: <Color>[HexColor("#FF512F"), HexColor("#DD2476")],
-              ),
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(7)),
-          child: Stack(
+          },
+          splashColor: Colors.black,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              //Constraint information
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  width: 80,
+                  margin: EdgeInsets.only(right: 10, bottom: 5),
+                  child: Align(
+                      child: Text(
+                    isRequired ? "REQUIRED" : "VIEW ONLY",
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red),
+                    textAlign: TextAlign.right,
+                  )),
+                ),
+              ),
+
+              //Constraint helper image
+              Expanded(
+                  child: Placeholder(
+                color: Colors.grey[100],
+              )),
+
+              //Constraint name and description
               Container(
-                margin: EdgeInsets.only(left: 20, top: 20),
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(left: 20, top: 20, right: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      margin: EdgeInsets.only(right: 20),
                       child: Text(
                         constraintName,
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: GoogleFonts.sora(fontSize: 20),
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(top: 5, right: 20),
+                      margin: EdgeInsets.only(top: 5),
                       child: Text(
                         constraintDesc,
-                        style: TextStyle(fontSize: 13, color: Colors.grey[200]),
+                        style: GoogleFonts.sora(
+                            fontSize: 13, color: Colors.grey[500]),
                       ),
                     )
                   ],
                 ),
               ),
-              isRequired
-                  ? Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[400], width: 1),
-                          color: Colors.white,
-                        ),
-                        height: 23,
-                        width: 78,
-                        margin: EdgeInsets.only(right: 10, bottom: 10),
-                        child: Align(
-                            child: Text(
-                          "REQUIRED",
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red),
-                          textAlign: TextAlign.center,
-                        )),
-                      ),
-                    )
-                  : Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[400], width: 1),
-                          color: Colors.white,
-                        ),
-                        height: 23,
-                        width: 78,
-                        margin: EdgeInsets.only(right: 10, bottom: 10),
-                        child: Align(
-                            child: Text(
-                          "VIEW ONLY",
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red),
-                          textAlign: TextAlign.center,
-                        )),
-                      ),
-                    )
             ],
           ),
         ),
