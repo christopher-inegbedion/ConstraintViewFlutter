@@ -346,7 +346,6 @@ class _TaskViewState extends State<TaskView> {
                                         "CONSTRAINT ACTIVE",
                                         style: TextStyle(
                                             fontSize: 13,
-                                            color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
@@ -354,9 +353,7 @@ class _TaskViewState extends State<TaskView> {
                                       margin: EdgeInsets.only(),
                                       child: Text(
                                         currentConstraint,
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.greenAccent),
+                                        style: TextStyle(fontSize: 13),
                                       ),
                                     ),
                                   ],

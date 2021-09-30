@@ -14,6 +14,8 @@ class NetworkUtils {
       response = await http.Client().get(Uri.http(addr, path));
     } else if (method == "post") {
       response = await http.Client().post(Uri.http(addr, path), body: data);
+    } else if (method == "patch") {
+      response = await http.Client().patch(Uri.http(addr, path), body: data);
     }
 
     if (response.statusCode == 200) {

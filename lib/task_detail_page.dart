@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:constraint_view/main.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,7 +35,6 @@ class _TaskDetailPageState extends State<TaskDetailPage>
   Map liveStagesAndConstraints = {};
 
   _TaskDetailPageState(this.taskID);
-
 
   Stream getActiveUsersForConstraint(String stageName, String constraintName) {
     final channel = IOWebSocketChannel.connect(
@@ -184,7 +184,9 @@ class _TaskDetailPageState extends State<TaskDetailPage>
         taskID,
         userID,
         true,
+        false,
         customViewName: constraintName + "_admin",
+        alreadyActive: false,
       );
     }));
   }
@@ -429,12 +431,29 @@ class _TaskDetailPageState extends State<TaskDetailPage>
     return SafeArea(
         child: Scaffold(
             body: Container(
-      margin: EdgeInsets.only(top: 20),
-      padding: EdgeInsets.only(top: 20, left: 20, right: 20),
+      // margin: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.only(left: 20, right: 20),
       child: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Container(
+                alignment: Alignment.centerRight,
+                margin: EdgeInsets.only(top: 10, right: 20),
+                child: IconButton(
+                  tooltip: "Dev mode",
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return MainApp();
+                    }));
+                  },
+                  icon: Icon(
+                    Icons.developer_mode,
+                    size: 20,
+                  ),
+                )),
             Container(
                 child: Text(
               "Task ID:",

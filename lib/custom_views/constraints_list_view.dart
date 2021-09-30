@@ -103,17 +103,26 @@ class _ConstraintsListState extends State<ConstraintsListView> {
     stageGroupID = id;
   }
 
-  void startConstraint(String constraintName, bool alreadyActive) {
-    if (stageStarted) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return ConstraintView(
-            constraintName, currentStage, stageGroupID, taskID, userID, false,
-            alreadyActive: alreadyActive);
-      }));
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Constraint has not started')));
-    }
+  void startConstraint(
+      String constraintName, bool alreadyActive, bool preview) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return ConstraintView(constraintName, currentStage, stageGroupID, taskID,
+          userID, false, preview,
+          alreadyActive: alreadyActive);
+    }));
+
+    // if (preview) {
+    //   if (stageStarted) {
+    //     Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //       return ConstraintView(constraintName, currentStage, stageGroupID,
+    //           taskID, userID, false, preview,
+    //           alreadyActive: alreadyActive);
+    //     }));
+    //   } else {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //         SnackBar(content: Text('Constraint has not started')));
+    //   }
+    // }
   }
 
   void showConstraintCompleteDialog(String msg) {
@@ -208,14 +217,12 @@ class _ConstraintsListState extends State<ConstraintsListView> {
         child: InkWell(
           onTap: () {
             if (activeConstraint == "") {
-              startConstraint(constraintName, false);
+              startConstraint(constraintName, false, false);
             } else {
               if (activeConstraint == constraintName) {
-                startConstraint(constraintName, true);
+                startConstraint(constraintName, true, false);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("Constraint is not active"),
-                ));
+                startConstraint(constraintName, true, true);
               }
             }
           },
@@ -303,6 +310,7 @@ class _ConstraintsListState extends State<ConstraintsListView> {
             } else if (viewMode == "normal") {
               return Expanded(
                 child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     child: ListView.builder(
                         itemCount: constraints.length,

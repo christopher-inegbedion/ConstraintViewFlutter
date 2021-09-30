@@ -4,6 +4,7 @@ import 'package:constraint_view/user_search.dart';
 import 'package:constraint_view/utils/network_functions.dart';
 import 'package:constraint_view/utils/utils.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,16 +27,36 @@ class _RegisterAccountPageState extends State<RegisterAccountPage> {
     } catch (e) {}
   }
 
-  void registerAccount(String email, String password) async {
+  void registerAccount(String name, String email, String password) async {
     FirebaseAuth auth = FirebaseAuth.instance;
 
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return UserModePage();
-      }));
+      String notificationTokenID = await FirebaseMessaging.instance.getToken();
+
+      Map<String, String> userData = {
+        "id": userCredential.user.uid,
+        "name": name,
+        "email": email,
+        "notification_id": notificationTokenID
+      };
+
+      Future<dynamic> data = NetworkUtils.performNetworkAction(
+          NetworkUtils.serverAddr + NetworkUtils.portNum,
+          "/create_user",
+          "post",
+          data: userData);
+
+      data.onError((error, stackTrace) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Server error. Try again later.")));
+      }).whenComplete(() {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return UserModePage();
+        }));
+      });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -48,7 +69,8 @@ class _RegisterAccountPageState extends State<RegisterAccountPage> {
             .showSnackBar(SnackBar(content: Text("An error occured")));
       }
     } catch (e) {
-      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("An error when creating account. Try again.")));
     }
   }
 
@@ -145,7 +167,7 @@ class _RegisterAccountPageState extends State<RegisterAccountPage> {
                     child: TextButton(
                         onPressed: () async {
                           if (registerKey.currentState.validate()) {
-                            registerAccount(
+                            registerAccount(nameController.text,
                                 emailController.text, passwordController.text);
                           }
                         },
@@ -250,9 +272,26 @@ class _RegisterAccountPageState extends State<RegisterAccountPage> {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return UserModePage();
-      }));
+      //When a user logs in their notification ID might need to be updated. The notification token resets
+      //when the cache is cleared, the user uninstalls the app or the app is installed on a new device
+      Map<String, String> updatedNotificationTokenID = {
+        "notification_id": await FirebaseMessaging.instance.getToken()
+      };
+
+      Future<dynamic> data = NetworkUtils.performNetworkAction(
+          NetworkUtils.serverAddr + NetworkUtils.portNum,
+          "/update_user/${userCredential.user.uid}/notification_id",
+          "patch",
+          data: updatedNotificationTokenID);
+
+      data.onError((error, stackTrace) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Server error occured. Try again later.")));
+      }).whenComplete(() {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return UserModePage();
+        }));
+      });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:constraint_view/components_test_page.dart';
 import 'package:constraint_view/custom_views/task_view.dart';
 import 'package:constraint_view/models/section_data.dart';
 import 'package:constraint_view/register_account.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.jetBrainsMonoTextTheme(),
           primarySwatch: Colors.blue,
         ),
-        home: MainApp());
+        home: ComponentsTestPage());
   }
 }
 
@@ -117,7 +118,7 @@ class _MainAppState extends State<MainApp> {
     return parsedData;
   }
 
-  void createStageGroupDialog(BuildContext context, String priceConstraint,
+  Future createStageGroupDialog(BuildContext context, String priceConstraint,
       String priceConstraintStage) {
     List pendingConstraints = [];
     List activeConstraints = [];
@@ -128,7 +129,7 @@ class _MainAppState extends State<MainApp> {
     Future<dynamic> data;
     String stageID;
 
-    showDialog<void>(
+    return showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
@@ -142,200 +143,159 @@ class _MainAppState extends State<MainApp> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              content: !isFormCompleted
-                  ? Container(
-                      width: double.maxFinite,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(left: 20),
-                            child: Text("Select constraints for each stage"),
+              content: Container(
+                  width: double.maxFinite,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 20),
+                        child: Text("Select constraints for each stage"),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 20),
+                        alignment: Alignment.centerLeft,
+                        child: DropdownButton<String>(
+                          value: constraintViewing,
+                          icon: const Icon(Icons.arrow_downward),
+                          iconSize: 24,
+                          elevation: 16,
+                          underline: Container(
+                            height: 2,
+                            color: Colors.blueAccent,
                           ),
-                          Container(
-                            margin: EdgeInsets.only(left: 20),
-                            alignment: Alignment.centerLeft,
-                            child: DropdownButton<String>(
-                              value: constraintViewing,
-                              icon: const Icon(Icons.arrow_downward),
-                              iconSize: 24,
-                              elevation: 16,
-                              underline: Container(
-                                height: 2,
-                                color: Colors.blueAccent,
-                              ),
-                              onChanged: (String newValue) {
-                                if (newValue == "Pending") {
-                                  stageSelecting = pendingConstraints;
-                                } else if (newValue == "Active") {
-                                  stageSelecting = activeConstraints;
-                                } else if (newValue == "Complete") {
-                                  stageSelecting = completeConstraints;
-                                }
-                                setstate(() {
-                                  constraintViewing = newValue;
-                                });
-                              },
-                              items: <String>[
-                                'Pending',
-                                'Active',
-                                'Complete'
-                              ].map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                          FutureBuilder(
-                            future: getAllConstraints(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                Map<String, dynamic> data = snapshot.data;
-                                List allConstraints = data["constraints"];
+                          onChanged: (String newValue) {
+                            if (newValue == "Pending") {
+                              stageSelecting = pendingConstraints;
+                            } else if (newValue == "Active") {
+                              stageSelecting = activeConstraints;
+                            } else if (newValue == "Complete") {
+                              stageSelecting = completeConstraints;
+                            }
+                            setstate(() {
+                              constraintViewing = newValue;
+                            });
+                          },
+                          items: <String>['Pending', 'Active', 'Complete']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      FutureBuilder(
+                        future: getAllConstraints(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            Map<String, dynamic> data = snapshot.data;
+                            List allConstraints = data["constraints"];
 
-                                //constraints for payment should not be among the constraints the user
-                                //can select
-                                allConstraints.removeWhere((constraint) {
-                                  bool isPaymentConstraint =
-                                      constraint["for_payment"];
-                                  return isPaymentConstraint;
-                                });
+                            //constraints for payment should not be among the constraints the user
+                            //can select
+                            allConstraints.removeWhere((constraint) {
+                              bool isPaymentConstraint =
+                                  constraint["for_payment"];
+                              return isPaymentConstraint;
+                            });
 
-                                return Container(
-                                  height: 300,
-                                  margin: EdgeInsets.only(top: 30),
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: allConstraints.length,
-                                    itemBuilder: (context, index) {
-                                      String constraintName =
-                                          allConstraints[index]
-                                              ["constraint_name"];
-                                      bool isConstraintConfigRequired =
-                                          allConstraints[index][
-                                              "is_configuration_input_required"];
-                                      bool selected = false;
+                            return Container(
+                              height: 300,
+                              margin: EdgeInsets.only(top: 30),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: allConstraints.length,
+                                itemBuilder: (context, index) {
+                                  String constraintName =
+                                      allConstraints[index]["constraint_name"];
+                                  bool isConstraintConfigRequired =
+                                      allConstraints[index]
+                                          ["is_configuration_input_required"];
+                                  bool selected = false;
 
-                                      //highlight a constraint if selected
-                                      for (Map m in stageSelecting) {
-                                        if (m["constraint_name"] ==
-                                            constraintName) {
-                                          selected = true;
-                                        }
-                                      }
-                                      return Column(
-                                        children: [
-                                          ListTile(
-                                            onTap: () {
-                                              Map<String, dynamic>
-                                                  configInputs = {};
-                                              if (isConstraintConfigRequired) {
-                                                showConstraintInDialog(
-                                                        context,
-                                                        constraintName +
-                                                            "_config",
-                                                        "")
-                                                    .then((value) {
-                                                  print(value);
+                                  //highlight a constraint if selected
+                                  for (Map m in stageSelecting) {
+                                    if (m["constraint_name"] ==
+                                        constraintName) {
+                                      selected = true;
+                                    }
+                                  }
+                                  return Column(
+                                    children: [
+                                      ListTile(
+                                        onTap: () {
+                                          Map<String, dynamic> configInputs =
+                                              {};
+                                          if (isConstraintConfigRequired) {
+                                            showConstraintInDialog(
+                                                    context,
+                                                    constraintName + "_config",
+                                                    "")
+                                                .then((value) {
+                                              print(value);
+                                            });
+                                          }
+                                          setstate(() {
+                                            int index = 0;
+                                            bool found = false;
+                                            if (stageSelecting.length > 0) {
+                                              for (Map constraintMap
+                                                  in stageSelecting) {
+                                                if (constraintMap[
+                                                        "constraint_name"] ==
+                                                    constraintName) {
+                                                  found = true;
+                                                  break;
+                                                }
+                                                index++;
+                                              }
+
+                                              if (found) {
+                                                stageSelecting.removeAt(index);
+                                              } else {
+                                                stageSelecting.add({
+                                                  "constraint_name":
+                                                      constraintName,
+                                                  "config_inputs": configInputs
                                                 });
                                               }
-                                              setstate(() {
-                                                int index = 0;
-                                                bool found = false;
-                                                if (stageSelecting.length > 0) {
-                                                  for (Map constraintMap
-                                                      in stageSelecting) {
-                                                    if (constraintMap[
-                                                            "constraint_name"] ==
-                                                        constraintName) {
-                                                      found = true;
-                                                      break;
-                                                    }
-                                                    index++;
-                                                  }
-
-                                                  if (found) {
-                                                    stageSelecting
-                                                        .removeAt(index);
-                                                  } else {
-                                                    stageSelecting.add({
-                                                      "constraint_name":
-                                                          constraintName,
-                                                      "config_inputs":
-                                                          configInputs
-                                                    });
-                                                  }
-                                                } else {
-                                                  stageSelecting.add({
-                                                    "constraint_name":
-                                                        constraintName,
-                                                    "config_inputs":
-                                                        configInputs
-                                                  });
-                                                }
+                                            } else {
+                                              stageSelecting.add({
+                                                "constraint_name":
+                                                    constraintName,
+                                                "config_inputs": configInputs
                                               });
-                                            },
-                                            selected: selected,
-                                            title: Text(
-                                              constraintName,
-                                              style: TextStyle(),
-                                            ),
-                                            subtitle: Text(
-                                              allConstraints[index]
-                                                  ["constraint_desc"],
-                                              style: TextStyle(),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                );
-                              } else {
-                                return CircularProgressIndicator();
-                              }
-                            },
-                          )
-                        ],
-                      ))
-                  : FutureBuilder(
-                      future: data,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          Map<String, dynamic> decodedData =
-                              jsonDecode(snapshot.data);
-
-                          if (decodedData != null) {
-                            stageID = decodedData["msg"];
-                            return Container(
-                              height: 100,
-                              child: Center(
-                                child: SelectableText(
-                                    "Stage with ID: $stageID created",
-                                    style: TextStyle()),
+                                            }
+                                          });
+                                        },
+                                        selected: selected,
+                                        title: Text(
+                                          constraintName,
+                                          style: TextStyle(),
+                                        ),
+                                        subtitle: Text(
+                                          allConstraints[index]
+                                              ["constraint_desc"],
+                                          style: TextStyle(),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             );
                           } else {
-                            return Container(
-                              height: 100,
-                              child: Center(
-                                child: Text("An error occured",
-                                    style: TextStyle()),
-                              ),
-                            );
+                            return CircularProgressIndicator();
                           }
-                        } else {
-                          return SizedBox(
-                              height: 10, child: LinearProgressIndicator());
-                        }
-                      },
-                    ),
+                        },
+                      )
+                    ],
+                  )),
               actions: <Widget>[
                 TextButton(
                     child: const Text('Approve'),
-                    onPressed: () {
+                    onPressed: () async {
                       var dataToSend = {
                         "stages": [
                           {
@@ -376,10 +336,11 @@ class _MainAppState extends State<MainApp> {
                           "/stage_group",
                           "post",
                           data: jsonEncode(dataToSend));
+                      stageID = jsonDecode(await data)["msg"];
 
-                      setstate(() {
-                        isFormCompleted = true;
-                      });
+                      print(stageID);
+
+                      Navigator.pop(context, stageID);
                     }),
               ],
             );
@@ -566,12 +527,10 @@ class _MainAppState extends State<MainApp> {
   }
 
   Future<void> createTaskDialog(BuildContext context) async {
-    int _value = 1;
-    List<Widget> views = [];
-    List selections = [];
     String currencySelection;
     String priceConstraintValue;
     String priceConstraintStage = "Pending";
+    String stageGroupID;
     List<bool> pricingStageSelections = [true, false, false];
 
     dynamic dataToSend = {
@@ -1016,8 +975,13 @@ class _MainAppState extends State<MainApp> {
                     child: Text("Create stage group"),
                     onPressed: () {
                       if (priceConstraintKey.currentState.validate()) {
-                        createStageGroupDialog(context, priceConstraintValue,
-                            priceConstraintStage);
+                        setState(() {
+                          createStageGroupDialog(context, priceConstraintValue,
+                                  priceConstraintStage)
+                              .then((value) {
+                            stageGroupIdController.text = value;
+                          });
+                        });
                       }
                     },
                   ),
@@ -1146,20 +1110,22 @@ class _MainAppState extends State<MainApp> {
       FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler);
 
-      FirebaseMessaging.instance.subscribeToTopic('weather').whenComplete(() {
-        print("weather topic created");
-      });
-
       FirebaseMessaging.instance.getToken().then((value) {
         print("reg token: $value");
       });
 
+      
+
       FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-        print("message recieved");
-        print(event.notification.body);
+        Map data = event.data;
       });
       FirebaseMessaging.onMessageOpenedApp.listen((message) {
-        print('Message clicked!');
+        Map data = message.data;
+
+        if (data["type"] == "constraint_complete") {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => TaskDetailPage(data["task_id"])));
+        }
       });
     });
 
